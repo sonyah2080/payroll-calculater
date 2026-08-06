@@ -1,14 +1,3 @@
-$primary-color: #2563eb;
-$primary-hover: #1d4ed8;
-$bg-body: #f8fafc;
-$bg-card: #ffffff;
-$bg-tab: #f1f5f9;
-$bg-blue-light: #eff6ff;
-$border-blue: #dbeafe;
-$text-main: #0f172a;
-$text-sub: #475569;
-$border-color: #e2e8f0;
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -17,202 +6,206 @@ $border-color: #e2e8f0;
 }
 
 body {
-  background-color: $bg-body;
+  background-color: #f8fafc !important;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* center 대신 flex-start로 고정하여 결과 생성 시 상단 흔들림 방지 */
+  align-items: flex-start;
   min-height: 100vh;
-  padding: 40px 20px;
-  color: $text-main;
+  padding: 30px 16px;
+  color: #0f172a;
 }
 
 .calculator-card {
-  background: $bg-card;
+  background: #ffffff !important;
   width: 100%;
   max-width: 480px;
   padding: 28px;
   border-radius: 20px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
-  border: 1px solid $border-color;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
 
-  .header {
-    text-align: center;
-    margin-bottom: 24px;
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
 
-    h1 {
-      font-size: 22px;
-      font-weight: 700;
-      color: $text-main;
-    }
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a !important;
+}
 
-    p {
-      font-size: 13px;
-      color: #64748b;
-      margin-top: 4px;
-    }
-  }
+.header p {
+  font-size: 13px;
+  color: #64748b !important;
+  margin-top: 4px;
+}
 
-  .tab-group {
-    display: flex;
-    background: $bg-tab;
-    padding: 4px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    border: 1px solid $border-color;
+/* 탭 버튼 디자인 */
+.tab-group {
+  display: flex;
+  background: #f1f5f9 !important;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
 
-    .tab-btn {
-      flex: 1;
-      padding: 12px 8px;
-      border: none;
-      background: transparent;
-      font-size: 14px;
-      font-weight: 600;
-      color: #64748b;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: center;
+.tab-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b !important;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
 
-      &.active {
-        background: $bg-card;
-        color: $text-main;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-        font-weight: 700;
-      }
-    }
-  }
+.tab-btn.active {
+  background: #ffffff !important;
+  color: #2563eb !important; /* 활성화 탭 파란색 지정 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
 
-  .form-group {
-    margin-bottom: 18px;
+/* 폼 입력창 */
+.form-group {
+  margin-bottom: 18px;
+}
 
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: $text-sub;
-      margin-bottom: 8px;
-    }
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569 !important;
+  margin-bottom: 8px;
+}
 
-    input {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 15px;
-      outline: none;
-      background-color: #fff;
-      color: $text-main;
-      transition: border-color 0.2s;
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  transition: border-color 0.2s;
+}
 
-      &:focus {
-        border-color: $primary-color;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-      }
-    }
-  }
+.form-group input:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
 
-  .btn-submit {
-    width: 100%;
-    padding: 15px;
-    background: $primary-color;
-    color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: background 0.2s;
+/* 메인 파란색 계산하기 버튼 (색상 강제 적용) */
+.btn-submit {
+  width: 100%;
+  padding: 15px;
+  background-color: #2563eb !important; /* 강제 파란색 */
+  color: #ffffff !important;           /* 강제 흰색 글자 */
+  border: none !important;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s;
+}
 
-    &:hover {
-      background: $primary-hover;
-    }
-  }
+.btn-submit:hover {
+  background-color: #1d4ed8 !important;
+}
 
-  /* 애니메이션 적용 및 레이아웃 튀김 방지 */
-  .result-section {
-    margin-top: 28px;
-    padding-top: 24px;
-    border-top: 2px dashed $border-color;
-    display: none;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+/* 결과 출력 영역 */
+.result-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 2px dashed #e2e8f0;
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
 
-    &.show {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
+.result-section.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
 
-    .summary-card {
-      margin-bottom: 20px;
-      padding: 4px 0;
+.summary-card {
+  margin-bottom: 20px;
+  padding: 4px 0;
+}
 
-      .summary-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        white-space: nowrap; /* 줄바꿈으로 인한 높이 변화 방지 */
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  white-space: nowrap;
+}
 
-        &.main {
-          font-size: 20px;
-          font-weight: 800;
-          color: #1e3a8a;
-          margin-bottom: 8px;
-        }
+.summary-row.main {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e3a8a !important;
+  margin-bottom: 8px;
+}
 
-        &.extra {
-          font-size: 14px;
-          font-weight: 600;
-          color: $primary-color;
-        }
-      }
-    }
+.summary-row.extra {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb !important;
+}
 
-    .detail-box {
-      background: $bg-blue-light;
-      border: 1px solid $border-blue;
-      border-radius: 16px;
-      padding: 20px;
+/* 하단 공제 상세 내역 파란색 카드 영역 */
+.detail-box {
+  background-color: #eff6ff !important;
+  border: 1px solid #dbeafe !important;
+  border-radius: 16px;
+  padding: 20px;
+}
 
-      .detail-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: #1e3a8a;
-        margin-bottom: 14px;
-      }
+.detail-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a8a !important;
+  margin-bottom: 14px;
+}
 
-      .detail-list {
-        list-style: none;
+.detail-list {
+  list-style: none;
+}
 
-        .detail-item {
-          display: flex;
-          justify-content: space-between;
-          padding: 8px 0;
-          font-size: 14px;
-          color: #334155;
-          white-space: nowrap;
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #334155 !important;
+  white-space: nowrap;
+}
 
-          .amount {
-            font-weight: 600;
-            color: $text-main;
-          }
-        }
-      }
+.detail-item .amount {
+  font-weight: 600;
+  color: #0f172a !important;
+}
 
-      .total-deduction-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px dashed #bfdbfe;
-        font-size: 15px;
-        font-weight: 700;
-        color: #1e40af;
-        white-space: nowrap;
-      }
-    }
-  }
+.total-deduction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #bfdbfe;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e40af !important;
+  white-space: nowrap;
 }
