@@ -335,6 +335,7 @@
           <span>건강보험 (3.545%)</span>
           <span class="amount" id="resHi">0 원</span>
         </li>
+        <!-- 고용보험을 장기요양보험 위로 이동 -->
         <li class="detail-item">
           <span>고용보험 (0.9%)</span>
           <span class="amount" id="resEi">0 원</span>
@@ -343,7 +344,6 @@
           <span>장기요양보험 (건보료의 12.95%)</span>
           <span class="amount" id="resLt">0 원</span>
         </li>
-
         <li class="detail-item">
           <span>소득세 (근로소득 간이세액)</span>
           <span class="amount" id="resIt">0 원</span>
@@ -418,7 +418,6 @@
     const taxFree = parseCurrency(document.getElementById('taxFree').value);
     const dependents = parseInt(document.getElementById('dependents').value) || 1;
 
-    // 체크박스 상태 확인
     const isNpChecked = document.getElementById('chkNp').checked;
     const isHiChecked = document.getElementById('chkHi').checked;
     const isEiChecked = document.getElementById('chkEi').checked;
@@ -429,17 +428,11 @@
     function compute(g) {
       const taxable = Math.max(0, g - taxFree);
       
-      // 국민연금 (체크 시에만 적용, 상한액 6,170,000원 적용)
       np = isNpChecked ? floor10(Math.min(taxable, 6170000) * 0.045) : 0;
-      
-      // 건강보험 및 장기요양보험 (체크 시에만 적용)
       hi = isHiChecked ? floor10(taxable * 0.03545) : 0;
       lt = isHiChecked ? floor10(hi * 0.1295) : 0;
-      
-      // 고용보험 (체크 시에만 적용)
       ei = isEiChecked ? floor10(taxable * 0.009) : 0;
 
-      // 소득세 간이세액 계산
       let base = Math.max(0, taxable - (dependents - 1) * 100000);
       let rawIt = 0;
       if (base <= 1060000) rawIt = 0;
@@ -487,8 +480,8 @@
 
     document.getElementById('resNp').innerText = fmt(np);
     document.getElementById('resHi').innerText = fmt(hi);
-    document.getElementById('resLt').innerText = fmt(lt);
     document.getElementById('resEi').innerText = fmt(ei);
+    document.getElementById('resLt').innerText = fmt(lt);
     document.getElementById('resIt').innerText = fmt(it);
     document.getElementById('resLtTax').innerText = fmt(localTax);
 
