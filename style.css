@@ -1,4 +1,14 @@
-@charset "UTF-8";
+$primary-color: #2563eb;
+$primary-hover: #1d4ed8;
+$bg-body: #f8fafc;
+$bg-card: #ffffff;
+$bg-tab: #f1f5f9;
+$bg-blue-light: #eff6ff;
+$border-blue: #dbeafe;
+$text-main: #0f172a;
+$text-sub: #475569;
+$border-color: #e2e8f0;
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,169 +17,202 @@
 }
 
 body {
-  background-color: #f8fafc;
+  background-color: $bg-body;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* center 대신 flex-start로 고정하여 결과 생성 시 상단 흔들림 방지 */
   min-height: 100vh;
-  padding: 20px;
-  color: #0f172a;
+  padding: 40px 20px;
+  color: $text-main;
 }
 
 .calculator-card {
-  background: #ffffff;
+  background: $bg-card;
   width: 100%;
   max-width: 480px;
   padding: 28px;
   border-radius: 20px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-}
-.calculator-card .header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-.calculator-card .header h1 {
-  font-size: 22px;
-  font-weight: 700;
-  color: #0f172a;
-}
-.calculator-card .header p {
-  font-size: 13px;
-  color: #64748b;
-  margin-top: 4px;
-}
-.calculator-card .tab-group {
-  display: flex;
-  background: #f1f5f9;
-  padding: 4px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  border: 1px solid #e2e8f0;
-}
-.calculator-card .tab-group .tab-btn {
-  flex: 1;
-  padding: 12px 8px;
-  border: none;
-  background: transparent;
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-.calculator-card .tab-group .tab-btn.active {
-  background: #ffffff;
-  color: #0f172a;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  font-weight: 700;
-}
-.calculator-card .form-group {
-  margin-bottom: 18px;
-}
-.calculator-card .form-group label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  margin-bottom: 8px;
-}
-.calculator-card .form-group input {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 15px;
-  outline: none;
-  background-color: #fff;
-  color: #0f172a;
-  transition: border-color 0.2s;
-}
-.calculator-card .form-group input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-.calculator-card .btn-submit {
-  width: 100%;
-  padding: 15px;
-  background: #2563eb;
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background 0.2s;
-}
-.calculator-card .btn-submit:hover {
-  background: #1d4ed8;
-}
-.calculator-card .result-section {
-  margin-top: 28px;
-  padding-top: 24px;
-  border-top: 2px dashed #e2e8f0;
-  display: none;
-  /* 상단 요약 영역 */
-  /* 하단 공제 상세 내역 박스 (파란색 연한 배경 + 테두리 디자인 적용) */
-}
-.calculator-card .result-section .summary-card {
-  margin-bottom: 20px;
-  padding: 4px 0;
-}
-.calculator-card .result-section .summary-card .summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.calculator-card .result-section .summary-card .summary-row.main {
-  font-size: 20px;
-  font-weight: 800;
-  color: #1e3a8a;
-  margin-bottom: 8px;
-}
-.calculator-card .result-section .summary-card .summary-row.extra {
-  font-size: 14px;
-  font-weight: 600;
-  color: #2563eb;
-}
-.calculator-card .result-section .detail-box {
-  background: #eff6ff;
-  border: 1px solid #dbeafe;
-  border-radius: 16px;
-  padding: 20px;
-  /* 공제 박스 내 제일 하단 총 공제 합계 배치 */
-}
-.calculator-card .result-section .detail-box .detail-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e3a8a;
-  margin-bottom: 14px;
-}
-.calculator-card .result-section .detail-box .detail-list {
-  list-style: none;
-}
-.calculator-card .result-section .detail-box .detail-list .detail-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  font-size: 14px;
-  color: #334155;
-}
-.calculator-card .result-section .detail-box .detail-list .detail-item .amount {
-  font-weight: 600;
-  color: #0f172a;
-}
-.calculator-card .result-section .detail-box .total-deduction-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed #bfdbfe;
-  font-size: 15px;
-  font-weight: 700;
-  color: #1e40af;
+  border: 1px solid $border-color;
+
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: $text-main;
+    }
+
+    p {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+  }
+
+  .tab-group {
+    display: flex;
+    background: $bg-tab;
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid $border-color;
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 8px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+
+      &.active {
+        background: $bg-card;
+        color: $text-main;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        font-weight: 700;
+      }
+    }
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: $text-sub;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      background-color: #fff;
+      color: $text-main;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: $primary-color;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+    }
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: $primary-color;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: $primary-hover;
+    }
+  }
+
+  /* 애니메이션 적용 및 레이아웃 튀김 방지 */
+  .result-section {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 2px dashed $border-color;
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+
+    &.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .summary-card {
+      margin-bottom: 20px;
+      padding: 4px 0;
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        white-space: nowrap; /* 줄바꿈으로 인한 높이 변화 방지 */
+
+        &.main {
+          font-size: 20px;
+          font-weight: 800;
+          color: #1e3a8a;
+          margin-bottom: 8px;
+        }
+
+        &.extra {
+          font-size: 14px;
+          font-weight: 600;
+          color: $primary-color;
+        }
+      }
+    }
+
+    .detail-box {
+      background: $bg-blue-light;
+      border: 1px solid $border-blue;
+      border-radius: 16px;
+      padding: 20px;
+
+      .detail-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-bottom: 14px;
+      }
+
+      .detail-list {
+        list-style: none;
+
+        .detail-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 8px 0;
+          font-size: 14px;
+          color: #334155;
+          white-space: nowrap;
+
+          .amount {
+            font-weight: 600;
+            color: $text-main;
+          }
+        }
+      }
+
+      .total-deduction-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px dashed #bfdbfe;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e40af;
+        white-space: nowrap;
+      }
+    }
+  }
 }
