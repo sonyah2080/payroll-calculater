@@ -39,7 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
   attachCommaFormatter(amountInput);
   attachCommaFormatter(taxFreeInput);
 
-  btnCalculate.addEventListener('click', calculate);
+  btnCalculate.addEventListener('click', (e) => {
+    e.preventDefault(); // 이벤트 버블링 및 스크롤 튀김 방지
+    calculate();
+  });
 });
 
 const parseCurrency = str => parseFloat(str.replace(/,/g, '')) || 0;
@@ -91,17 +94,16 @@ function calculate() {
   }
 
   const fmt = num => Math.round(num).toLocaleString() + ' 원';
+  const extraAmount = currentMode === 'NET_TO_GROSS' ? (gross - amount) : 0;
 
-  // Net -> Gross 계산 모드일 때 세전 금액과 목표 실수령액 간의 차액(추가 필요 세전 금액) 계산
-  const extraAmount = currentMode === 'NET_TO_GROSS' ? (gross - amount) : totalDed;
-
-  document.getElementById('resultBox').style.display = 'block';
+  const resultBox = document.getElementById('resultBox');
   
+  // 결과 데이터 채우기
   if (currentMode === 'NET_TO_GROSS') {
     document.getElementById('extraRow').style.display = 'flex';
     document.getElementById('resExtraAmount').innerText = fmt(extraAmount);
   } else {
-    document.getElementById('extraRow').style.display = 'none'; // Gross->Net 계산 시 숨김
+    document.getElementById('extraRow').style.display = 'none';
   }
 
   document.getElementById('resMainTitle').innerText = currentMode === 'NET_TO_GROSS' ? '예상 세전 급여' : '예상 실수령액';
@@ -114,4 +116,10 @@ function calculate() {
   document.getElementById('resEi').innerText = fmt(ei);
   document.getElementById('resIt').innerText = fmt(it);
   document.getElementById('resLtTax').innerText = fmt(localTax);
+
+  // 부드러운 등장 클래스 추가
+  resultBox.classList.add('show');
+
+  // 화면 튀김 없이 결과 위치로 부드럽게 스크롤
+  resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
