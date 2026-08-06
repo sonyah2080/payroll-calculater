@@ -3,11 +3,273 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="./script.js"></script>
-  <link rel="stylesheet" href="./style.css">
   <title>2026년 급여 역계산기</title>
+  <style>
+    * {
+      box-sizing: border-box !important;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    }
+
+    body {
+      background-color: #f8fafc !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: flex-start !important;
+      min-height: 100vh !important;
+      padding: 30px 16px !important;
+      color: #0f172a !important;
+    }
+
+    .calculator-card {
+      background: #ffffff !important;
+      width: 100% !important;
+      max-width: 480px !important;
+      padding: 28px !important;
+      border-radius: 20px !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+      border: 1px solid #e2e8f0 !important;
+      margin: 0 auto !important;
+    }
+
+    .header {
+      text-align: center !important;
+      margin-bottom: 24px !important;
+    }
+
+    .header h1 {
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 0 4px 0 !important;
+      line-height: 1.3 !important;
+    }
+
+    .header p {
+      font-size: 13px !important;
+      color: #64748b !important;
+      margin: 0 !important;
+    }
+
+    /* 탭 버튼 디자인 */
+    .tab-group {
+      display: flex !important;
+      background: #f1f5f9 !important;
+      padding: 4px !important;
+      border-radius: 12px !important;
+      margin-bottom: 20px !important;
+      border: 1px solid #e2e8f0 !important;
+    }
+
+    .tab-btn {
+      flex: 1 !important;
+      padding: 12px 8px !important;
+      border: none !important;
+      background: transparent !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: #64748b !important;
+      border-radius: 8px !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+      text-align: center !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .tab-btn.active {
+      background: #ffffff !important;
+      color: #2563eb !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+      font-weight: 700 !important;
+    }
+
+    /* Form Inputs */
+    .form-group {
+      margin-bottom: 18px !important;
+      text-align: left !important;
+    }
+
+    .form-group label {
+      display: block !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #475569 !important;
+      margin-bottom: 8px !important;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"] {
+      width: 100% !important;
+      padding: 12px 14px !important;
+      border: 1px solid #cbd5e1 !important;
+      border-radius: 10px !important;
+      font-size: 15px !important;
+      outline: none !important;
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      transition: border-color 0.2s !important;
+      box-sizing: border-box !important;
+    }
+
+    .form-group input[type="text"]:focus,
+    .form-group input[type="number"]:focus {
+      border-color: #2563eb !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    }
+
+    /* 4대보험 체크박스 스타일 */
+    .checkbox-group-title {
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #475569 !important;
+      margin-bottom: 8px !important;
+      display: block !important;
+    }
+
+    .checkbox-group {
+      display: flex !important;
+      gap: 12px !important;
+      background-color: #f8fafc !important;
+      padding: 10px 12px !important;
+      border-radius: 10px !important;
+      border: 1px solid #e2e8f0 !important;
+      margin-bottom: 18px !important;
+    }
+
+    .checkbox-label {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      font-size: 13px !important;
+      color: #334155 !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 16px !important;
+      height: 16px !important;
+      accent-color: #2563eb !important;
+      cursor: pointer !important;
+    }
+
+    /* 메인 계산하기 파란색 버튼 */
+    .btn-submit {
+      width: 100% !important;
+      padding: 15px !important;
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      border: none !important;
+      border-radius: 10px !important;
+      font-size: 16px !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      margin-top: 8px !important;
+      transition: background-color 0.2s !important;
+      outline: none !important;
+      display: block !important;
+    }
+
+    .btn-submit:hover {
+      background-color: #1d4ed8 !important;
+    }
+
+    /* Result Section */
+    .result-section {
+      margin-top: 28px !important;
+      padding-top: 24px !important;
+      border-top: 2px dashed #e2e8f0 !important;
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease !important;
+    }
+
+    .result-section.show {
+      display: block !important;
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    .summary-card {
+      margin-bottom: 20px !important;
+      padding: 4px 0 !important;
+    }
+
+    .summary-row {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      white-space: nowrap !important;
+    }
+
+    .summary-row.main {
+      font-size: 20px !important;
+      font-weight: 800 !important;
+      color: #1e3a8a !important;
+      margin-bottom: 8px !important;
+    }
+
+    .summary-row.extra {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: #2563eb !important;
+    }
+
+    /* 하단 연한 블루 공제 내역 박스 */
+    .detail-box {
+      background-color: #eff6ff !important;
+      border: 1px solid #dbeafe !important;
+      border-radius: 16px !important;
+      padding: 20px !important;
+    }
+
+    .detail-title {
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      color: #1e3a8a !important;
+      margin-bottom: 14px !important;
+      text-align: left !important;
+    }
+
+    .detail-list {
+      list-style: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .detail-item {
+      display: flex !important;
+      justify-content: space-between !important;
+      padding: 8px 0 !important;
+      font-size: 14px !important;
+      color: #334155 !important;
+      white-space: nowrap !important;
+    }
+
+    .detail-item .amount {
+      font-weight: 600 !important;
+      color: #0f172a !important;
+    }
+
+    .total-deduction-row {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin-top: 12px !important;
+      padding-top: 12px !important;
+      border-top: 1px dashed #bfdbfe !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      color: #1e40af !important;
+      white-space: nowrap !important;
+    }
+  </style>
 </head>
 <body>
+
 <div class="calculator-card">
   <div class="header">
     <h1>2026년 급여 역계산기</h1>
@@ -29,12 +291,25 @@
     <input type="text" id="taxFree" value="200,000" inputmode="numeric">
   </div>
 
+  <!-- 4대보험 공제 가입 여부 선택 -->
+  <span class="checkbox-group-title">4대보험 가입 여부</span>
+  <div class="checkbox-group">
+    <label class="checkbox-label">
+      <input type="checkbox" id="chkNp" checked> 국민연금
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" id="chkHi" checked> 건강보험
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" id="chkEi" checked> 고용보험
+    </label>
+  </div>
+
   <div class="form-group">
     <label for="dependents">공제대상 가족수 (본인 포함)</label>
     <input type="number" id="dependents" value="1" min="1" max="10">
   </div>
 
-  <!-- type="button"으로 폼 제출/페이지 튀김 방지 -->
   <button type="button" class="btn-submit" id="btnCalculate">계산하기</button>
 
   <div class="result-section" id="resultBox">
@@ -61,13 +336,14 @@
           <span class="amount" id="resHi">0 원</span>
         </li>
         <li class="detail-item">
-          <span>장기요양보험 (건보료의 12.95%)</span>
-          <span class="amount" id="resLt">0 원</span>
-        </li>
-        <li class="detail-item">
           <span>고용보험 (0.9%)</span>
           <span class="amount" id="resEi">0 원</span>
         </li>
+        <li class="detail-item">
+          <span>장기요양보험 (건보료의 12.95%)</span>
+          <span class="amount" id="resLt">0 원</span>
+        </li>
+
         <li class="detail-item">
           <span>소득세 (근로소득 간이세액)</span>
           <span class="amount" id="resIt">0 원</span>
@@ -85,5 +361,140 @@
     </div>
   </div>
 </div>
+
+<script>
+  let currentMode = 'NET_TO_GROSS';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const amountLabel = document.getElementById('amountLabel');
+    const amountInput = document.getElementById('amount');
+    const taxFreeInput = document.getElementById('taxFree');
+    const btnCalculate = document.getElementById('btnCalculate');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        currentMode = e.target.getAttribute('data-mode');
+        amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '세전 급여 (원)';
+      });
+    });
+
+    const attachCommaFormatter = (inputEl) => {
+      inputEl.addEventListener('input', (e) => {
+        const cursorPosition = e.target.selectionStart;
+        const originalLength = e.target.value.length;
+        
+        let digitsOnly = e.target.value.replace(/[^0-9]/g, '');
+        if (digitsOnly === '') {
+          e.target.value = '';
+          return;
+        }
+
+        const formatted = Number(digitsOnly).toLocaleString();
+        e.target.value = formatted;
+
+        const newLength = formatted.length;
+        const newCursor = Math.max(0, cursorPosition + (newLength - originalLength));
+        e.target.setSelectionRange(newCursor, newCursor);
+      });
+    };
+
+    attachCommaFormatter(amountInput);
+    attachCommaFormatter(taxFreeInput);
+
+    btnCalculate.addEventListener('click', (e) => {
+      e.preventDefault();
+      calculate();
+    });
+  });
+
+  const parseCurrency = str => parseFloat(str.replace(/,/g, '')) || 0;
+  const floor10 = val => Math.floor(val / 10) * 10;
+
+  function calculate() {
+    const amount = parseCurrency(document.getElementById('amount').value);
+    const taxFree = parseCurrency(document.getElementById('taxFree').value);
+    const dependents = parseInt(document.getElementById('dependents').value) || 1;
+
+    // 체크박스 상태 확인
+    const isNpChecked = document.getElementById('chkNp').checked;
+    const isHiChecked = document.getElementById('chkHi').checked;
+    const isEiChecked = document.getElementById('chkEi').checked;
+
+    let gross = 0, net = 0;
+    let np = 0, hi = 0, lt = 0, ei = 0, it = 0, localTax = 0, totalDed = 0;
+
+    function compute(g) {
+      const taxable = Math.max(0, g - taxFree);
+      
+      // 국민연금 (체크 시에만 적용, 상한액 6,170,000원 적용)
+      np = isNpChecked ? floor10(Math.min(taxable, 6170000) * 0.045) : 0;
+      
+      // 건강보험 및 장기요양보험 (체크 시에만 적용)
+      hi = isHiChecked ? floor10(taxable * 0.03545) : 0;
+      lt = isHiChecked ? floor10(hi * 0.1295) : 0;
+      
+      // 고용보험 (체크 시에만 적용)
+      ei = isEiChecked ? floor10(taxable * 0.009) : 0;
+
+      // 소득세 간이세액 계산
+      let base = Math.max(0, taxable - (dependents - 1) * 100000);
+      let rawIt = 0;
+      if (base <= 1060000) rawIt = 0;
+      else if (base <= 3000000) rawIt = (base - 1000000) * 0.04;
+      else if (base <= 5000000) rawIt = 80000 + (base - 3000000) * 0.12;
+      else rawIt = 320000 + (base - 5000000) * 0.22;
+      
+      it = floor10(rawIt);
+      localTax = floor10(it * 0.1);
+
+      totalDed = np + hi + lt + ei + it + localTax;
+      net = g - totalDed;
+    }
+
+    if (currentMode === 'GROSS_TO_NET') {
+      gross = amount;
+      compute(gross);
+    } else {
+      let low = amount, high = amount * 1.6;
+      for (let i = 0; i < 40; i++) {
+        gross = (low + high) / 2;
+        compute(gross);
+        if (Math.abs(net - amount) < 1) break;
+        if (net < amount) low = gross; else high = gross;
+      }
+      gross = Math.round(gross);
+      compute(gross);
+    }
+
+    const fmt = num => Math.round(num).toLocaleString() + ' 원';
+    const extraAmount = currentMode === 'NET_TO_GROSS' ? (gross - amount) : 0;
+
+    const resultBox = document.getElementById('resultBox');
+    
+    if (currentMode === 'NET_TO_GROSS') {
+      document.getElementById('extraRow').style.display = 'flex';
+      document.getElementById('resExtraAmount').innerText = fmt(extraAmount);
+    } else {
+      document.getElementById('extraRow').style.display = 'none';
+    }
+
+    document.getElementById('resMainTitle').innerText = currentMode === 'NET_TO_GROSS' ? '예상 세전 급여' : '예상 실수령액';
+    document.getElementById('resMainAmount').innerText = fmt(currentMode === 'NET_TO_GROSS' ? gross : net);
+    document.getElementById('resDeduction').innerText = fmt(totalDed);
+
+    document.getElementById('resNp').innerText = fmt(np);
+    document.getElementById('resHi').innerText = fmt(hi);
+    document.getElementById('resLt').innerText = fmt(lt);
+    document.getElementById('resEi').innerText = fmt(ei);
+    document.getElementById('resIt').innerText = fmt(it);
+    document.getElementById('resLtTax').innerText = fmt(localTax);
+
+    resultBox.classList.add('show');
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
 </body>
 </html>
