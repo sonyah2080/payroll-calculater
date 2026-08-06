@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko">
-  
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -336,7 +335,6 @@
           <span>건강보험 (3.545%)</span>
           <span class="amount" id="resHi">0 원</span>
         </li>
-        <!-- 고용보험을 장기요양보험 위로 이동 -->
         <li class="detail-item">
           <span>고용보험 (0.9%)</span>
           <span class="amount" id="resEi">0 원</span>
@@ -382,7 +380,37 @@
       });
     });
 
-    const attachCommaFormatter = (inputEl) => {
+    // 콤마 포맷팅 및 키패드 + 누를 때 000 입력 처리
+    const attachCommaAndPlusKeyFormatter = (inputEl) => {
+      // 1) 숫자 키패드 / 일반 키보드 '+' 누를 시 '000' 주입
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === '+' || e.code === 'NumpadAdd') {
+          e.preventDefault(); // 기본 '+' 문자 입력 방지
+          
+          const start = inputEl.selectionStart;
+          const end = inputEl.selectionEnd;
+          const val = inputEl.value;
+          
+          // 현재 커서 위치에 '000' 추가
+          const newVal = val.substring(0, start) + '000' + val.substring(end);
+          
+          // 숫자만 추출 후 콤마 재포맷팅
+          const digitsOnly = newVal.replace(/[^0-9]/g, '');
+          if (digitsOnly === '') {
+            inputEl.value = '';
+            return;
+          }
+          
+          const formatted = Number(digitsOnly).toLocaleString();
+          inputEl.value = formatted;
+
+          // 커서 위치 조정
+          const newCursor = Math.min(start + 4, formatted.length);
+          inputEl.setSelectionRange(newCursor, newCursor);
+        }
+      });
+
+      // 2) 일반 숫자 입력 시 실시간 3자리 콤마 처리
       inputEl.addEventListener('input', (e) => {
         const cursorPosition = e.target.selectionStart;
         const originalLength = e.target.value.length;
@@ -402,8 +430,8 @@
       });
     };
 
-    attachCommaFormatter(amountInput);
-    attachCommaFormatter(taxFreeInput);
+    attachCommaAndPlusKeyFormatter(amountInput);
+    attachCommaAndPlusKeyFormatter(taxFreeInput);
 
     btnCalculate.addEventListener('click', (e) => {
       e.preventDefault();
