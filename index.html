@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sass.js/0.11.1/sass.sync.min.js"></script>
+  <title>2026년 급여 역계산기 (10원 단위 정렬)</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./script.js"></script>
+  </head>
+<body>
+<div class="calculator-card">
+  <div class="header">
+    <h1>2026년 급여 역계산기</h1>
+    <p>공제항목 10원 단위 절사 적용</p>
+  </div>
+  
+  <div class="tab-group">
+    <button type="button" class="tab-btn active" data-mode="NET_TO_GROSS">Net→Gross(세전급여)</button>
+    <button type="button" class="tab-btn" data-mode="GROSS_TO_NET">Gross→Net(세후급여)</button>
+  </div>
+
+  <div class="form-group">
+    <label id="amountLabel" for="amount">목표 실수령액 (원)</label>
+    <input type="text" id="amount" value="3,000,000" inputmode="numeric">
+  </div>
+
+  <div class="form-group">
+    <label for="taxFree">비과세 수당 (식대 등) (원)</label>
+    <input type="text" id="taxFree" value="200,000" inputmode="numeric">
+  </div>
+
+  <div class="form-group">
+    <label for="dependents">공제대상 가족수 (본인 포함)</label>
+    <input type="number" id="dependents" value="1" min="1" max="10">
+  </div>
+
+  <button class="btn-submit" id="btnCalculate">계산하기</button>
+
+  <div class="result-section" id="resultBox">
+    <!-- 상단 요약 영역 (예상 세전 급여 -> 추가 필요 세전 금액) -->
+    <div class="summary-card">
+      <div class="summary-row main">
+        <span id="resMainTitle">예상 세전 급여</span>
+        <span id="resMainAmount">0 원</span>
+      </div>
+      <div class="summary-row extra" id="extraRow">
+        <span>추가 필요 세전 금액 (차액)</span>
+        <span id="resExtraAmount">0 원</span>
+      </div>
+    </div>
+
+    <!-- 하단 공제 상세 내역 (파란색 디자인 박스 적용 + 총 공제 합계 하단 배치) -->
+    <div class="detail-box">
+      <div class="detail-title">공제 항목별 상세 내역 (10원 단위 절사)</div>
+      <ul class="detail-list">
+        <li class="detail-item">
+          <span>국민연금 (4.5%)</span>
+          <span class="amount" id="resNp">0 원</span>
+        </li>
+        <li class="detail-item">
+          <span>건강보험 (3.545%)</span>
+          <span class="amount" id="resHi">0 원</span>
+        </li>
+        <li class="detail-item">
+          <span>장기요양보험 (건보료의 12.95%)</span>
+          <span class="amount" id="resLt">0 원</span>
+        </li>
+        <li class="detail-item">
+          <span>고용보험 (0.9%)</span>
+          <span class="amount" id="resEi">0 원</span>
+        </li>
+        <li class="detail-item">
+          <span>소득세 (근로소득 간이세액)</span>
+          <span class="amount" id="resIt">0 원</span>
+        </li>
+        <li class="detail-item">
+          <span>지방소득세 (소득세의 10%)</span>
+          <span class="amount" id="resLtTax">0 원</span>
+        </li>
+      </ul>
+
+      <div class="total-deduction-row">
+        <span>총 공제 합계</span>
+        <span id="resDeduction">0 원</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

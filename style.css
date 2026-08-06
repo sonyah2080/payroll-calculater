@@ -1,0 +1,175 @@
+@charset "UTF-8";
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  color: #0f172a;
+}
+
+.calculator-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  padding: 28px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+.calculator-card .header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.calculator-card .header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.calculator-card .header p {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 4px;
+}
+.calculator-card .tab-group {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
+.calculator-card .tab-group .tab-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.calculator-card .tab-group .tab-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  font-weight: 700;
+}
+.calculator-card .form-group {
+  margin-bottom: 18px;
+}
+.calculator-card .form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+}
+.calculator-card .form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  background-color: #fff;
+  color: #0f172a;
+  transition: border-color 0.2s;
+}
+.calculator-card .form-group input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+.calculator-card .btn-submit {
+  width: 100%;
+  padding: 15px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+.calculator-card .btn-submit:hover {
+  background: #1d4ed8;
+}
+.calculator-card .result-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 2px dashed #e2e8f0;
+  display: none;
+  /* 상단 요약 영역 */
+  /* 하단 공제 상세 내역 박스 (파란색 연한 배경 + 테두리 디자인 적용) */
+}
+.calculator-card .result-section .summary-card {
+  margin-bottom: 20px;
+  padding: 4px 0;
+}
+.calculator-card .result-section .summary-card .summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.calculator-card .result-section .summary-card .summary-row.main {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 8px;
+}
+.calculator-card .result-section .summary-card .summary-row.extra {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+}
+.calculator-card .result-section .detail-box {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  padding: 20px;
+  /* 공제 박스 내 제일 하단 총 공제 합계 배치 */
+}
+.calculator-card .result-section .detail-box .detail-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 14px;
+}
+.calculator-card .result-section .detail-box .detail-list {
+  list-style: none;
+}
+.calculator-card .result-section .detail-box .detail-list .detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #334155;
+}
+.calculator-card .result-section .detail-box .detail-list .detail-item .amount {
+  font-weight: 600;
+  color: #0f172a;
+}
+.calculator-card .result-section .detail-box .total-deduction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #bfdbfe;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e40af;
+}
