@@ -5,284 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2026년 급여 역계산기</title>
   <style>
-    * {
-      box-sizing: border-box !important;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    }
+    * { box-sizing: border-box !important; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }
+    body { background-color: #f8fafc !important; display: flex !important; justify-content: center !important; align-items: flex-start !important; min-height: 100vh !important; padding: 30px 16px !important; color: #0f172a !important; }
+    .calculator-card { background: #ffffff !important; width: 100% !important; max-width: 480px !important; padding: 28px !important; border-radius: 20px !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important; border: 1px solid #e2e8f0 !important; margin: 0 auto !important; }
+    .header { text-align: center !important; margin-bottom: 24px !important; }
+    .header h1 { font-size: 22px !important; font-weight: 700 !important; color: #0f172a !important; margin: 0 0 4px 0 !important; }
+    .header p { font-size: 13px !important; color: #64748b !important; margin: 0 !important; }
+    .tab-group { display: flex !important; background: #f1f5f9 !important; padding: 4px !important; border-radius: 12px !important; margin-bottom: 20px !important; border: 1px solid #e2e8f0 !important; }
+    .tab-btn { flex: 1 !important; padding: 12px 8px !important; border: none !important; background: transparent !important; font-size: 14px !important; font-weight: 600 !important; color: #64748b !important; border-radius: 8px !important; cursor: pointer !important; text-align: center !important; }
+    .tab-btn.active { background: #ffffff !important; color: #2563eb !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important; font-weight: 700 !important; }
+    .form-group { margin-bottom: 18px !important; text-align: left !important; }
+    .form-group label { display: block !important; font-size: 13px !important; font-weight: 600 !important; color: #475569 !important; margin-bottom: 8px !important; }
+    .form-group input[type="text"], .form-group input[type="number"], .form-group select { width: 100% !important; padding: 12px 14px !important; border: 1px solid #cbd5e1 !important; border-radius: 10px !important; font-size: 15px !important; outline: none !important; background-color: #ffffff !important; color: #0f172a !important; }
+    
+    .custom-tax-input { margin-top: 8px !important; display: none; }
 
-    body {
-      background-color: #f8fafc !important;
-      display: flex !important;
-      justify-content: center !important;
-      align-items: flex-start !important;
-      min-height: 100vh !important;
-      padding: 30px 16px !important;
-      color: #0f172a !important;
-    }
-
-    .calculator-card {
-      background: #ffffff !important;
-      width: 100% !important;
-      max-width: 480px !important;
-      padding: 28px !important;
-      border-radius: 20px !important;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
-      border: 1px solid #e2e8f0 !important;
-      margin: 0 auto !important;
-    }
-
-    .header {
-      text-align: center !important;
-      margin-bottom: 24px !important;
-    }
-
-    .header h1 {
-      font-size: 22px !important;
-      font-weight: 700 !important;
-      color: #0f172a !important;
-      margin: 0 0 4px 0 !important;
-      line-height: 1.3 !important;
-    }
-
-    .header p {
-      font-size: 13px !important;
-      color: #64748b !important;
-      margin: 0 !important;
-    }
-
-    /* 탭 버튼 디자인 */
-    .tab-group {
-      display: flex !important;
-      background: #f1f5f9 !important;
-      padding: 4px !important;
-      border-radius: 12px !important;
-      margin-bottom: 20px !important;
-      border: 1px solid #e2e8f0 !important;
-    }
-
-    .tab-btn {
-      flex: 1 !important;
-      padding: 12px 8px !important;
-      border: none !important;
-      background: transparent !important;
-      font-size: 14px !important;
-      font-weight: 600 !important;
-      color: #64748b !important;
-      border-radius: 8px !important;
-      cursor: pointer !important;
-      transition: all 0.2s ease !important;
-      text-align: center !important;
-      outline: none !important;
-      box-shadow: none !important;
-    }
-
-    .tab-btn.active {
-      background: #ffffff !important;
-      color: #2563eb !important;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
-      font-weight: 700 !important;
-    }
-
-    /* Form Inputs */
-    .form-group {
-      margin-bottom: 18px !important;
-      text-align: left !important;
-    }
-
-    .form-group label {
-      display: block !important;
-      font-size: 13px !important;
-      font-weight: 600 !important;
-      color: #475569 !important;
-      margin-bottom: 8px !important;
-    }
-
-    .form-group input[type="text"],
-    .form-group input[type="number"],
-    .form-group select {
-      width: 100% !important;
-      padding: 12px 14px !important;
-      border: 1px solid #cbd5e1 !important;
-      border-radius: 10px !important;
-      font-size: 15px !important;
-      outline: none !important;
-      background-color: #ffffff !important;
-      color: #0f172a !important;
-      transition: border-color 0.2s !important;
-      box-sizing: border-box !important;
-    }
-
-    .form-group input[type="text"]:focus,
-    .form-group input[type="number"]:focus,
-    .form-group select:focus {
-      border-color: #2563eb !important;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-    }
-
-    /* 체크박스 그룹 스타일 */
-    .checkbox-group-title {
-      font-size: 13px !important;
-      font-weight: 600 !important;
-      color: #475569 !important;
-      margin-bottom: 8px !important;
-      display: block !important;
-    }
-
-    .checkbox-group {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 12px !important;
-      background-color: #f8fafc !important;
-      padding: 10px 12px !important;
-      border-radius: 10px !important;
-      border: 1px solid #e2e8f0 !important;
-      margin-bottom: 18px !important;
-    }
-
-    .checkbox-label {
-      display: flex !important;
-      align-items: center !important;
-      gap: 6px !important;
-      font-size: 13px !important;
-      color: #334155 !important;
-      font-weight: 600 !important;
-      cursor: pointer !important;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-      width: 16px !important;
-      height: 16px !important;
-      accent-color: #2563eb !important;
-      cursor: pointer !important;
-    }
-
-    /* 소득세 비율 선택 및 직접 입력 박스 */
-    .tax-rate-container {
-      display: flex !important;
-      gap: 8px !important;
-    }
-
-    .tax-rate-container select {
-      flex: 1 !important;
-    }
-
-    .tax-rate-container input {
-      width: 100px !important;
-    }
-
-    /* 메인 계산하기 파란색 버튼 */
-    .btn-submit {
-      width: 100% !important;
-      padding: 15px !important;
-      background-color: #2563eb !important;
-      color: #ffffff !important;
-      border: none !important;
-      border-radius: 10px !important;
-      font-size: 16px !important;
-      font-weight: 700 !important;
-      cursor: pointer !important;
-      margin-top: 8px !important;
-      transition: background-color 0.2s !important;
-      outline: none !important;
-      display: block !important;
-    }
-
-    .btn-submit:hover {
-      background-color: #1d4ed8 !important;
-    }
-
-    /* Result Section */
-    .result-section {
-      margin-top: 28px !important;
-      padding-top: 24px !important;
-      border-top: 2px dashed #e2e8f0 !important;
-      display: none;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.3s ease, transform 0.3s ease !important;
-    }
-
-    .result-section.show {
-      display: block !important;
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-    }
-
-    .summary-card {
-      margin-bottom: 20px !important;
-      padding: 4px 0 !important;
-    }
-
-    .summary-row {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      white-space: nowrap !important;
-    }
-
-    .summary-row.main {
-      font-size: 20px !important;
-      font-weight: 800 !important;
-      color: #1e3a8a !important;
-      margin-bottom: 8px !important;
-    }
-
-    .summary-row.extra {
-      font-size: 14px !important;
-      font-weight: 600 !important;
-      color: #2563eb !important;
-    }
-
-    /* 하단 연한 블루 공제 내역 박스 */
-    .detail-box {
-      background-color: #eff6ff !important;
-      border: 1px solid #dbeafe !important;
-      border-radius: 16px !important;
-      padding: 20px !important;
-    }
-
-    .detail-title {
-      font-size: 14px !important;
-      font-weight: 700 !important;
-      color: #1e3a8a !important;
-      margin-bottom: 14px !important;
-      text-align: left !important;
-    }
-
-    .detail-list {
-      list-style: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-
-    .detail-item {
-      display: flex !important;
-      justify-content: space-between !important;
-      padding: 8px 0 !important;
-      font-size: 14px !important;
-      color: #334155 !important;
-      white-space: nowrap !important;
-    }
-
-    .detail-item .amount {
-      font-weight: 600 !important;
-      color: #0f172a !important;
-    }
-
-    .total-deduction-row {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      margin-top: 12px !important;
-      padding-top: 12px !important;
-      border-top: 1px dashed #bfdbfe !important;
-      font-size: 15px !important;
-      font-weight: 700 !important;
-      color: #1e40af !important;
-      white-space: nowrap !important;
-    }
+    .checkbox-group-title { font-size: 13px !important; font-weight: 600 !important; color: #475569 !important; margin-bottom: 8px !important; display: block !important; }
+    .checkbox-group { display: flex !important; flex-wrap: wrap !important; gap: 12px !important; background-color: #f8fafc !important; padding: 10px 12px !important; border-radius: 10px !important; border: 1px solid #e2e8f0 !important; margin-bottom: 18px !important; }
+    .checkbox-label { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 13px !important; color: #334155 !important; font-weight: 600 !important; cursor: pointer !important; }
+    .checkbox-label input[type="checkbox"] { width: 16px !important; height: 16px !important; accent-color: #2563eb !important; }
+    .btn-submit { width: 100% !important; padding: 15px !important; background-color: #2563eb !important; color: #ffffff !important; border: none !important; border-radius: 10px !important; font-size: 16px !important; font-weight: 700 !important; cursor: pointer !important; margin-top: 8px !important; }
+    
+    .result-section { margin-top: 28px !important; padding-top: 24px !important; border-top: 2px dashed #e2e8f0 !important; display: none; }
+    .result-section.show { display: block !important; }
+    .summary-card { margin-bottom: 20px !important; }
+    .summary-row { display: flex !important; justify-content: space-between !important; align-items: center !important; }
+    .summary-row.main { font-size: 18px !important; font-weight: 800 !important; color: #1e3a8a !important; margin-bottom: 12px !important; }
+    .summary-row.extra { font-size: 14px !important; font-weight: 600 !important; color: #2563eb !important; }
+    .detail-box { background-color: #eff6ff !important; border: 1px solid #dbeafe !important; border-radius: 16px !important; padding: 20px !important; }
+    .detail-title { font-size: 14px !important; font-weight: 700 !important; color: #1e3a8a !important; margin-bottom: 14px !important; }
+    .detail-list { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .detail-item { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 6px 0 !important; font-size: 14px !important; color: #334155 !important; }
+    .detail-item .amount { font-weight: 600 !important; color: #0f172a !important; }
+    .total-deduction-row { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-top: 12px !important; padding-top: 12px !important; border-top: 1px dashed #bfdbfe !important; font-size: 15px !important; font-weight: 700 !important; color: #1e40af !important; }
   </style>
 </head>
 <body>
@@ -308,35 +63,25 @@
     <input type="text" id="taxFree" value="200,000" inputmode="numeric">
   </div>
 
-  <!-- 공제 항목 선택 -->
   <span class="checkbox-group-title">공제 항목 선택</span>
   <div class="checkbox-group">
-    <label class="checkbox-label">
-      <input type="checkbox" id="chkNp" checked> 국민연금
-    </label>
-    <label class="checkbox-label">
-      <input type="checkbox" id="chkHi" checked> 건강보험
-    </label>
-    <label class="checkbox-label">
-      <input type="checkbox" id="chkEi" checked> 고용보험
-    </label>
-    <label class="checkbox-label">
-      <input type="checkbox" id="chkTax" checked> 소득세
-    </label>
+    <label class="checkbox-label"><input type="checkbox" id="chkNp" checked> 국민연금</label>
+    <label class="checkbox-label"><input type="checkbox" id="chkHi" checked> 건강보험</label>
+    <label class="checkbox-label"><input type="checkbox" id="chkEi" checked> 고용보험</label>
+    <label class="checkbox-label"><input type="checkbox" id="chkTax" checked> 소득세</label>
   </div>
 
-  <!-- 소득세율 옵션 영역 -->
   <div class="form-group" id="taxRateGroup">
     <label for="taxRateSelect">소득세 원천징수 비율 선택</label>
-    <div class="tax-rate-container">
-      <select id="taxRateSelect">
-        <option value="100" selected>100% (기본 간이세액표)</option>
-        <option value="80">80% (법정 최소 세액)</option>
-        <option value="50">50% (임의 최소 징수)</option>
-        <option value="custom">직접 입력 (%)</option>
-      </select>
-      <input type="number" id="taxRateCustom" value="80" min="0" max="120" style="display: none;" placeholder="%">
-    </div>
+    <select id="taxRateSelect">
+      <option value="100" selected>100% (기본 간이세액표)</option>
+      <option value="80">80% (법정 최소 세액)</option>
+      <option value="50">50% (임의 최소 징수)</option>
+      <option value="10">10% (소액 징수)</option>
+      <option value="0">0% (소득세 미적용)</option>
+      <option value="custom">직접 입력 (%)</option>
+    </select>
+    <input type="number" id="taxRateCustom" class="custom-tax-input" value="80" min="0" max="200" placeholder="원하는 소득세 비율 입력 (%)">
   </div>
 
   <div class="form-group" id="dependentsGroup">
@@ -350,41 +95,23 @@
     <div class="summary-card">
       <div class="summary-row main">
         <span id="resMainTitle">예상 세전 급여</span>
-        <span id="resMainAmount">0 원</span>
+        <span id="resMainAmount" style="font-size: 20px; font-weight: 800; color: #1e3a8a;">0 원</span>
       </div>
       <div class="summary-row extra" id="extraRow">
         <span>추가 필요 세전 금액 (차액)</span>
-        <span id="resExtraAmount">0 원</span>
+        <span id="resExtraDiff" style="font-size: 14px; font-weight: 700; color: #2563eb;">0 원</span>
       </div>
     </div>
 
     <div class="detail-box">
       <div class="detail-title">공제 항목별 상세 내역 (10원 단위 절사)</div>
       <ul class="detail-list">
-        <li class="detail-item">
-          <span>국민연금 (4.5%)</span>
-          <span class="amount" id="resNp">0 원</span>
-        </li>
-        <li class="detail-item">
-          <span>건강보험 (3.545%)</span>
-          <span class="amount" id="resHi">0 원</span>
-        </li>
-        <li class="detail-item">
-          <span>고용보험 (0.9%)</span>
-          <span class="amount" id="resEi">0 원</span>
-        </li>
-        <li class="detail-item">
-          <span>장기요양보험 (건보료의 12.95%)</span>
-          <span class="amount" id="resLt">0 원</span>
-        </li>
-        <li class="detail-item">
-          <span id="lblIt">소득세 (근로소득 간이세액)</span>
-          <span class="amount" id="resIt">0 원</span>
-        </li>
-        <li class="detail-item">
-          <span id="lblLocalTax">지방소득세 (소득세의 10%)</span>
-          <span class="amount" id="resLtTax">0 원</span>
-        </li>
+        <li class="detail-item"><span>국민연금 (4.5%)</span><span class="amount" id="resNp">0 원</span></li>
+        <li class="detail-item"><span>건강보험 (3.545%)</span><span class="amount" id="resHi">0 원</span></li>
+        <li class="detail-item"><span>고용보험 (0.9%)</span><span class="amount" id="resEi">0 원</span></li>
+        <li class="detail-item"><span>장기요양보험 (12.95%)</span><span class="amount" id="resLt">0 원</span></li>
+        <li class="detail-item"><span id="lblIt">소득세</span><span class="amount" id="resIt">0 원</span></li>
+        <li class="detail-item"><span>지방소득세 (10%)</span><span class="amount" id="resLtTax">0 원</span></li>
       </ul>
 
       <div class="total-deduction-row">
@@ -410,17 +137,15 @@
     const taxRateSelect = document.getElementById('taxRateSelect');
     const taxRateCustom = document.getElementById('taxRateCustom');
 
-    // 소득세 체크박스 상태에 따라 비율 및 가족수 옵션 토글
     chkTax.addEventListener('change', (e) => {
       const show = e.target.checked;
       dependentsGroup.style.display = show ? 'block' : 'none';
       taxRateGroup.style.display = show ? 'block' : 'none';
     });
 
-    // 소득세율 드롭다운 선택 이벤트
     taxRateSelect.addEventListener('change', (e) => {
       if (e.target.value === 'custom') {
-        taxRateCustom.style.display = 'inline-block';
+        taxRateCustom.style.display = 'block';
         taxRateCustom.focus();
       } else {
         taxRateCustom.style.display = 'none';
@@ -436,52 +161,29 @@
       });
     });
 
-    const attachCommaAndPlusKeyFormatter = (inputEl) => {
+    const attachFormatter = (inputEl) => {
       inputEl.addEventListener('keydown', (e) => {
         if (e.key === '+' || e.code === 'NumpadAdd') {
           e.preventDefault();
-          
-          const start = inputEl.selectionStart;
-          const end = inputEl.selectionEnd;
-          const val = inputEl.value;
-          
+          const start = inputEl.selectionStart, end = inputEl.selectionEnd, val = inputEl.value;
           const newVal = val.substring(0, start) + '000' + val.substring(end);
-          
-          const digitsOnly = newVal.replace(/[^0-9]/g, '');
-          if (digitsOnly === '') {
-            inputEl.value = '';
-            return;
-          }
-          
-          const formatted = Number(digitsOnly).toLocaleString();
+          const digits = newVal.replace(/[^0-9]/g, '');
+          if(!digits){ inputEl.value = ''; return; }
+          const formatted = Number(digits).toLocaleString();
           inputEl.value = formatted;
-
           const newCursor = Math.min(start + 4, formatted.length);
           inputEl.setSelectionRange(newCursor, newCursor);
         }
       });
 
       inputEl.addEventListener('input', (e) => {
-        const cursorPosition = e.target.selectionStart;
-        const originalLength = e.target.value.length;
-        
-        let digitsOnly = e.target.value.replace(/[^0-9]/g, '');
-        if (digitsOnly === '') {
-          e.target.value = '';
-          return;
-        }
-
-        const formatted = Number(digitsOnly).toLocaleString();
-        e.target.value = formatted;
-
-        const newLength = formatted.length;
-        const newCursor = Math.max(0, cursorPosition + (newLength - originalLength));
-        e.target.setSelectionRange(newCursor, newCursor);
+        let digits = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = digits ? Number(digits).toLocaleString() : '';
       });
     };
 
-    attachCommaAndPlusKeyFormatter(amountInput);
-    attachCommaAndPlusKeyFormatter(taxFreeInput);
+    attachFormatter(amountInput);
+    attachFormatter(taxFreeInput);
 
     btnCalculate.addEventListener('click', (e) => {
       e.preventDefault();
@@ -489,11 +191,22 @@
     });
   });
 
-  const parseCurrency = str => parseFloat(str.replace(/,/g, '')) || 0;
+  const parseCurrency = str => parseFloat((str || '').toString().replace(/,/g, '')) || 0;
   const floor10 = val => Math.floor(val / 10) * 10;
+  const fmt = num => Math.round(num).toLocaleString() + ' 원';
 
-  function calculate() {
-    const amount = parseCurrency(document.getElementById('amount').value);
+  function getSelectedTaxPercent() {
+    const isTaxChecked = document.getElementById('chkTax').checked;
+    if (!isTaxChecked) return 0;
+
+    const selectVal = document.getElementById('taxRateSelect').value;
+    if (selectVal === 'custom') {
+      return parseFloat(document.getElementById('taxRateCustom').value) || 0;
+    }
+    return parseFloat(selectVal) || 0;
+  }
+
+  function computeDeductions(g) {
     const taxFree = parseCurrency(document.getElementById('taxFree').value);
     const dependents = parseInt(document.getElementById('dependents').value) || 1;
 
@@ -501,91 +214,86 @@
     const isHiChecked = document.getElementById('chkHi').checked;
     const isEiChecked = document.getElementById('chkEi').checked;
     const isTaxChecked = document.getElementById('chkTax').checked;
+    const taxRatePercent = getSelectedTaxPercent() / 100;
 
-    // 적용할 소득세율 파싱 (%)
-    let taxPercent = 100;
-    if (isTaxChecked) {
-      const selectVal = document.getElementById('taxRateSelect').value;
-      if (selectVal === 'custom') {
-        taxPercent = parseFloat(document.getElementById('taxRateCustom').value) || 0;
-      } else {
-        taxPercent = parseFloat(selectVal) || 100;
-      }
-    }
+    const taxable = Math.max(0, g - taxFree);
+    
+    const np = isNpChecked ? floor10(Math.min(taxable, 6170000) * 0.045) : 0;
+    const hi = isHiChecked ? floor10(taxable * 0.03545) : 0;
+    const lt = isHiChecked ? floor10(hi * 0.1295) : 0;
+    const ei = isEiChecked ? floor10(taxable * 0.009) : 0;
 
-    let gross = 0, net = 0;
-    let np = 0, hi = 0, lt = 0, ei = 0, it = 0, localTax = 0, totalDed = 0;
-
-    function compute(g) {
-      const taxable = Math.max(0, g - taxFree);
+    let it = 0, localTax = 0;
+    if (isTaxChecked && taxRatePercent > 0) {
+      let base = Math.max(0, taxable - (dependents - 1) * 100000);
+      let rawIt = 0;
+      if (base <= 1060000) rawIt = 0;
+      else if (base <= 3000000) rawIt = (base - 1000000) * 0.04;
+      else if (base <= 5000000) rawIt = 80000 + (base - 3000000) * 0.12;
+      else rawIt = 320000 + (base - 5000000) * 0.22;
       
-      // 4대보험 공제
-      np = isNpChecked ? floor10(Math.min(taxable, 6170000) * 0.045) : 0;
-      hi = isHiChecked ? floor10(taxable * 0.03545) : 0;
-      lt = isHiChecked ? floor10(hi * 0.1295) : 0;
-      ei = isEiChecked ? floor10(taxable * 0.009) : 0;
-
-      // 소득세 및 지방소득세 공제 (체크 해제 시 0원, 체크 시 비율 적용)
-      if (isTaxChecked) {
-        let base = Math.max(0, taxable - (dependents - 1) * 100000);
-        let rawIt = 0;
-        if (base <= 1060000) rawIt = 0;
-        else if (base <= 3000000) rawIt = (base - 1000000) * 0.04;
-        else if (base <= 5000000) rawIt = 80000 + (base - 3000000) * 0.12;
-        else rawIt = 320000 + (base - 5000000) * 0.22;
-        
-        it = floor10(rawIt * (taxPercent / 100));
-        localTax = floor10(it * 0.1);
-      } else {
-        it = 0;
-        localTax = 0;
-      }
-
-      totalDed = np + hi + lt + ei + it + localTax;
-      net = g - totalDed;
+      it = floor10(rawIt * taxRatePercent);
+      localTax = floor10(it * 0.1);
     }
+
+    const totalDed = np + hi + lt + ei + it + localTax;
+    return { np, hi, lt, ei, it, localTax, totalDed };
+  }
+
+  function calculate() {
+    const amount = parseCurrency(document.getElementById('amount').value);
+    let gross = 0;
 
     if (currentMode === 'GROSS_TO_NET') {
       gross = amount;
-      compute(gross);
     } else {
       let low = amount, high = amount * 1.6;
       for (let i = 0; i < 40; i++) {
         gross = (low + high) / 2;
-        compute(gross);
+        const ded = computeDeductions(gross);
+        const net = gross - ded.totalDed;
         if (Math.abs(net - amount) < 1) break;
         if (net < amount) low = gross; else high = gross;
       }
       gross = Math.round(gross);
-      compute(gross);
     }
 
-    const fmt = num => Math.round(num).toLocaleString() + ' 원';
-    const extraAmount = currentMode === 'NET_TO_GROSS' ? (gross - amount) : 0;
+    const ded = computeDeductions(gross);
+    applyValuesToUI(gross, ded);
+  }
 
-    const resultBox = document.getElementById('resultBox');
+  function applyValuesToUI(gross, ded) {
+    const isTaxChecked = document.getElementById('chkTax').checked;
+    const taxPercent = getSelectedTaxPercent();
+    
+    document.getElementById('lblIt').innerText = isTaxChecked ? `소득세 (${taxPercent}% 적용)` : '소득세 (미적용)';
+
+    // 예상 세전 급여
+    document.getElementById('resMainAmount').innerText = fmt(gross);
+    
+    // 추가 필요 세전 금액 (차액) = 하단 6개 공제액의 순수 합계
+    document.getElementById('resExtraDiff').innerText = fmt(ded.totalDed);
+
+    // 상세 항목별 공제액 표기
+    document.getElementById('resNp').innerText = fmt(ded.np);
+    document.getElementById('resHi').innerText = fmt(ded.hi);
+    document.getElementById('resEi').innerText = fmt(ded.ei);
+    document.getElementById('resLt').innerText = fmt(ded.lt);
+    document.getElementById('resIt').innerText = fmt(ded.it);
+    document.getElementById('resLtTax').innerText = fmt(ded.localTax);
+
+    // 총 공제 합계 = 차액과 100% 동일
+    document.getElementById('resDeduction').innerText = fmt(ded.totalDed);
+
+    document.getElementById('resMainTitle').innerText = currentMode === 'NET_TO_GROSS' ? '예상 세전 급여' : '예상 실수령액';
     
     if (currentMode === 'NET_TO_GROSS') {
       document.getElementById('extraRow').style.display = 'flex';
-      document.getElementById('resExtraAmount').innerText = fmt(extraAmount);
     } else {
       document.getElementById('extraRow').style.display = 'none';
     }
 
-    document.getElementById('resMainTitle').innerText = currentMode === 'NET_TO_GROSS' ? '예상 세전 급여' : '예상 실수령액';
-    document.getElementById('resMainAmount').innerText = fmt(currentMode === 'NET_TO_GROSS' ? gross : net);
-    document.getElementById('resDeduction').innerText = fmt(totalDed);
-
-    document.getElementById('lblIt').innerText = isTaxChecked ? `소득세 (${taxPercent}% 적용)` : '소득세 (미적용)';
-    document.getElementById('lblLocalTax').innerText = isTaxChecked ? '지방소득세 (소득세의 10%)' : '지방소득세 (미적용)';
-
-    document.getElementById('resNp').innerText = fmt(np);
-    document.getElementById('resHi').innerText = fmt(hi);
-    document.getElementById('resEi').innerText = fmt(ei);
-    document.getElementById('resLt').innerText = fmt(lt);
-    document.getElementById('resIt').innerText = fmt(it);
-    document.getElementById('resLtTax').innerText = fmt(localTax);
-
+    const resultBox = document.getElementById('resultBox');
     resultBox.classList.add('show');
     resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
