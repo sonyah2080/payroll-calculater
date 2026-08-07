@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>2026년 급여 역계산기</title>
-  
   <style>
     * {
       box-sizing: border-box !important;
@@ -101,7 +100,8 @@
     }
 
     .form-group input[type="text"],
-    .form-group input[type="number"] {
+    .form-group input[type="number"],
+    .form-group select {
       width: 100% !important;
       padding: 12px 14px !important;
       border: 1px solid #cbd5e1 !important;
@@ -115,12 +115,13 @@
     }
 
     .form-group input[type="text"]:focus,
-    .form-group input[type="number"]:focus {
+    .form-group input[type="number"]:focus,
+    .form-group select:focus {
       border-color: #2563eb !important;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
     }
 
-    /* 4대보험 체크박스 스타일 */
+    /* 체크박스 그룹 스타일 */
     .checkbox-group-title {
       font-size: 13px !important;
       font-weight: 600 !important;
@@ -131,6 +132,7 @@
 
     .checkbox-group {
       display: flex !important;
+      flex-wrap: wrap !important;
       gap: 12px !important;
       background-color: #f8fafc !important;
       padding: 10px 12px !important;
@@ -154,6 +156,20 @@
       height: 16px !important;
       accent-color: #2563eb !important;
       cursor: pointer !important;
+    }
+
+    /* 소득세 비율 선택 및 직접 입력 박스 */
+    .tax-rate-container {
+      display: flex !important;
+      gap: 8px !important;
+    }
+
+    .tax-rate-container select {
+      flex: 1 !important;
+    }
+
+    .tax-rate-container input {
+      width: 100px !important;
     }
 
     /* 메인 계산하기 파란색 버튼 */
@@ -292,8 +308,8 @@
     <input type="text" id="taxFree" value="200,000" inputmode="numeric">
   </div>
 
-  <!-- 4대보험 공제 가입 여부 선택 -->
-  <span class="checkbox-group-title">4대보험 가입 여부</span>
+  <!-- 공제 항목 선택 -->
+  <span class="checkbox-group-title">공제 항목 선택</span>
   <div class="checkbox-group">
     <label class="checkbox-label">
       <input type="checkbox" id="chkNp" checked> 국민연금
@@ -304,9 +320,26 @@
     <label class="checkbox-label">
       <input type="checkbox" id="chkEi" checked> 고용보험
     </label>
+    <label class="checkbox-label">
+      <input type="checkbox" id="chkTax" checked> 소득세
+    </label>
   </div>
 
-  <div class="form-group">
+  <!-- 소득세율 옵션 영역 -->
+  <div class="form-group" id="taxRateGroup">
+    <label for="taxRateSelect">소득세 원천징수 비율 선택</label>
+    <div class="tax-rate-container">
+      <select id="taxRateSelect">
+        <option value="100" selected>100% (기본 간이세액표)</option>
+        <option value="80">80% (법정 최소 세액)</option>
+        <option value="50">50% (임의 최소 징수)</option>
+        <option value="custom">직접 입력 (%)</option>
+      </select>
+      <input type="number" id="taxRateCustom" value="80" min="0" max="120" style="display: none;" placeholder="%">
+    </div>
+  </div>
+
+  <div class="form-group" id="dependentsGroup">
     <label for="dependents">공제대상 가족수 (본인 포함)</label>
     <input type="number" id="dependents" value="1" min="1" max="10">
   </div>
@@ -345,11 +378,11 @@
           <span class="amount" id="resLt">0 원</span>
         </li>
         <li class="detail-item">
-          <span>소득세 (근로소득 간이세액)</span>
+          <span id="lblIt">소득세 (근로소득 간이세액)</span>
           <span class="amount" id="resIt">0 원</span>
         </li>
         <li class="detail-item">
-          <span>지방소득세 (소득세의 10%)</span>
+          <span id="lblLocalTax">지방소득세 (소득세의 10%)</span>
           <span class="amount" id="resLtTax">0 원</span>
         </li>
       </ul>
@@ -371,6 +404,28 @@
     const amountInput = document.getElementById('amount');
     const taxFreeInput = document.getElementById('taxFree');
     const btnCalculate = document.getElementById('btnCalculate');
+    const chkTax = document.getElementById('chkTax');
+    const dependentsGroup = document.getElementById('dependentsGroup');
+    const taxRateGroup = document.getElementById('taxRateGroup');
+    const taxRateSelect = document.getElementById('taxRateSelect');
+    const taxRateCustom = document.getElementById('taxRateCustom');
+
+    // 소득세 체크박스 상태에 따라 비율 및 가족수 옵션 토글
+    chkTax.addEventListener('change', (e) => {
+      const show = e.target.checked;
+      dependentsGroup.style.display = show ? 'block' : 'none';
+      taxRateGroup.style.display = show ? 'block' : 'none';
+    });
+
+    // 소득세율 드롭다운 선택 이벤트
+    taxRateSelect.addEventListener('change', (e) => {
+      if (e.target.value === 'custom') {
+        taxRateCustom.style.display = 'inline-block';
+        taxRateCustom.focus();
+      } else {
+        taxRateCustom.style.display = 'none';
+      }
+    });
 
     tabBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -381,21 +436,17 @@
       });
     });
 
-    // 콤마 포맷팅 및 키패드 + 누를 때 000 입력 처리
     const attachCommaAndPlusKeyFormatter = (inputEl) => {
-      // 1) 숫자 키패드 / 일반 키보드 '+' 누를 시 '000' 주입
       inputEl.addEventListener('keydown', (e) => {
         if (e.key === '+' || e.code === 'NumpadAdd') {
-          e.preventDefault(); // 기본 '+' 문자 입력 방지
+          e.preventDefault();
           
           const start = inputEl.selectionStart;
           const end = inputEl.selectionEnd;
           const val = inputEl.value;
           
-          // 현재 커서 위치에 '000' 추가
           const newVal = val.substring(0, start) + '000' + val.substring(end);
           
-          // 숫자만 추출 후 콤마 재포맷팅
           const digitsOnly = newVal.replace(/[^0-9]/g, '');
           if (digitsOnly === '') {
             inputEl.value = '';
@@ -405,13 +456,11 @@
           const formatted = Number(digitsOnly).toLocaleString();
           inputEl.value = formatted;
 
-          // 커서 위치 조정
           const newCursor = Math.min(start + 4, formatted.length);
           inputEl.setSelectionRange(newCursor, newCursor);
         }
       });
 
-      // 2) 일반 숫자 입력 시 실시간 3자리 콤마 처리
       inputEl.addEventListener('input', (e) => {
         const cursorPosition = e.target.selectionStart;
         const originalLength = e.target.value.length;
@@ -451,6 +500,18 @@
     const isNpChecked = document.getElementById('chkNp').checked;
     const isHiChecked = document.getElementById('chkHi').checked;
     const isEiChecked = document.getElementById('chkEi').checked;
+    const isTaxChecked = document.getElementById('chkTax').checked;
+
+    // 적용할 소득세율 파싱 (%)
+    let taxPercent = 100;
+    if (isTaxChecked) {
+      const selectVal = document.getElementById('taxRateSelect').value;
+      if (selectVal === 'custom') {
+        taxPercent = parseFloat(document.getElementById('taxRateCustom').value) || 0;
+      } else {
+        taxPercent = parseFloat(selectVal) || 100;
+      }
+    }
 
     let gross = 0, net = 0;
     let np = 0, hi = 0, lt = 0, ei = 0, it = 0, localTax = 0, totalDed = 0;
@@ -458,20 +519,27 @@
     function compute(g) {
       const taxable = Math.max(0, g - taxFree);
       
+      // 4대보험 공제
       np = isNpChecked ? floor10(Math.min(taxable, 6170000) * 0.045) : 0;
       hi = isHiChecked ? floor10(taxable * 0.03545) : 0;
       lt = isHiChecked ? floor10(hi * 0.1295) : 0;
       ei = isEiChecked ? floor10(taxable * 0.009) : 0;
 
-      let base = Math.max(0, taxable - (dependents - 1) * 100000);
-      let rawIt = 0;
-      if (base <= 1060000) rawIt = 0;
-      else if (base <= 3000000) rawIt = (base - 1000000) * 0.04;
-      else if (base <= 5000000) rawIt = 80000 + (base - 3000000) * 0.12;
-      else rawIt = 320000 + (base - 5000000) * 0.22;
-      
-      it = floor10(rawIt);
-      localTax = floor10(it * 0.1);
+      // 소득세 및 지방소득세 공제 (체크 해제 시 0원, 체크 시 비율 적용)
+      if (isTaxChecked) {
+        let base = Math.max(0, taxable - (dependents - 1) * 100000);
+        let rawIt = 0;
+        if (base <= 1060000) rawIt = 0;
+        else if (base <= 3000000) rawIt = (base - 1000000) * 0.04;
+        else if (base <= 5000000) rawIt = 80000 + (base - 3000000) * 0.12;
+        else rawIt = 320000 + (base - 5000000) * 0.22;
+        
+        it = floor10(rawIt * (taxPercent / 100));
+        localTax = floor10(it * 0.1);
+      } else {
+        it = 0;
+        localTax = 0;
+      }
 
       totalDed = np + hi + lt + ei + it + localTax;
       net = g - totalDed;
@@ -507,6 +575,9 @@
     document.getElementById('resMainTitle').innerText = currentMode === 'NET_TO_GROSS' ? '예상 세전 급여' : '예상 실수령액';
     document.getElementById('resMainAmount').innerText = fmt(currentMode === 'NET_TO_GROSS' ? gross : net);
     document.getElementById('resDeduction').innerText = fmt(totalDed);
+
+    document.getElementById('lblIt').innerText = isTaxChecked ? `소득세 (${taxPercent}% 적용)` : '소득세 (미적용)';
+    document.getElementById('lblLocalTax').innerText = isTaxChecked ? '지방소득세 (소득세의 10%)' : '지방소득세 (미적용)';
 
     document.getElementById('resNp').innerText = fmt(np);
     document.getElementById('resHi').innerText = fmt(hi);
