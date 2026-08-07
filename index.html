@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2026년 급여 역계산기</title>
+  <title>급여 계산기</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
   <style>
     * { box-sizing: border-box !important; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }
     body { background-color: #f8fafc !important; display: flex !important; justify-content: center !important; align-items: flex-start !important; min-height: 100vh !important; padding: 30px 16px !important; color: #0f172a !important; }
@@ -39,8 +40,7 @@
     .detail-item .amount { font-weight: 600 !important; color: #0f172a !important; }
     .total-deduction-row { display: flex !important; justify-content: space-between !important; align-items: center !important; margin-top: 12px !important; padding-top: 12px !important; border-top: 1px dashed #bfdbfe !important; font-size: 15px !important; font-weight: 700 !important; color: #1e40af !important; }
   </style>
-</head>
-<body>
+</head><body>
 
 <div class="calculator-card">
   <div class="header">
@@ -97,6 +97,7 @@
         <span id="resMainTitle">예상 세전 급여</span>
         <span id="resMainAmount" style="font-size: 20px; font-weight: 800; color: #1e3a8a;">0 원</span>
       </div>
+      <!-- 차액 표시 행 -->
       <div class="summary-row extra" id="extraRow">
         <span>추가 필요 세전 금액 (차액)</span>
         <span id="resExtraDiff" style="font-size: 14px; font-weight: 700; color: #2563eb;">0 원</span>
@@ -118,7 +119,16 @@
         <span>총 공제 합계</span>
         <span id="resDeduction">0 원</span>
       </div>
+
+      <div class="net-result-box">
+        <span>예상 실수령액 (차인지급액)</span>
+        <span id="resNetAmount" style="color: #2563eb;">0 원</span>
+      </div>
     </div>
+  </div>
+
+  <div class="footer">
+    Copyright © 2026 wayer. All rights reserved.
   </div>
 </div>
 
@@ -259,22 +269,20 @@
     }
 
     const ded = computeDeductions(gross);
-    applyValuesToUI(gross, ded);
+    const net = gross - ded.totalDed;
+
+    applyValuesToUI(gross, ded, net);
   }
 
-  function applyValuesToUI(gross, ded) {
+  function applyValuesToUI(gross, ded, net) {
     const isTaxChecked = document.getElementById('chkTax').checked;
     const taxPercent = getSelectedTaxPercent();
     
     document.getElementById('lblIt').innerText = isTaxChecked ? `소득세 (${taxPercent}% 적용)` : '소득세 (미적용)';
 
-    // 예상 세전 급여
     document.getElementById('resMainAmount').innerText = fmt(gross);
-    
-    // 추가 필요 세전 금액 (차액) = 하단 6개 공제액의 순수 합계
     document.getElementById('resExtraDiff').innerText = fmt(ded.totalDed);
 
-    // 상세 항목별 공제액 표기
     document.getElementById('resNp').innerText = fmt(ded.np);
     document.getElementById('resHi').innerText = fmt(ded.hi);
     document.getElementById('resEi').innerText = fmt(ded.ei);
@@ -282,15 +290,18 @@
     document.getElementById('resIt').innerText = fmt(ded.it);
     document.getElementById('resLtTax').innerText = fmt(ded.localTax);
 
-    // 총 공제 합계 = 차액과 100% 동일
     document.getElementById('resDeduction').innerText = fmt(ded.totalDed);
+    document.getElementById('resNetAmount').innerText = fmt(net);
 
-    document.getElementById('resMainTitle').innerText = currentMode === 'NET_TO_GROSS' ? '예상 세전 급여' : '예상 실수령액';
-    
+    const extraRow = document.getElementById('extraRow');
+
+    // 탭 선택에 따라 차액(extraRow) 표시 여부 제어
     if (currentMode === 'NET_TO_GROSS') {
-      document.getElementById('extraRow').style.display = 'flex';
+      document.getElementById('resMainTitle').innerText = '예상 세전 급여';
+      extraRow.classList.remove('hidden'); // Net->Gross 모드에서는 차액 표시
     } else {
-      document.getElementById('extraRow').style.display = 'none';
+      document.getElementById('resMainTitle').innerText = '입력 세전 급여';
+      extraRow.classList.add('hidden'); // Gross->Net(세후급여) 모드에서는 차액 숨김(invisible)
     }
 
     const resultBox = document.getElementById('resultBox');
