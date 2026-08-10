@@ -1,33 +1,3 @@
-/**
- * ============================================================================
- * 4대보험 및 세금 요율 설정 (2026년 최신 개정 요율)
- * ============================================================================
- */
-const RATES_CONFIG = {
-  // 국민연금 (2026년 근로자 부담분 4.75%)
-  NP: {
-    RATE: 0.0475,
-    MIN_BASE: 390000,   // 국민연금 기준소득월액 하한선
-    MAX_BASE: 6170000   // 국민연금 기준소득월액 상한선
-  },
-  // 건강보험 (2026년 근로자 부담분 3.595%)
-  HI: {
-    RATE: 0.03595
-  },
-  // 장기요양보험 (건강보험료의 13.14%)
-  LT: {
-    RATE_OF_HI: 0.1314
-  },
-  // 고용보험 (실업급여 근로자 부담분 0.9%)
-  EI: {
-    RATE: 0.009
-  },
-  // 지방소득세 (소득세의 10%)
-  LOCAL_TAX: {
-    RATE: 0.10
-  }
-};
-
 // 현재 계산 모드 ('NET_TO_GROSS': 실수령액->세전, 'GROSS_TO_NET': 세전->실수령액)
 let currentMode = 'NET_TO_GROSS';
 
@@ -127,41 +97,21 @@ function getSelectedTaxPercent() {
 }
 
 /**
- * 💡 국세청 근로소득 간이세액 산출 (taxTable.js 모듈 우선 매핑 조회)
- * @param {number} baseSalary - 과세 대상 기본급
- * @param {number} dependents - 공제대상 가족수 (본인 포함)
- * @param {number} taxRatePercent - 원천징수 비율 (%)
+ * 💡 소득세 산출 컨트롤러 (taxTable.js 매핑 후 예외 구간 시 홈택스 공식 산식 호출)
  */
 function getIncomeTax(baseSalary, dependents = 1, taxRatePercent = 100) {
-  // 월 과세급여 106만 원 이하 소액부징수 (0원)
   if (baseSalary <= 1060000 || taxRatePercent <= 0) return 0;
 
   let baseTax = null;
 
-  // 1. taxTable.js 파일의 테이블 룩업 조회
+  // 1. taxTable.js 파일의 테이블 룩업 조회 (1순위)
   if (typeof lookupNtsTaxTable === 'function') {
     baseTax = lookupNtsTaxTable(baseSalary, dependents);
   }
 
-  // 2. 테이블 매핑 데이터가 없는 일반 구간은 간이세액 산식으로 추정 산출
+  // 2. 테이블 매핑 데이터가 없는 구간은 홈택스 정밀 공식 산식으로 보정 (2순위)
   if (baseTax === null) {
-    if (baseSalary <= 1500000) {
-      baseTax = (baseSalary - 1060000) * 0.033;
-    } else if (baseSalary <= 2000000) {
-      baseTax = 14520 + (baseSalary - 1500000) * 0.0825;
-    } else if (baseSalary <= 3000000) {
-      baseTax = 55770 + (baseSalary - 2000000) * 0.105;
-    } else if (baseSalary <= 4000000) {
-      baseTax = 160770 + (baseSalary - 3000000) * 0.12;
-    } else if (baseSalary <= 5000000) {
-      baseTax = 280770 + (baseSalary - 4000000) * 0.192;
-    } else {
-      baseTax = 472770 + (baseSalary - 5000000) * 0.28;
-    }
-
-    if (dependents > 1) {
-      baseTax = Math.max(0, baseTax - (dependents - 1) * 7000);
-    }
+    baseTax = calculateNtsFormulaTax(baseSalary, dependents);
   }
 
   // 원천징수 비율 반영 및 10원 단위 절사
@@ -170,7 +120,58 @@ function getIncomeTax(baseSalary, dependents = 1, taxRatePercent = 100) {
 }
 
 /**
+ * 국세청 홈택스 정밀 자동계산 공식 산식 (테이블 외 구간 대응용)
+ */
+function calculateNtsFormulaTax(baseSalary, dependents) {
+  const Y = baseSalary * 12;
+
+  let E = 0;
+  if (Y <= 5000000) E = Y * 0.7;
+  else if (Y <= 15000000) E = 3500000 + (Y - 5000000) * 0.4;
+  else if (Y <= 45000000) E = 7500000 + (Y - 15000000) * 0.15;
+  else if (Y <= 100000000) E = 12000000 + (Y - 45000000) * 0.05;
+  else E = 14750000 + (Y - 100000000) * 0.02;
+
+  const I = Y - E;
+  const P = dependents * 1500000;
+  const pensionBase = Math.max(RATES_CONFIG.NP.MIN_BASE, Math.min(baseSalary, RATES_CONFIG.NP.MAX_BASE));
+  const N = Math.floor(pensionBase * 0.045) * 12;
+
+  let S = 0;
+  if (dependents === 1) {
+    if (Y <= 30000000) S = 3100000 + (Y * 0.04);
+    else if (Y <= 45000000) S = 3100000 + (Y * 0.04) - ((Y - 30000000) * 0.05);
+    else if (Y <= 70000000) S = 3100000 + (Y * 0.015);
+    else if (Y <= 120000000) S = 3100000 + (Y * 0.005);
+    else S = 3100000;
+  } else {
+    if (Y <= 30000000) S = 3600000 + (Y * 0.04);
+    else if (Y <= 45000000) S = 3600000 + (Y * 0.04) - ((Y - 30000000) * 0.05);
+    else if (Y <= 70000000) S = 3600000 + (Y * 0.02);
+    else if (Y <= 120000000) S = 3600000 + (Y * 0.01);
+    else S = 3600000;
+  }
+
+  const taxBase = Math.max(0, I - P - N - S);
+
+  let calcTax = 0;
+  if (taxBase <= 14000000) calcTax = taxBase * 0.06;
+  else if (taxBase <= 50000000) calcTax = 840000 + (taxBase - 14000000) * 0.15;
+  else if (taxBase <= 88000000) calcTax = 6240000 + (taxBase - 50000000) * 0.24;
+  else if (taxBase <= 150000000) calcTax = 15360000 + (taxBase - 88000000) * 0.35;
+  else calcTax = 37060000 + (taxBase - 150000000) * 0.38;
+
+  let taxCredit = calcTax <= 500000 ? calcTax * 0.55 : 275000 + (calcTax - 500000) * 0.30;
+  let taxCreditLimit = Y <= 33000000 ? 740000 : Math.max(660000, 740000 - (Y - 33000000) * 0.008);
+  taxCredit = Math.min(taxCredit, taxCreditLimit);
+
+  const finalTax = Math.max(0, calcTax - taxCredit);
+  return Math.floor(finalTax / 12 / 10) * 10;
+}
+
+/**
  * 과세 기본급(baseSalary) 기준 4대보험 및 세금 공제 항목 산출
+ * (taxTable.js의 RATES_CONFIG 전역 객체 참조)
  */
 function computeDeductions(baseSalary) {
   const dependentsInput = document.getElementById('dependents');
@@ -207,47 +208,72 @@ function computeDeductions(baseSalary) {
   return { np, hi, lt, ei, it, localTax, totalDed };
 }
 
+/**
+ * =========================================================================
+ * [1] 그로스 넷 전용 함수: 세전 -> 세후 (Gross -> Net)
+ * =========================================================================
+ */
+function calculateGrossToNet(grossSalary, taxFree) {
+  const baseSalary = grossSalary;            // 과세 대상 기본급
+  const totalGross = baseSalary + taxFree;   // 총 세전 지급액
+  const ded = computeDeductions(baseSalary); // 공제액 산출
+  const net = totalGross - ded.totalDed;     // 실수령액
+
+  return { totalGross, ded, net };
+}
+
+/**
+ * =========================================================================
+ * [2] 넷 그로스 전용 함수: 세후 -> 세전 역산 (Net -> Gross)
+ * =========================================================================
+ */
+function calculateNetToGross(targetNet, taxFree) {
+  let low = Math.max(0, targetNet - taxFree);
+  let high = targetNet * 2.0;
+  let baseSalary = 0;
+  let ded = {};
+
+  for (let i = 0; i < 50; i++) {
+    baseSalary = (low + high) / 2;
+    ded = computeDeductions(baseSalary);
+    
+    const calculatedNet = (baseSalary + taxFree) - ded.totalDed;
+
+    if (Math.abs(calculatedNet - targetNet) < 0.1) break;
+
+    if (calculatedNet < targetNet) {
+      low = baseSalary;
+    } else {
+      high = baseSalary;
+    }
+  }
+
+  baseSalary = Math.round(baseSalary);
+  const totalGross = baseSalary + taxFree;
+  ded = computeDeductions(baseSalary);
+  const net = totalGross - ded.totalDed;
+
+  return { totalGross, ded, net };
+}
+
+/**
+ * =========================================================================
+ * [3] 메인 계산 실행기
+ * =========================================================================
+ */
 function calculate() {
   const amount = parseCurrency(document.getElementById('amount').value);
   const taxFree = parseCurrency(document.getElementById('taxFree').value);
 
-  let totalGross = 0;
-  let baseSalary = 0;
-  let ded = {};
-  let net = 0;
+  let result;
 
   if (currentMode === 'GROSS_TO_NET') {
-    baseSalary = amount;
-    totalGross = baseSalary + taxFree;
-
-    ded = computeDeductions(baseSalary);
-    net = totalGross - ded.totalDed;
+    result = calculateGrossToNet(amount, taxFree);
   } else {
-    let low = Math.max(0, amount - taxFree);
-    let high = amount * 2.0;
-
-    for (let i = 0; i < 50; i++) {
-      baseSalary = (low + high) / 2;
-      ded = computeDeductions(baseSalary);
-      
-      const calcNet = (baseSalary + taxFree) - ded.totalDed;
-
-      if (Math.abs(calcNet - amount) < 0.1) break;
-
-      if (calcNet < amount) {
-        low = baseSalary;
-      } else {
-        high = baseSalary;
-      }
-    }
-
-    baseSalary = Math.round(baseSalary);
-    totalGross = baseSalary + taxFree;
-    ded = computeDeductions(baseSalary);
-    net = totalGross - ded.totalDed;
+    result = calculateNetToGross(amount, taxFree);
   }
 
-  applyValuesToUI(totalGross, ded, net);
+  applyValuesToUI(result.totalGross, result.ded, result.net);
 }
 
 function applyValuesToUI(totalGross, ded, net) {
