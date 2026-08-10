@@ -13,222 +13,226 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-<div class="container">
+  <div class="container">
     <!-- 자바스크립트가 자동으로 탭을 그려주는 영역 -->
     <header id="mainHeader"></header>
-    <!-- 이하 각 페이지별 본문 내용 -->
 
-<div class="card">
-  <div class="header">
-    <h1>퇴직금 계산기</h1>
-    <p>퇴직금 산정 및 퇴직소득세 세액 계산서</p>
-  </div>
-
-  <div class="section-title">근로자 및 재직 정보</div>
-  <div class="date-row">
-    <div class="form-group">
-      <label for="workerName">성명</label>
-      <input type="text" id="workerName" value="홍길동">
-    </div>
-    <div class="form-group">
-      <label for="startDate">입사일</label>
-      <input type="date" id="startDate" value="2020-01-01">
-    </div>
-    <div class="form-group">
-      <label for="endDate">퇴사일</label>
-      <input type="date" id="endDate" value="2026-01-01">
-    </div>
-  </div>
-
-  <div class="section-title">최근 3개월 급여 및 비과세 내역 (입력칸 6개)</div>
-  <div class="month-grid">
-    <div class="month-header">
-      <span>구분</span>
-      <span>기본급/과세수당(원)</span>
-      <span>비과세수당(식대등)(원)</span>
-    </div>
-    <div class="month-row">
-      <span class="month-label">1개월전</span>
-      <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
-      <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
-    </div>
-    <div class="month-row">
-      <span class="month-label">2개월전</span>
-      <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
-      <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
-    </div>
-    <div class="month-row">
-      <span class="month-label">3개월전</span>
-      <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
-      <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
-    </div>
-  </div>
-
-  <div class="section-title">선택적 기타 수당 (연간 기준)</div>
-  <div class="option-grid">
-    <div class="form-group" style="margin-bottom:0!important;">
-      <label for="annualBonus">연간 총 상여금 (원)</label>
-      <input type="text" id="annualBonus" value="0" placeholder="지난 1년간 지급된 상여금" inputmode="numeric">
-    </div>
-    <div class="form-group" style="margin-bottom:0!important;">
-      <label for="annualLeaveFee">연차유급휴가 수당 (원)</label>
-      <input type="text" id="annualLeaveFee" value="0" placeholder="전년도 미사용 연차수당" inputmode="numeric">
-    </div>
-  </div>
-
-  <div class="section-title">통상임금 및 옵션</div>
-  <div class="date-row" style="grid-template-columns: 2fr 1fr !important;">
-    <div class="form-group" style="margin-bottom:0!important;">
-      <label for="regularSalary">통상임금 (월 기본 통상임금 수당 합계)</label>
-      <input type="text" id="regularSalary" value="3,000,000" placeholder="미입력 시 1개월전 급여 적용" inputmode="numeric">
-    </div>
-    <div class="form-group" style="margin-bottom:0!important;">
-      <label for="calcMethod">계산 기준 선택</label>
-      <select id="calcMethod">
-        <option value="AUTO" selected>자동 선택 (비교)</option>
-        <option value="AVG">평균임금 기준</option>
-        <option value="REG">통상임금 기준</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="checkbox-container">
-    <input type="checkbox" id="chkCalcTax" checked>
-    <label for="chkCalcTax">퇴직소득세 자동 계산 포함 (근속연수 공제 및 기본세율 반영)</label>
-  </div>
-
-  <button type="button" class="btn-submit" id="btnCalculate">퇴직금 산정내역서 생성</button>
-
-  <div class="result-section" id="resultBox">
-    <!-- PDF 저장 영역 -->
-    <div class="statement-card" id="pdfArea">
-      <div class="statement-header">
-        <h2>퇴 직 금 산 정 내 역 서</h2>
-        <p>근로기준법 및 소득세법에 따른 퇴직금·퇴직소득세 계산서</p>
+    <!-- 퇴직금 계산기 메인 카드 -->
+    <main class="card">
+      <div class="header">
+        <h1>퇴직금 계산기</h1>
+        <p>퇴직금 산정 및 퇴직소득세 세액 계산서</p>
       </div>
 
-      <!-- 인적사항 및 재직정보 표 -->
-    <table class="report-table">
-      <tr>
-        <th style="width: 20%;">성 명</th>
-        <td style="width: 30%;" class="center" id="rptName">홍길동</td>
-        <th style="width: 20%;">입사 일자</th>
-        <td style="width: 30%;" class="center" id="rptStartDate">-</td>
-      </tr>
-      <tr>
-        <th>퇴사 일자</th>
-        <td class="center" id="rptEndDate">-</td>
-        <th>총 재직일수</th>
-        <td class="center" id="rptWorkingDays">-</td>
-      </tr>
-      <tr>
-        <th>재직 기간</th>
-        <td colspan="3" class="center" id="rptPeriod">-</td>
-      </tr>
-    </table>
-
-      <table class="report-table">
-        <thead>
-          <tr>
-            <th colspan="4">최근 3개월간 임금 지급 내역</th>
-          </tr>
-          <tr>
-            <th>구분</th>
-            <th>과세 급여</th>
-            <th>비과세 급여</th>
-            <th>합계</th>
-          </tr>
-        </thead>
-        <tbody id="rpt3MonthBody"></tbody>
-      </table>
-
-      <table class="report-table">
-        <tr>
-          <th style="width: 40%;">연간 총 상여금 (3/12)</th>
-          <td class="num" id="rptBonus312">0 원</td>
-        </tr>
-        <tr>
-          <th>연차유급휴가 수당 (3/12)</th>
-          <td class="num" id="rptLeave312">0 원</td>
-        </tr>
-        <tr>
-          <th>3개월간 임금 총액 (A)</th>
-          <td class="num" id="rptTotal3M" style="font-weight: 700;">0 원</td>
-        </tr>
-      </table>
-
-      <table class="report-table">
-        <tr>
-          <th style="width: 40%;">1일 평균임금 (A ÷ 92일)</th>
-          <td class="num" id="rptAvg1Day">0 원</td>
-        </tr>
-        <tr>
-          <th>1일 통상임금 (월통상÷209×8h)</th>
-          <td class="num" id="rptReg1Day">0 원</td>
-        </tr>
-        <tr style="background-color: #f8fafc;">
-          <th>최종 적용 1일 임금</th>
-          <td class="num" id="rptApplied1Day" style="color: #1e3a8a; font-weight: 800;">0 원</td>
-        </tr>
-      </table>
-
-      <div id="taxSection" style="display: none;">
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th colspan="2">퇴직소득세 과세표준 및 세액 산출 내역</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th style="width: 40%;">퇴직소득 총지급액</th>
-              <td class="num" id="rptTaxGross">0 원</td>
-            </tr>
-            <tr>
-              <th>근속연수 공제액</th>
-              <td class="num" id="rptServiceDeduction">0 원</td>
-            </tr>
-            <tr>
-              <th>환산급여&nbsp; 공제후 × 12 ÷ 근속연수)</th>
-              <td class="num" id="rptConvertedSalary">0 원</td>
-            </tr>
-            <tr>
-              <th>환산급여 공제액</th>
-              <td class="num" id="rptConvertedDeduction">0 원</td>
-            </tr>
-            <tr>
-              <th>퇴직소득 산출세액</th>
-              <td class="num" id="rptIncomeTax" style="font-weight: 700; color: #d97706;">0 원</td>
-            </tr>
-            <tr>
-              <th>지방소득세 (10%)</th>
-              <td class="num" id="rptLocalTax" style="font-weight: 700; color: #d97706;">0 원</td>
-            </tr>
-            <tr style="background-color: #fff7ed;">
-              <th>총 원천징수 세액 합계</th>
-              <td class="num" id="rptTotalTax" style="font-weight: 800; color: #c2410c;">0 원</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="section-title">근로자 및 재직 정보</div>
+      <div class="date-row">
+        <div class="form-group">
+          <label for="workerName">성명</label>
+          <input type="text" id="workerName" value="홍길동">
+        </div>
+        <div class="form-group">
+          <label for="startDate">입사일</label>
+          <input type="date" id="startDate" value="2020-01-01">
+        </div>
+        <div class="form-group">
+          <label for="endDate">퇴사일</label>
+          <input type="date" id="endDate" value="2026-01-01">
+        </div>
       </div>
 
-    <!-- 하단 최종 금액 한 줄 배치 영역 -->
-      <div class="highlight-box">
-        <span class="title" id="resTitleText">최종 차감지급액 (실수령액)</span>
-        <span class="amount" id="rptFinalSeverance">0 원</span>
+      <div class="section-title">최근 3개월 급여 및 비과세 내역</div>
+      <div class="month-grid">
+        <div class="month-header">
+          <span>구분</span>
+          <span>기본급/과세수당(원)</span>
+          <span>비과세수당(식대등)(원)</span>
+        </div>
+        <div class="month-row">
+          <span class="month-label">1개월전</span>
+          <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
+          <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
+        </div>
+        <div class="month-row">
+          <span class="month-label">2개월전</span>
+          <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
+          <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
+        </div>
+        <div class="month-row">
+          <span class="month-label">3개월전</span>
+          <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
+          <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
+        </div>
       </div>
+
+      <div class="section-title">선택적 기타 수당 (연간 기준)</div>
+      <div class="option-grid">
+        <div class="form-group" style="margin-bottom:0 !important;">
+          <label for="annualBonus">연간 총 상여금 (원)</label>
+          <input type="text" id="annualBonus" value="0" placeholder="지난 1년간 지급된 상여금" inputmode="numeric">
+        </div>
+        <div class="form-group" style="margin-bottom:0 !important;">
+          <label for="annualLeaveFee">연차유급휴가 수당 (원)</label>
+          <input type="text" id="annualLeaveFee" value="0" placeholder="전년도 미사용 연차수당" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="section-title">통상임금 및 옵션</div>
+      <div class="date-row" style="grid-template-columns: 2fr 1fr !important;">
+        <div class="form-group" style="margin-bottom:0 !important;">
+          <label for="regularSalary">통상임금 (월 기본 통상임금 수당 합계)</label>
+          <input type="text" id="regularSalary" value="3,000,000" placeholder="미입력 시 1개월전 급여 적용" inputmode="numeric">
+        </div>
+        <div class="form-group" style="margin-bottom:0 !important;">
+          <label for="calcMethod">계산 기준 선택</label>
+          <select id="calcMethod">
+            <option value="AUTO" selected>자동 선택 (비교)</option>
+            <option value="AVG">평균임금 기준</option>
+            <option value="REG">통상임금 기준</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checkbox-container">
+        <input type="checkbox" id="chkCalcTax" checked>
+        <label for="chkCalcTax">퇴직소득세 자동 계산 포함 (근속연수 공제 및 기본세율 반영)</label>
+      </div>
+
+      <button type="button" class="btn-primary" id="btnCalculate">퇴직금 산정내역서 생성</button>
+
+      <!-- 계산 결과 리포트 영역 -->
+      <div class="result-section" id="resultBox">
+        <!-- PDF 저장 영역 -->
+        <div class="statement-card" id="pdfArea">
+          <div class="statement-header">
+            <h2>퇴 직 금 산 정 내 역 서</h2>
+            <p>근로기준법 및 소득세법에 따른 퇴직금·퇴직소득세 계산서</p>
+          </div>
+
+          <!-- 인적사항 및 재직정보 표 -->
+          <table class="report-table">
+            <tr>
+              <th style="width: 20%;">성 명</th>
+              <td style="width: 30%;" class="center" id="rptName">홍길동</td>
+              <th style="width: 20%;">입사 일자</th>
+              <td style="width: 30%;" class="center" id="rptStartDate">-</td>
+            </tr>
+            <tr>
+              <th>퇴사 일자</th>
+              <td class="center" id="rptEndDate">-</td>
+              <th>총 재직일수</th>
+              <td class="center" id="rptWorkingDays">-</td>
+            </tr>
+            <tr>
+              <th>재직 기간</th>
+              <td colspan="3" class="center" id="rptPeriod">-</td>
+            </tr>
+          </table>
+
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th colspan="4">최근 3개월간 임금 지급 내역</th>
+              </tr>
+              <tr>
+                <th>구분</th>
+                <th>과세 급여</th>
+                <th>비과세 급여</th>
+                <th>합계</th>
+              </tr>
+            </thead>
+            <tbody id="rpt3MonthBody"></tbody>
+          </table>
+
+          <table class="report-table">
+            <tr>
+              <th style="width: 40%;">연간 총 상여금 (3/12)</th>
+              <td class="num" id="rptBonus312">0 원</td>
+            </tr>
+            <tr>
+              <th>연차유급휴가 수당 (3/12)</th>
+              <td class="num" id="rptLeave312">0 원</td>
+            </tr>
+            <tr>
+              <th>3개월간 임금 총액 (A)</th>
+              <td class="num" id="rptTotal3M" style="font-weight: 700;">0 원</td>
+            </tr>
+          </table>
+
+          <table class="report-table">
+            <tr>
+              <th style="width: 40%;">1일 평균임금 (A ÷ 92일)</th>
+              <td class="num" id="rptAvg1Day">0 원</td>
+            </tr>
+            <tr>
+              <th>1일 통상임금 (월통상÷209×8h)</th>
+              <td class="num" id="rptReg1Day">0 원</td>
+            </tr>
+            <tr style="background-color: #f8fafc;">
+              <th>최종 적용 1일 임금</th>
+              <td class="num" id="rptApplied1Day" style="color: #1e3a8a; font-weight: 800;">0 원</td>
+            </tr>
+          </table>
+
+          <div id="taxSection" style="display: none;">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th colspan="2">퇴직소득세 과세표준 및 세액 산출 내역</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th style="width: 40%;">퇴직소득 총지급액</th>
+                  <td class="num" id="rptTaxGross">0 원</td>
+                </tr>
+                <tr>
+                  <th>근속연수 공제액</th>
+                  <td class="num" id="rptServiceDeduction">0 원</td>
+                </tr>
+                <tr>
+                  <th>환산급여 (공제후 × 12 ÷ 근속연수)</th>
+                  <td class="num" id="rptConvertedSalary">0 원</td>
+                </tr>
+                <tr>
+                  <th>환산급여 공제액</th>
+                  <td class="num" id="rptConvertedDeduction">0 원</td>
+                </tr>
+                <tr>
+                  <th>퇴직소득 산출세액</th>
+                  <td class="num" id="rptIncomeTax" style="font-weight: 700; color: #d97706;">0 원</td>
+                </tr>
+                <tr>
+                  <th>지방소득세 (10%)</th>
+                  <td class="num" id="rptLocalTax" style="font-weight: 700; color: #d97706;">0 원</td>
+                </tr>
+                <tr style="background-color: #fff7ed;">
+                  <th>총 원천징수 세액 합계</th>
+                  <td class="num" id="rptTotalTax" style="font-weight: 800; color: #c2410c;">0 원</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 하단 최종 금액 한 줄 배치 영역 -->
+          <div class="highlight-box">
+            <span class="title" id="resTitleText">최종 차감지급액 (실수령액)</span>
+            <span class="amount" id="rptFinalSeverance">0 원</span>
+          </div>
+        </div>
+
+        <!-- PDF 다운로드 버튼 -->
+        <button type="button" class="btn-primary" id="btnDownloadPdf" style="margin-top: 14px !important;">
+          📄 산정내역서 PDF 다운로드
+        </button>
+      </div>
+
+      <div class="footer">
+        Copyright © 2026 wayer. All rights reserved.
+      </div>
+    </main>
   </div>
 
-    <!-- PDF 다운로드 버튼 -->
-    <button type="button" class="btn-submit" id="btnDownloadPdf" style="margin-top: 14px !important;">
-      📄 산정내역서 PDF 다운로드
-    </button>
-  <div class="footer">
-    Copyright © 2026 wayer. All rights reserved.
-  </div>
-</div>
-   </div>
-<script src="common.js"></script>
-<script src="severance.js"></script>
+  <script src="common.js"></script>
+  <script src="severance.js"></script>
 </body>
 </html>
