@@ -177,11 +177,12 @@ function generateStatement() {
   }
 
   // 리포트 UI 데이터 동기화
-  document.getElementById('rptName').innerText = name;
-  document.getElementById('rptPeriod').innerText = `${startDateStr} ~ ${endDateStr}`;
+ document.getElementById('rptName').innerText = name;
   document.getElementById('rptStartDate').innerText = startDateStr;
+  document.getElementById('rptEndDate').innerText = endDateStr;
   document.getElementById('rptWorkingDays').innerText = `${workingDays.toLocaleString()} 일 (${serviceYears}년차)`;
-
+  document.getElementById('rptPeriod').innerText = `${startDateStr} ~ ${endDateStr}`;
+  
   document.getElementById('rptBonus312').innerText = fmt(bonus312);
   document.getElementById('rptLeave312').innerText = fmt(leave312);
   document.getElementById('rptTotal3M').innerText = fmt(total3MonthPay);
