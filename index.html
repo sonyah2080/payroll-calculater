@@ -6,104 +6,106 @@
   <title>급여계산기</title>
   
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
-   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-    <!-- 자바스크립트가 자동으로 탭을 그려주는 영역 -->
+  <div class="container">
+    <!-- 자바스크립트가 자동으로 헤더 탭을 그려주는 영역 -->
     <header id="mainHeader"></header>
-    <!-- 이하 각 페이지별 본문 내용 -->
 
-<div class="card">
-  <div class="header">
-    <h1>급여 계산기</h1>
-    <p>공제항목 10원 단위 절사 적용</p>
-  </div>
-  
-  <div class="tab-group">
-    <button type="button" class="tab-btn active" data-mode="NET_TO_GROSS">Net→Gross(세전급여)</button>
-    <button type="button" class="tab-btn" data-mode="GROSS_TO_NET">Gross→Net(세후급여)</button>
-  </div>
-
-  <div class="form-group">
-    <label id="amountLabel" for="amount">목표 실수령액 (원)</label>
-    <input type="text" id="amount" value="3,000,000" inputmode="numeric">
-  </div>
-
-  <div class="form-group">
-    <label for="taxFree">비과세 수당 (식대 등) (원)</label>
-    <input type="text" id="taxFree" value="200,000" inputmode="numeric">
-  </div>
-
-  <span class="checkbox-group-title">공제 항목 선택</span>
-  <div class="checkbox-group">
-    <label class="checkbox-label"><input type="checkbox" id="chkNp" checked> 국민연금</label>
-    <label class="checkbox-label"><input type="checkbox" id="chkHi" checked> 건강보험</label>
-    <label class="checkbox-label"><input type="checkbox" id="chkEi" checked> 고용보험</label>
-    <label class="checkbox-label"><input type="checkbox" id="chkTax" checked> 소득세</label>
-  </div>
-
-  <div class="form-group" id="taxRateGroup">
-    <label for="taxRateSelect">소득세 원천징수 비율 선택</label>
-    <select id="taxRateSelect">
-      <option value="100" selected>100% (기본 간이세액표)</option>
-      <option value="80">80% (법정 최소 세액)</option>
-      <option value="50">50% (임의 최소 징수)</option>
-      <option value="10">10% (소액 징수)</option>
-      <option value="0">0% (소득세 미적용)</option>
-      <option value="custom">직접 입력 (%)</option>
-    </select>
-    <input type="number" id="taxRateCustom" class="custom-tax-input" value="80" min="0" max="200" placeholder="원하는 소득세 비율 입력 (%)">
-  </div>
-
-  <div class="form-group" id="dependentsGroup">
-    <label for="dependents">공제대상 가족수 (본인 포함)</label>
-    <input type="number" id="dependents" value="1" min="1" max="10">
-  </div>
-
-  <button type="button" class="btn-submit" id="btnCalculate">계산하기</button>
-
-  <div class="result-section" id="resultBox">
-    <div class="summary-card">
-      <div class="summary-row main">
-        <span id="resMainTitle">예상 세전 급여</span>
-        <span id="resMainAmount" style="font-size: 20px; font-weight: 800; color: #1e3a8a;">0 원</span>
+    <!-- 급여 계산기 메인 카드 -->
+    <main class="card">
+      <div class="header">
+        <h1>급여 계산기</h1>
+        <p>공제항목 10원 단위 절사 적용</p>
       </div>
-      <div class="summary-row extra" id="extraRow">
-        <span>추가 필요 세전 금액 (차액)</span>
-        <span id="resExtraDiff" style="font-size: 14px; font-weight: 700; color: #2563eb;">0 원</span>
-      </div>
-    </div>
-
-    <div class="detail-box">
-      <div class="detail-title">공제 항목별 상세 내역 (10원 단위 절사)</div>
-      <ul class="detail-list">
-        <li class="detail-item"><span>국민연금 (4.5%)</span><span class="amount" id="resNp">0 원</span></li>
-        <li class="detail-item"><span>건강보험 (3.545%)</span><span class="amount" id="resHi">0 원</span></li>
-        <li class="detail-item"><span>고용보험 (0.9%)</span><span class="amount" id="resEi">0 원</span></li>
-        <li class="detail-item"><span>장기요양보험 (12.95%)</span><span class="amount" id="resLt">0 원</span></li>
-        <li class="detail-item"><span id="lblIt">소득세</span><span class="amount" id="resIt">0 원</span></li>
-        <li class="detail-item"><span>지방소득세 (10%)</span><span class="amount" id="resLtTax">0 원</span></li>
-      </ul>
-
-      <div class="total-deduction-row">
-        <span>총 공제 합계</span>
-        <span id="resDeduction">0 원</span>
+      
+      <div class="tab-group">
+        <button type="button" class="tab-btn active" data-mode="NET_TO_GROSS">Net→Gross(세전급여)</button>
+        <button type="button" class="tab-btn" data-mode="GROSS_TO_NET">Gross→Net(세후급여)</button>
       </div>
 
-      <div class="net-result-box">
-        <span>예상 실수령액 (차인지급액)</span>
-        <span id="resNetAmount" style="color: #2563eb;">0 원</span>
+      <div class="form-group">
+        <label id="amountLabel" for="amount">목표 실수령액 (원)</label>
+        <input type="text" id="amount" value="3,000,000" inputmode="numeric">
       </div>
-    </div>
+
+      <div class="form-group">
+        <label for="taxFree">비과세 수당 (식대 등) (원)</label>
+        <input type="text" id="taxFree" value="200,000" inputmode="numeric">
+      </div>
+
+      <span class="checkbox-group-title">공제 항목 선택</span>
+      <div class="checkbox-group">
+        <label class="checkbox-label"><input type="checkbox" id="chkNp" checked> 국민연금</label>
+        <label class="checkbox-label"><input type="checkbox" id="chkHi" checked> 건강보험</label>
+        <label class="checkbox-label"><input type="checkbox" id="chkEi" checked> 고용보험</label>
+        <label class="checkbox-label"><input type="checkbox" id="chkTax" checked> 소득세</label>
+      </div>
+
+      <div class="form-group" id="taxRateGroup">
+        <label for="taxRateSelect">소득세 원천징수 비율 선택</label>
+        <select id="taxRateSelect">
+          <option value="100" selected>100% (기본 간이세액표)</option>
+          <option value="80">80% (법정 최소 세액)</option>
+          <option value="50">50% (임의 최소 징수)</option>
+          <option value="10">10% (소액 징수)</option>
+          <option value="0">0% (소득세 미적용)</option>
+          <option value="custom">직접 입력 (%)</option>
+        </select>
+        <input type="number" id="taxRateCustom" class="custom-tax-input" value="80" min="0" max="200" placeholder="원하는 소득세 비율 입력 (%)">
+      </div>
+
+      <div class="form-group" id="dependentsGroup">
+        <label for="dependents">공제대상 가족수 (본인 포함)</label>
+        <input type="number" id="dependents" value="1" min="1" max="10">
+      </div>
+
+      <button type="button" class="btn-primary" id="btnCalculate">계산하기</button>
+
+      <!-- 계산 결과 영역 -->
+      <div class="result-section" id="resultBox">
+        <div class="summary-card">
+          <div class="summary-row main">
+            <span id="resMainTitle">예상 세전 급여</span>
+            <span id="resMainAmount" style="font-size: 20px; font-weight: 800; color: #1e3a8a;">0 원</span>
+          </div>
+          <div class="summary-row extra" id="extraRow">
+            <span>추가 필요 세전 금액 (차액)</span>
+            <span id="resExtraDiff" style="font-size: 14px; font-weight: 700; color: #2563eb;">0 원</span>
+          </div>
+        </div>
+
+        <div class="detail-box">
+          <div class="detail-title">공제 항목별 상세 내역 (10원 단위 절사)</div>
+          <ul class="detail-list">
+            <li class="detail-item"><span>국민연금 (4.5%)</span><span class="amount" id="resNp">0 원</span></li>
+            <li class="detail-item"><span>건강보험 (3.545%)</span><span class="amount" id="resHi">0 원</span></li>
+            <li class="detail-item"><span>고용보험 (0.9%)</span><span class="amount" id="resEi">0 원</span></li>
+            <li class="detail-item"><span>장기요양보험 (12.95%)</span><span class="amount" id="resLt">0 원</span></li>
+            <li class="detail-item"><span id="lblIt">소득세</span><span class="amount" id="resIt">0 원</span></li>
+            <li class="detail-item"><span>지방소득세 (10%)</span><span class="amount" id="resLtTax">0 원</span></li>
+          </ul>
+
+          <div class="total-deduction-row">
+            <span>총 공제 합계</span>
+            <span id="resDeduction">0 원</span>
+          </div>
+
+          <div class="net-result-box">
+            <span>예상 실수령액 (차인지급액)</span>
+            <span id="resNetAmount" style="color: #2563eb;">0 원</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        Copyright © 2026 wayer. All rights reserved.
+      </div>
+    </main>
   </div>
 
-  <div class="footer">
-    Copyright © 2026 wayer. All rights reserved.
-  </div>
-</div>
-</div>
-<script src="common.js"></script>
-<script src="calculator.js"></script>
+  <script src="common.js"></script>
+  <script src="calculator.js"></script>
 </body>
 </html>
