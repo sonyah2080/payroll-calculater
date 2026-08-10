@@ -197,7 +197,7 @@ function generateStatement() {
   resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// PDF 다운로드 기능 함수 (스크롤 백지 현상 보정 반영)
+// PDF 다운로드 기능 함수 (한 페이지에 딱 맞추는 보정 코드)
 function downloadPdf() {
   const element = document.getElementById('pdfArea');
   const resultBox = document.getElementById('resultBox');
@@ -208,23 +208,26 @@ function downloadPdf() {
     return;
   }
 
-  // 결과 박스가 숨겨져 있다면 출력 상태로 보정
+  // 1. 결과 박스가 숨겨져 있다면 출력 상태로 보정
   if (resultBox) {
     resultBox.style.display = 'block';
   }
 
+  // 2. 한 페이지 출력용 html2pdf 옵션 설정
   const opt = {
-    margin:       [10, 10, 10, 10], // 여백 (mm)
+    margin:       [8, 8, 8, 8],      // 상, 좌, 하, 우 여백을 8mm로 최소화
     filename:     `퇴직금_산정내역서_${name}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { 
-      scale: 2,             // 해상도
-      useCORS: true,        // 폰트 및 리소스 캡처 허용
-      scrollY: 0,           // 스크롤 위치 보정 (백지 출력 방지)
+      scale: 2,                      // 해상도 선명하게
+      useCORS: true, 
+      scrollY: 0, 
       scrollX: 0,
       windowWidth: document.documentElement.offsetWidth
     },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    // 핵심: 페이지가 자동으로 넘어가거나 잘리지 않도록 단일 페이지 배율 고정
+    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
   html2pdf().set(opt).from(element).save().catch(err => {
