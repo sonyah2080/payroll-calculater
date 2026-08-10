@@ -3,7 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnDownloadPdf = document.getElementById('btnDownloadPdf');
 
   // 입력창 콤마 및 키패드 + 키(000) 지원 포맷터 연결
-  document.querySelectorAll('input[type="text"]').forEach(attachFormatter);
+  if (typeof attachFormatter === 'function') {
+    document.querySelectorAll('input[type="text"]').forEach(attachFormatter);
+  }
 
   // 산정내역서 생성 버튼
   if (btnCalculate) {
@@ -169,11 +171,9 @@ function generateStatement() {
 
     document.getElementById('taxSection').style.display = 'block';
     document.getElementById('resTitleText').innerText = '최종 차감지급액 (실수령액)';
-    document.getElementById('rptCalcFormula').innerText = '산식: 세전 퇴직금 - 총 원천징수 세액';
   } else {
     document.getElementById('taxSection').style.display = 'none';
     document.getElementById('resTitleText').innerText = '최종 법정 퇴직금 (세전)';
-    document.getElementById('rptCalcFormula').innerText = '산식: 1일 산정임금 × 30일 × (재직일수 ÷ 365)';
   }
 
   // 리포트 UI 데이터 동기화
@@ -197,7 +197,7 @@ function generateStatement() {
   resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// PDF 다운로드 기능 함수 (한 페이지에 딱 맞추는 보정 코드)
+// PDF 다운로드 기능 함수
 function downloadPdf() {
   const element = document.getElementById('pdfArea');
   const resultBox = document.getElementById('resultBox');
@@ -208,25 +208,22 @@ function downloadPdf() {
     return;
   }
 
-  // 1. 결과 박스가 숨겨져 있다면 출력 상태로 보정
   if (resultBox) {
     resultBox.style.display = 'block';
   }
 
-  // 2. 한 페이지 출력용 html2pdf 옵션 설정
   const opt = {
-    margin:       [8, 8, 8, 8],      // 상, 좌, 하, 우 여백을 8mm로 최소화
+    margin:       [8, 8, 8, 8],
     filename:     `퇴직금_산정내역서_${name}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { 
-      scale: 2,                      // 해상도 선명하게
+      scale: 2,
       useCORS: true, 
       scrollY: 0, 
       scrollX: 0,
       windowWidth: document.documentElement.offsetWidth
     },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    // 핵심: 페이지가 자동으로 넘어가거나 잘리지 않도록 단일 페이지 배율 고정
     pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
