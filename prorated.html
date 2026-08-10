@@ -31,7 +31,6 @@
           <input type="text" id="proTaxFree" value="200,000" inputmode="numeric">
         </div>
 
-      <!-- 근무 기간 영역 (기준년월 선택 + 8자리 연속 입력) -->
         <div class="form-group">
           <label for="proTargetMonth">계산 기준년월</label>
           <input type="month" id="proTargetMonth">
@@ -45,13 +44,6 @@
             <input type="text" id="proEndDate" placeholder="20260831" maxlength="10">
           </div>
         </div>
-        <div class="form-group">
-          <label for="proCalcType">계산 방식 선택</label>
-          <select id="proCalcType">
-            <option value="TOTAL_DAYS">월 총 일수 기준 (해당 월 달력 일수 28~31일)</option>
-            <option value="FIXED_209">월 209시간/고정 소정일수 기준</option>
-          </select>
-        </div>
 
         <span class="checkbox-group-title">공제 항목 선택</span>
         <div class="checkbox-group">
@@ -61,27 +53,72 @@
           <label class="checkbox-label"><input type="checkbox" id="proChkTax" checked> 소득세</label>
         </div>
 
+        <!-- 소득세 원천징수 비율 선택 박스 (추가) -->
+        <div class="form-group" id="proTaxRateGroup">
+          <label for="proTaxRateSelect">소득세 원천징수 비율 선택</label>
+          <select id="proTaxRateSelect">
+            <option value="100" selected>100% (기본 간이세액표)</option>
+            <option value="80">80% (법정 최소 세액)</option>
+            <option value="50">50% (임의 최소 징수)</option>
+            <option value="10">10% (소액 징수)</option>
+            <option value="0">0% (소득세 미적용)</option>
+            <option value="custom">직접 입력 (%)</option>
+          </select>
+          <input type="number" id="proTaxRateCustom" class="custom-tax-input" value="80" min="0" max="200" placeholder="원하는 소득세 비율 입력 (%)">
+        </div>
+
+        <div class="form-group" id="proDependentsGroup">
+          <label for="proDependents">공제대상 가족수 (본인 포함)</label>
+          <input type="number" id="proDependents" value="1" min="1" max="10">
+        </div>
+
         <button type="button" id="btnProratedCalc" class="btn-primary">일할 급여 계산하기</button>
       </form>
 
-      <!-- 2번 이미지 형태의 상세 계산 결과 영역 -->
+      <!-- 상세 계산 결과 영역 -->
       <div class="result-section" id="proResultBox">
         <div class="summary-card">
           <div class="summary-row main">
-            <span>일할 세전 급여</span>
+            <span>일할 세전 총급여</span>
             <span id="resProGross" style="font-size: 20px; font-weight: 800; color: #1e3a8a;">0 원</span>
+          </div>
+          <div class="summary-row extra" style="margin-top: 6px;">
+            <span>└ 일할 과세 급여</span>
+            <span id="resProTaxable" style="font-weight: 700; color: #334155;">0 원</span>
+          </div>
+          <div class="summary-row extra" style="margin-top: 4px;">
+            <span>└ 일할 비과세 수당</span>
+            <span id="resProTaxFree" style="font-weight: 700; color: #059669;">0 원</span>
           </div>
         </div>
 
         <div class="detail-box">
           <div class="detail-title">공제 항목별 상세 내역 (10원 단위 절사)</div>
           <ul class="detail-list">
-            <li class="detail-item"><span>국민연금 (4.5%)</span><span class="amount" id="resProNp">0 원</span></li>
-            <li class="detail-item"><span>건강보험 (3.545%)</span><span class="amount" id="resProHi">0 원</span></li>
-            <li class="detail-item"><span>고용보험 (0.9%)</span><span class="amount" id="resProEi">0 원</span></li>
-            <li class="detail-item"><span>장기요양보험 (12.95%)</span><span class="amount" id="resProLt">0 원</span></li>
-            <li class="detail-item"><span>소득세 (간이세액)</span><span class="amount" id="resProIt">0 원</span></li>
-            <li class="detail-item"><span>지방소득세 (10%)</span><span class="amount" id="resProLtTax">0 원</span></li>
+            <li class="detail-item">
+              <span>국민연금 (4.5%) <small id="noteNp" style="color:#64748b; font-size:11px;"></small></span>
+              <span class="amount" id="resProNp">0 원</span>
+            </li>
+            <li class="detail-item">
+              <span>건강보험 (3.545%) <small id="noteHi" style="color:#64748b; font-size:11px;"></small></span>
+              <span class="amount" id="resProHi">0 원</span>
+            </li>
+            <li class="detail-item">
+              <span>장기요양보험 (12.95%)</span>
+              <span class="amount" id="resProLt">0 원</span>
+            </li>
+            <li class="detail-item">
+              <span>고용보험 (0.9%)</span>
+              <span class="amount" id="resProEi">0 원</span>
+            </li>
+            <li class="detail-item">
+              <span>소득세 <small id="resProTaxRateLabel" style="color:#2563eb; font-size:12px;"></small></span>
+              <span class="amount" id="resProIt">0 원</span>
+            </li>
+            <li class="detail-item">
+              <span>지방소득세 (10%)</span>
+              <span class="amount" id="resProLtTax">0 원</span>
+            </li>
           </ul>
 
           <div class="total-deduction-row">
@@ -103,6 +140,7 @@
   </div>
 
   <script src="common.js"></script>
+  <script src="calculator.js"></script>
   <script src="prorated.js"></script>
 </body>
 </html>
