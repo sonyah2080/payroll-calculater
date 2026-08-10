@@ -23,10 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     monthEl.addEventListener('change', (e) => {
       updateMonthDates(e.target.value);
+      checkMidMonthEntry(); // 날짜 변경 시 중도입사 여부 즉시 체크
     });
   }
 
-  // 8자리 연속 입력 지원 (YYYYMMDD -> YYYY-MM-DD)
+  // 8자리 연속 입력 지원 및 날짜 변경 감지
   [startEl, endEl].forEach(input => {
     if (!input) return;
 
@@ -39,20 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         e.target.value = val;
       }
+      checkMidMonthEntry(); // 날짜 변경 시 체크박스 상태 즉시 업데이트
     });
+
+    input.addEventListener('change', checkMidMonthEntry);
+    input.addEventListener('blur', checkMidMonthEntry);
   });
 
-  // 소득세 비율 '직접 입력(custom)' 선택 토글 이벤트
+  // 소득세 비율 '직접 입력(custom)' 토글
   const taxRateSelect = document.getElementById('proTaxRateSelect');
   const taxRateCustom = document.getElementById('proTaxRateCustom');
 
   if (taxRateSelect && taxRateCustom) {
     taxRateSelect.addEventListener('change', (e) => {
-      if (e.target.value === 'custom') {
-        taxRateCustom.style.display = 'block';
-      } else {
-        taxRateCustom.style.display = 'none';
-      }
+      taxRateCustom.style.display = (e.target.value === 'custom') ? 'block' : 'none';
     });
   }
 
@@ -60,8 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnCalc) {
     btnCalc.addEventListener('click', calculateProrated);
   }
+
+  // 최초 로딩 시 중도입사 여부 체크하여 체크박스 상태 반영
+  checkMidMonthEntry();
 });
 
+// 기준년월 변경 시 날짜 세팅
 function updateMonthDates(yearMonthStr) {
   if (!yearMonthStr) return;
   const [y, m] = yearMonthStr.split('-').map(Number);
@@ -77,13 +82,42 @@ function updateMonthDates(yearMonthStr) {
   if (endEl) endEl.value = endDateStr;
 }
 
+/**
+ * 중도 입사 여부를 판단하여 국민연금/건강보험 체크박스를 disabled 처리하는 함수
+ */
+function checkMidMonthEntry() {
+  const startStr = document.getElementById('proStartDate').value.trim();
+  const chkNp = document.getElementById('proChkNp');
+  const chkHi = document.getElementById('proChkHi');
+
+  if (!chkNp || !chkHi || !startStr) return;
+
+  // 시작일 일자(Day) 추출
+  const day = parseInt(startStr.split('-')[2], 10);
+
+  // 1일 입사가 아닌 중도 입사자일 경우
+  if (!isNaN(day) && day !== 1) {
+    chkNp.checked = false;
+    chkNp.disabled = true;
+
+    chkHi.checked = false;
+    chkHi.disabled = true;
+  } else {
+    // 1일 입사일 경우 다시 활성화
+    chkNp.disabled = false;
+    chkNp.checked = true;
+
+    chkHi.disabled = false;
+    chkHi.checked = true;
+  }
+}
+
 function calculateProrated() {
   const baseSalary = parseCurrency(document.getElementById('proBaseSalary').value);
   const taxFree = parseCurrency(document.getElementById('proTaxFree').value);
   let startStr = document.getElementById('proStartDate').value.trim();
   let endStr = document.getElementById('proEndDate').value.trim();
 
-  // 8자리 연속 입력 하이픈 자동 처리
   if (startStr.length === 8 && !startStr.includes('-')) {
     startStr = `${startStr.substring(0, 4)}-${startStr.substring(4, 6)}-${startStr.substring(6, 8)}`;
     document.getElementById('proStartDate').value = startStr;
@@ -128,28 +162,18 @@ function calculateProrated() {
   const chkEi = document.getElementById('proChkEi').checked;
   const chkTax = document.getElementById('proChkTax').checked;
 
-// 4. 입/퇴사자 4대보험 부과 정확한 판별 로직
-  // - 입사 조건: 시작일이 1일이어야 당월 보험료 부과 대상
-  // - 퇴사 조건: 종료일이 해당 월 말일이어야 당월 보험료 부과 대상
-  const isFirstDayEntry = (startDay === 1);           // 1일 입사 여부
-  const isLastDayResign = (endDay === daysInMonth);   // 말일 퇴사 여부
-
-  // 국민연금 / 건강보험 부과 여부 결정:
-  // 1일 입사이면서 동시에 말일 근무(또는 말일 퇴사)를 만족해야만 당월 보험료가 부과됩니다.
-  // 즉, 10일 입사 ~ 31일 근무 처럼 1일 입사가 아닌 중도입사자는 0원(면제) 처리됩니다.
+  // 4. 입/퇴사자 4대보험 부과 판단 (1일 입사 AND 말일 근무 시에만 적용)
+  const isFirstDayEntry = (startDay === 1);
+  const isLastDayResign = (endDay === daysInMonth);
   const isMonthlyInsuranceTarget = isFirstDayEntry && isLastDayResign;
 
   const noteText = !isMonthlyInsuranceTarget ? '(월중 입/퇴사 면제)' : '';
 
   // 5. 4대보험 계산
   const npBase = Math.min(Math.max(proratedTaxable, 390000), 6170000);
-  
-  // 국민연금 & 건강보험: 중도 입사(1일이 아닌 경우) 및 중도 퇴사(말일이 아닌 경우) 0원 적용
   const np = (chkNp && isMonthlyInsuranceTarget) ? floor10(npBase * 0.045) : 0;
   const hi = (chkHi && isMonthlyInsuranceTarget) ? floor10(proratedTaxable * 0.03545) : 0;
   const lt = (chkHi && isMonthlyInsuranceTarget) ? floor10(hi * 0.1295) : 0;
-  
-  // 고용보험: 입사일/퇴사일과 상관없이 일할 과세급여의 0.9% 정상 공제
   const ei = chkEi ? floor10(proratedTaxable * 0.009) : 0;
 
   // 6. 소득세 요율 및 부양가족 수 반영 계산
@@ -166,7 +190,6 @@ function calculateProrated() {
   let incomeTax = 0;
   if (chkTax) {
     if (typeof getIncomeTax === 'function') {
-      // calculator.js의 정밀 간이세액 산식에 일할 과세급여, 부양가족수, 선택 비율 전달
       incomeTax = floor10(getIncomeTax(proratedTaxable, dependents, taxRatePercent));
     } else {
       incomeTax = floor10(proratedTaxable * 0.03 * (taxRatePercent / 100));
@@ -189,11 +212,10 @@ function calculateProrated() {
   document.getElementById('resProIt').innerText = fmt(incomeTax);
   document.getElementById('resProLtTax').innerText = fmt(localTax);
 
-  // 선택한 소득세 라벨 안내 표시 (예: (80% 적용))
   document.getElementById('resProTaxRateLabel').innerText = chkTax ? `(${taxRatePercent}% 적용)` : '';
 
-  document.getElementById('noteNp').innerText = (chkNp && !isMonthlyInsuranceTarget) ? noteText : '';
-  document.getElementById('noteHi').innerText = (chkHi && !isMonthlyInsuranceTarget) ? noteText : '';
+  document.getElementById('noteNp').innerText = (!chkNp || !isMonthlyInsuranceTarget) ? noteText : '';
+  document.getElementById('noteHi').innerText = (!chkHi || !isMonthlyInsuranceTarget) ? noteText : '';
 
   document.getElementById('resProTotalDeduction').innerText = fmt(totalDeduction);
   document.getElementById('resProNet').innerText = fmt(netPay);
