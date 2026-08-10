@@ -197,10 +197,11 @@ function generateStatement() {
   resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// PDF 다운로드 기능 함수
+// PDF 다운로드 기능 함수 (화면 형태와 PDF 출력 형태 분리)
 function downloadPdf() {
   const element = document.getElementById('pdfArea');
   const resultBox = document.getElementById('resultBox');
+  const btnDownloadPdf = document.getElementById('btnDownloadPdf');
   const name = document.getElementById('workerName').value || '근로자';
 
   if (!element) {
@@ -212,6 +213,11 @@ function downloadPdf() {
     resultBox.style.display = 'block';
   }
 
+  // 1. PDF 캡처 전: 다운로드 버튼 숨기기 & PDF 전용 스타일 클래스(.pdf-mode) 추가
+  if (btnDownloadPdf) btnDownloadPdf.style.display = 'none';
+  element.classList.add('pdf-mode');
+
+  // 2. html2pdf 변환 옵션
   const opt = {
     margin:       [8, 8, 8, 8],
     filename:     `퇴직금_산정내역서_${name}.pdf`,
@@ -227,8 +233,17 @@ function downloadPdf() {
     pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
-  html2pdf().set(opt).from(element).save().catch(err => {
-    console.error('PDF 다운로드 에러:', err);
-    alert('PDF 다운로드 처리 중 오류가 발생했습니다.');
-  });
+  // 3. PDF 생성 수행 후 원상복구
+  html2pdf().set(opt).from(element).save()
+    .then(() => {
+      // 변환 완료 후: 버튼 복원 & PDF 전용 스타일 클래스 제거
+      if (btnDownloadPdf) btnDownloadPdf.style.display = 'block';
+      element.classList.remove('pdf-mode');
+    })
+    .catch(err => {
+      console.error('PDF 다운로드 에러:', err);
+      if (btnDownloadPdf) btnDownloadPdf.style.display = 'block';
+      element.classList.remove('pdf-mode');
+      alert('PDF 다운로드 처리 중 오류가 발생했습니다.');
+    });
 }
