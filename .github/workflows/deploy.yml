@@ -1,8 +1,8 @@
-name: Deploy static content to Pages
+name: Deploy GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main"] # main 브랜치에 코드가 올 때마다 자동 배포 실행
 
 permissions:
   contents: read
@@ -20,17 +20,21 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      # 1. 최신 코드 체크아웃 (Full Commit SHA 고정)
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
+      # 2. GitHub Pages 설정 구성 (Full Commit SHA 고정)
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b41a50e50140652636c06bb
 
+      # 3. 배포 아티팩트 업로드 (Full Commit SHA 고정)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@0b7d39141e71f2861bf47964500255d3df0b5edc
         with:
-          path: '.'
+          path: '.' # 저장소 루트의 html, css, js 파일 전체 업로드
 
+      # 4. GitHub Pages에 배포 실행 (Full Commit SHA 고정)
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db596a1aedd2342c2b12a08c4818ed30f564bf
