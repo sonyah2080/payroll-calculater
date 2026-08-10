@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * 4대보험 및 세금 요율 설정 (2026년 기준 최신 요율)
+ * 4대보험 및 세금 요율 설정 (2026년 기준 최신 개정 요율)
  * - 세법 및 사회보험 요율 개정 시 최상단 이 객체 값만 고치면 일괄 반영됩니다.
  * ============================================================================
  */
@@ -113,13 +113,13 @@ function getSelectedTaxPercent() {
 }
 
 /**
- * 국세청 근로소득 간이세액표 정밀 세액 계산 함수 (WEHAGO 수치 완벽 일치)
+ * 💡 국세청 근로소득 간이세액표 정밀 세액 계산 함수 (GROSS_TO_NET 전용)
  * @param {number} taxable - 과세 대상 급여 (세전 총급여 - 비과세)
  * @param {number} dependents - 공제대상 가족수 (본인 포함)
  * @param {number} taxRatePercent - 원천징수 선택 비율 (100%, 80%, 50% 등)
  * @returns {number} 산출된 소득세 (10원 단위 절사)
  */
-function getIncomeTax(taxable, dependents = 1, taxRatePercent = 100) {
+function getIncomeTaxNts(taxable, dependents = 1, taxRatePercent = 100) {
   // 월 과세급여 106만 원 이하 소액부징수 (0원)
   if (taxable <= 1060000 || taxRatePercent <= 0) return 0;
 
@@ -152,11 +152,33 @@ function getIncomeTax(taxable, dependents = 1, taxRatePercent = 100) {
 }
 
 /**
+ * 기존 단순 소득세 계산 함수 (NET_TO_GROSS 역산용)
+ * @param {number} taxable - 과세 대상 급여
+ * @param {number} dependents - 공제대상 가족수 (본인 포함)
+ * @param {number} taxRatePercent - 원천징수 선택 비율
+ * @returns {number} 산출된 소득세
+ */
+function getIncomeTaxSimple(taxable, dependents = 1, taxRatePercent = 100) {
+  if (taxable <= 1060000 || taxRatePercent <= 0) return 0;
+
+  let base = Math.max(0, taxable - (dependents - 1) * 100000);
+  let rawIt = 0;
+
+  if (base <= 1060000) rawIt = 0;
+  else if (base <= 3000000) rawIt = (base - 1000000) * 0.04;
+  else if (base <= 5000000) rawIt = 80000 + (base - 3000000) * 0.12;
+  else rawIt = 320000 + (base - 5000000) * 0.22;
+
+  return floor10(rawIt * (taxRatePercent / 100));
+}
+
+/**
  * 순수 과세급여(taxable) 기준으로 4대보험 및 세금 공제액 항목별 산출
  * @param {number} taxable - 보수월액 (과세 대상 금액)
+ * @param {boolean} useNtsTax - 국세청 정밀 산식 사용 여부
  * @returns {object} 항목별 공제액 및 총 공제합계 객체
  */
-function computeDeductions(taxable) {
+function computeDeductions(taxable, useNtsTax = false) {
   const dependentsInput = document.getElementById('dependents');
   const dependents = parseInt(dependentsInput ? dependentsInput.value : 1, 10) || 1;
 
@@ -178,12 +200,17 @@ function computeDeductions(taxable) {
   // 4. 고용보험 산출: 보수월액 * 0.9% (10원 단위 절사)
   const ei = isEiChecked ? floor10(taxable * RATES_CONFIG.EI.RATE) : 0;
 
-  // 5. 정밀 간이세액표 적용 소득세 및 지방소득세 산출
+  // 5. 소득세 및 지방소득세 산출
   let it = 0;
   let localTax = 0;
 
   if (isTaxChecked) {
-    it = getIncomeTax(taxable, dependents, getSelectedTaxPercent());
+    // GROSS_TO_NET 모드일 때만 국세청 간이세액표 정밀 산식(getIncomeTaxNts) 적용
+    if (useNtsTax) {
+      it = getIncomeTaxNts(taxable, dependents, getSelectedTaxPercent());
+    } else {
+      it = getIncomeTaxSimple(taxable, dependents, getSelectedTaxPercent());
+    }
     localTax = floor10(it * RATES_CONFIG.LOCAL_TAX.RATE); // 지방소득세는 소득세의 10%
   }
 
@@ -207,25 +234,25 @@ function calculate() {
   if (currentMode === 'GROSS_TO_NET') {
     /**
      * [Gross->Net (세전 -> 세후)]
-     * 입력된 세전 총급여(amount)에서 비과세(taxFree)를 차감한 과세금액(taxable)을 공제 기준으로 사용
-     * 예: 세전 2,450,000원 - 비과세 200,000원 = 과세표준 2,250,000원
+     * 국세청 간이세액표 정밀 산식(useNtsTax = true)을 적용하여 WEHAGO 결과와 일치시킴
      */
     gross = amount;
     taxable = Math.max(0, gross - taxFree);
 
-    ded = computeDeductions(taxable);
+    // 두 번째 인자로 true를 넘겨 국세청 산식 적용
+    ded = computeDeductions(taxable, true);
     net = gross - ded.totalDed;
   } else {
     /**
      * [Net->Gross (세후 -> 세전 역산)]
-     * 목표 실수령액(amount)을 맞추기 위한 과세 금액(taxable) 이분 탐색(Binary Search)
+     * 기존 역산 방식 적용
      */
     let low = Math.max(0, amount - taxFree);
     let high = amount * 2.0;
 
     for (let i = 0; i < 50; i++) {
       taxable = (low + high) / 2;
-      ded = computeDeductions(taxable);
+      ded = computeDeductions(taxable, false);
       
       // 계산된 실수령액 = (과세 금액 + 비과세) - 총 공제합계
       const calcNet = (taxable + taxFree) - ded.totalDed;
@@ -233,15 +260,15 @@ function calculate() {
       if (Math.abs(calcNet - amount) < 0.1) break;
 
       if (calcNet < amount) {
-        low = taxable;  // 실수령액이 부족하면 세전 과세액을 올림
+        low = taxable;
       } else {
-        high = taxable; // 실수령액이 넘치면 세전 과세액을 내림
+        high = taxable;
       }
     }
 
     taxable = Math.round(taxable);
     gross = taxable + taxFree;
-    ded = computeDeductions(taxable);
+    ded = computeDeductions(taxable, false);
     net = gross - ded.totalDed;
   }
 
