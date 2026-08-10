@@ -1,11 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
   const btnCalculate = document.getElementById('btnCalculate');
+  const btnDownloadPdf = document.getElementById('btnDownloadPdf');
+
   document.querySelectorAll('input[type="text"]').forEach(attachFormatter);
 
   btnCalculate.addEventListener('click', (e) => {
     e.preventDefault();
     generateStatement();
   });
+
+  // PDF 다운로드 버튼 핸들러
+  if (btnDownloadPdf) {
+    btnDownloadPdf.addEventListener('click', (e) => {
+      e.preventDefault();
+      downloadPdf();
+    });
+  }
 });
 
 function getServiceYearsDeduction(years) {
@@ -169,4 +179,20 @@ function generateStatement() {
   const resultBox = document.getElementById('resultBox');
   resultBox.classList.add('show');
   resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// PDF 다운로드 기능 함수
+function downloadPdf() {
+  const element = document.getElementById('pdfArea');
+  const name = document.getElementById('workerName').value || '근로자';
+  
+  const opt = {
+    margin:       10,
+    filename:     `퇴직금_산정내역서_${name}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save();
 }
