@@ -189,9 +189,11 @@ body {
   margin-bottom: 6px;
 }
 
+/* input[type="month"] 추가 반영 */
 input[type="text"], 
 input[type="number"], 
 input[type="date"], 
+input[type="month"], 
 select {
   width: 100%;
   padding: 11px 13px;
@@ -207,6 +209,7 @@ select {
 input[type="text"]:focus, 
 input[type="number"]:focus, 
 input[type="date"]:focus, 
+input[type="month"]:focus, 
 select:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
