@@ -13,17 +13,22 @@
     <!-- 자바스크립트가 자동으로 헤더 탭을 그려주는 영역 -->
     <header id="mainHeader"></header>
 
-    <!-- 일할 계산기 카드 본문 -->
+    <!-- 일할 계산기 메인 카드 -->
     <main class="card">
       <div class="header">
         <h1>급여 일할 계산기</h1>
-        <p>근무기간에 따른 월급 일할 계산 및 세무대리용 산식 적용</p>
+        <p>근무기간에 따른 월급 일할 계산 및 4대보험 공제 반영</p>
       </div>
 
       <form id="proratedForm">
         <div class="form-group">
           <label for="proBaseSalary">월 기본 급여 (원)</label>
-          <input type="text" id="proBaseSalary" placeholder="0" inputmode="numeric">
+          <input type="text" id="proBaseSalary" value="3,000,000" inputmode="numeric">
+        </div>
+
+        <div class="form-group">
+          <label for="proTaxFree">비과세 수당 (식대 등) (원)</label>
+          <input type="text" id="proTaxFree" value="200,000" inputmode="numeric">
         </div>
 
         <div class="form-group">
@@ -43,16 +48,45 @@
           </select>
         </div>
 
+        <span class="checkbox-group-title">공제 항목 선택</span>
+        <div class="checkbox-group">
+          <label class="checkbox-label"><input type="checkbox" id="proChkNp" checked> 국민연금</label>
+          <label class="checkbox-label"><input type="checkbox" id="proChkHi" checked> 건강보험</label>
+          <label class="checkbox-label"><input type="checkbox" id="proChkEi" checked> 고용보험</label>
+          <label class="checkbox-label"><input type="checkbox" id="proChkTax" checked> 소득세</label>
+        </div>
+
         <button type="button" id="btnProratedCalc" class="btn-primary">일할 급여 계산하기</button>
       </form>
 
-      <!-- 계산 결과 영역 -->
+      <!-- 2번 이미지 형태의 상세 계산 결과 영역 -->
       <div class="result-section" id="proResultBox">
+        <div class="summary-card">
+          <div class="summary-row main">
+            <span>일할 세전 급여</span>
+            <span id="resProGross" style="font-size: 20px; font-weight: 800; color: #1e3a8a;">0 원</span>
+          </div>
+        </div>
+
         <div class="detail-box">
-          <div class="detail-title">일할 계산 결과</div>
-          <div class="net-result-box" style="border-top: none; padding-top: 0; margin-top: 0;">
-            <span>최종 일할 계산 급여액</span>
-            <span id="proResultAmount" style="color: #2563eb;">0 원</span>
+          <div class="detail-title">공제 항목별 상세 내역 (10원 단위 절사)</div>
+          <ul class="detail-list">
+            <li class="detail-item"><span>국민연금 (4.5%)</span><span class="amount" id="resProNp">0 원</span></li>
+            <li class="detail-item"><span>건강보험 (3.545%)</span><span class="amount" id="resProHi">0 원</span></li>
+            <li class="detail-item"><span>고용보험 (0.9%)</span><span class="amount" id="resProEi">0 원</span></li>
+            <li class="detail-item"><span>장기요양보험 (12.95%)</span><span class="amount" id="resProLt">0 원</span></li>
+            <li class="detail-item"><span>소득세 (간이세액)</span><span class="amount" id="resProIt">0 원</span></li>
+            <li class="detail-item"><span>지방소득세 (10%)</span><span class="amount" id="resProLtTax">0 원</span></li>
+          </ul>
+
+          <div class="total-deduction-row">
+            <span>총 공제 합계</span>
+            <span id="resProTotalDeduction">0 원</span>
+          </div>
+
+          <div class="net-result-box">
+            <span>예상 실수령액 (차인지급액)</span>
+            <span id="resProNet" style="color: #2563eb;">0 원</span>
           </div>
         </div>
       </div>
