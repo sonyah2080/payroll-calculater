@@ -43,16 +43,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const taxRateSelect = document.getElementById('taxRateSelect');
   const taxRateCustom = document.getElementById('taxRateCustom');
 
-  // 소득세 옵션 표시 토글
+  /**
+   * 💡 계산 모드 및 체크박스 상태에 따른 소득세율 옵션 그룹 숨김(hidden) 제어 함수
+   */
+  function updateTaxRateGroupVisibility() {
+    if (!taxRateGroup) return;
+
+    const isTaxChecked = chkTax ? chkTax.checked : true;
+
+    if (currentMode === 'GROSS_TO_NET') {
+      // Gross->Net 모드일 때는 소득세율 비율 선택 옵션을 완전히 숨기고(hidden) 비활성화
+      taxRateGroup.style.display = 'none';
+      if (taxRateSelect) taxRateSelect.disabled = true;
+      if (taxRateCustom) taxRateCustom.disabled = true;
+    } else {
+      // Net->Gross 모드일 때는 소득세 체크박스 유무에 맞춰 노출 및 활성화
+      taxRateGroup.style.display = isTaxChecked ? 'block' : 'none';
+      if (taxRateSelect) taxRateSelect.disabled = false;
+      if (taxRateCustom) taxRateCustom.disabled = false;
+    }
+  }
+
+  // 소득세 공제 체크박스 이벤트
   if (chkTax) {
     chkTax.addEventListener('change', (e) => {
       const show = e.target.checked;
       if (dependentsGroup) dependentsGroup.style.display = show ? 'block' : 'none';
-      if (taxRateGroup) taxRateGroup.style.display = show ? 'block' : 'none';
+      updateTaxRateGroupVisibility();
     });
   }
 
-  // 소득세 원천징수 비율 선택 드롭다운
+  // 소득세 원천징수 비율 선택 드롭다운 제어
   if (taxRateSelect && taxRateCustom) {
     taxRateSelect.addEventListener('change', (e) => {
       if (e.target.value === 'custom') {
@@ -64,24 +85,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 상단 탭 버튼 클릭 이벤트
+  // 상단 탭 버튼 클릭 이벤트 (계산 모드 전환)
   tabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       tabBtns.forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       currentMode = e.target.getAttribute('data-mode');
       
+      // 입력 라벨 변경
       if (amountLabel) {
         amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '기본급 (과세 대상) (원)';
       }
+
+      // 모드 변경 시 세율 박스 hidden 상태 즉시 업데이트
+      updateTaxRateGroupVisibility();
     });
   });
 
-  // 금액 천단위 콤마 자동 생성 포맷터
+  // 금액 천단위 콤마 자동 포맷터 연동
   if (typeof attachFormatter === 'function') {
     if (amountInput) attachFormatter(amountInput);
     if (taxFreeInput) attachFormatter(taxFreeInput);
   }
+
+  // 초기 상태 세팅 실행
+  updateTaxRateGroupVisibility();
 
   // 계산하기 버튼 실행
   if (btnCalculate) {
@@ -93,11 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * 소득세 원천징수 비율 가져오기
+ * 소득세 원천징수 비율 값 가져오기
+ * 💡 Gross->Net 모드일 경우 국세청 100% 간이세액표 정밀 산식을 무조건 적용
  */
 function getSelectedTaxPercent() {
   const chkTax = document.getElementById('chkTax');
   if (!chkTax || !chkTax.checked) return 0;
+
+  // Gross->Net 모드에서는 무조건 100% (국세청 정밀 간이세액표) 적용
+  if (currentMode === 'GROSS_TO_NET') {
+    return 100;
+  }
 
   const selectVal = document.getElementById('taxRateSelect').value;
   if (selectVal === 'custom') {
@@ -107,14 +141,13 @@ function getSelectedTaxPercent() {
 }
 
 /**
- * 💡 국세청 근로소득 간이세액표 산식 정밀 구현 함수
- * @param {number} baseSalary - 기본급 (과세 대상 금액)
+ * 💡 국세청 근로소득 간이세액표 정밀 세액 산출 함수 (WEHAGO 세액 일치)
+ * @param {number} baseSalary - 과세 대상 기본급
  * @param {number} dependents - 공제대상 가족수 (본인 포함)
- * @param {number} taxRatePercent - 원천징수 선택 비율 (100, 80, 50 등)
+ * @param {number} taxRatePercent - 원천징수 선택 비율 (Gross->Net은 100% 고정)
  * @returns {number} 산출 소득세 (10원 단위 절사)
  */
 function getIncomeTax(baseSalary, dependents = 1, taxRatePercent = 100) {
-  // 과세급여 106만 원 이하 소액부징수 (0원)
   if (baseSalary <= 1060000 || taxRatePercent <= 0) return 0;
 
   let baseTax = 0;
@@ -140,13 +173,13 @@ function getIncomeTax(baseSalary, dependents = 1, taxRatePercent = 100) {
     baseTax = Math.max(0, baseTax - familyDeduction);
   }
 
-  // 선택한 원천징수 비율(100%, 80%, 50% 등) 연산 및 10원 단위 절사
+  // 원천징수 비율 연산 및 10원 단위 절사
   const finalTax = baseTax * (taxRatePercent / 100);
   return floor10(finalTax);
 }
 
 /**
- * 과세 기본급(baseSalary) 기준으로 4대보험 및 세금 공제액 항목별 산출
+ * 과세 기본급(baseSalary) 기준 4대보험 및 세금 공제 항목 산출
  * @param {number} baseSalary - 과세 대상 기본급
  */
 function computeDeductions(baseSalary) {
@@ -177,7 +210,7 @@ function computeDeductions(baseSalary) {
 
   if (isTaxChecked) {
     it = getIncomeTax(baseSalary, dependents, getSelectedTaxPercent());
-    localTax = floor10(it * RATES_CONFIG.LOCAL_TAX.RATE); // 지방소득세는 소득세의 10%
+    localTax = floor10(it * RATES_CONFIG.LOCAL_TAX.RATE); // 지방소득세 = 소득세의 10%
   }
 
   const totalDed = np + hi + lt + ei + it + localTax;
@@ -199,8 +232,7 @@ function calculate() {
   if (currentMode === 'GROSS_TO_NET') {
     /**
      * [Gross->Net (세전->세후)]
-     * 기본급 2,300,000원이 과세 대상(baseSalary)으로 정밀 산출에 들어가고,
-     * 비과세 150,000원은 공제 없이 총지급액(totalGross)에 합산됩니다.
+     * 기본급(amount)을 과세표준으로 사용하고, 국세청 100% 간이세액표 정밀 산출을 직통 연결
      */
     baseSalary = amount;
     totalGross = baseSalary + taxFree;
@@ -209,7 +241,8 @@ function calculate() {
     net = totalGross - ded.totalDed;
   } else {
     /**
-     * [Net->Gross (세후->세전 역산)]
+     * [Net->Gross (실수령액 세후 -> 세전 역산)]
+     * 선택된 소득세율을 반영하여 목표 실수령액(amount)을 맞추는 이분 탐색
      */
     let low = Math.max(0, amount - taxFree);
     let high = amount * 2.0;
@@ -239,15 +272,20 @@ function calculate() {
 }
 
 /**
- * 연산 결과를 UI 카드 요소에 바인딩
+ * 계산 결과값을 UI 카드 요소에 바인딩
  */
 function applyValuesToUI(totalGross, ded, net) {
   const isTaxChecked = document.getElementById('chkTax')?.checked ?? false;
   const taxPercent = getSelectedTaxPercent();
 
+  // 소득세 안내 라벨 세팅
   const lblIt = document.getElementById('lblIt');
   if (lblIt) {
-    lblIt.innerText = isTaxChecked ? `소득세 (${taxPercent}% 적용)` : '소득세 (미적용)';
+    if (currentMode === 'GROSS_TO_NET') {
+      lblIt.innerText = isTaxChecked ? '소득세 (국세청 간이세액)' : '소득세 (미적용)';
+    } else {
+      lblIt.innerText = isTaxChecked ? `소득세 (${taxPercent}% 적용)` : '소득세 (미적용)';
+    }
   }
 
   // 총 세전 금액 및 차액 표시
