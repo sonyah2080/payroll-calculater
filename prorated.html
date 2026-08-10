@@ -4,38 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>급여 일할 계산기</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <!-- 공통 헤더 탭 자동 삽입 위치 -->
+    <!-- 자바스크립트가 자동으로 헤더 탭을 그려주는 영역 -->
     <header id="mainHeader"></header>
 
     <!-- 일할 계산기 카드 본문 -->
     <main class="card">
-      <div class="card-header">
-        <h2>🗓️ 중도 입·퇴사자 급여 일할계산</h2>
+      <div class="header">
+        <h1>급여 일할 계산기</h1>
         <p>근무기간에 따른 월급 일할 계산 및 세무대리용 산식 적용</p>
       </div>
 
       <form id="proratedForm">
-        <div class="input-group">
+        <div class="form-group">
           <label for="proBaseSalary">월 기본 급여 (원)</label>
-          <input type="text" id="proBaseSalary" placeholder="0" class="input-text">
+          <input type="text" id="proBaseSalary" placeholder="0" inputmode="numeric">
         </div>
 
-        <div class="input-group">
+        <div class="form-group">
           <label for="proStartDate">근무 기간</label>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="date" id="proStartDate" class="input-date">
+            <input type="date" id="proStartDate">
             <span>~</span>
-            <input type="date" id="proEndDate" class="input-date">
+            <input type="date" id="proEndDate">
           </div>
         </div>
 
-        <div class="input-group">
+        <div class="form-group">
           <label for="proCalcType">계산 방식 선택</label>
-          <select id="proCalcType" class="input-select">
+          <select id="proCalcType">
             <option value="TOTAL_DAYS">월 총 일수 기준 (해당 월 달력 일수 28~31일)</option>
             <option value="FIXED_209">월 209시간/고정 소정일수 기준</option>
           </select>
@@ -44,12 +46,19 @@
         <button type="button" id="btnProratedCalc" class="btn-primary">일할 급여 계산하기</button>
       </form>
 
-      <!-- 결과 출력 영역 -->
-      <div id="proResultBox" class="result-box" style="display: none; margin-top: 20px;">
-        <div class="highlight-box">
-          <span class="title">최종 일할 계산 급여액</span>
-          <span class="amount" id="proResultAmount">0 원</span>
+      <!-- 계산 결과 영역 -->
+      <div class="result-section" id="proResultBox">
+        <div class="detail-box">
+          <div class="detail-title">일할 계산 결과</div>
+          <div class="net-result-box" style="border-top: none; padding-top: 0; margin-top: 0;">
+            <span>최종 일할 계산 급여액</span>
+            <span id="proResultAmount" style="color: #2563eb;">0 원</span>
+          </div>
         </div>
+      </div>
+
+      <div class="footer">
+        Copyright © 2026 wayer. All rights reserved.
       </div>
     </main>
   </div>
