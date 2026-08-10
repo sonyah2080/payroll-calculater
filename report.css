@@ -67,6 +67,11 @@
   text-align: center;
 }
 
+#pdfArea .report-table td[colspan="3"] {
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
 #pdfArea .highlight-box {
   display: flex;
   justify-content: space-between;
@@ -101,6 +106,7 @@
 #pdfArea.pdf-mode.statement-card {
   padding: 1rem;
   box-shadow: none;
+  border: none;
   margin-top: 0;
 }
 
