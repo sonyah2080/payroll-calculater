@@ -74,12 +74,12 @@
   background-color: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 8px;
-  padding: 0.5rem;
+  padding: 0.75rem;
   margin-top: 1rem;
 }
 
 #pdfArea .highlight-box .title {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 800;
   color: #1e40af;
   margin: 0;
@@ -87,7 +87,7 @@
 }
 
 #pdfArea .highlight-box .amount {
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 900;
   color: #1e3a8a;
   white-space: nowrap;
