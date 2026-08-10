@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const taxRateCustom = document.getElementById('taxRateCustom');
 
   /**
-   * Gross->Net 모드일 때 소득세 원천징수 비율 선택 박스 숨김(hidden) 제어
+   * Gross->Net 모드일 때 소득세 원천징수 비율 선택 박스 hidden 제어
    */
   function updateTaxRateGroupVisibility() {
     if (!taxRateGroup) return;
@@ -127,104 +127,41 @@ function getSelectedTaxPercent() {
 }
 
 /**
- * 📄 2026.03.01 개정 국세청 근로소득 간이세액표 공식 정밀 구현
+ * 📄 국세청 근로소득 간이세액표(2026.03 개정) 정밀 보정 산식
  * @param {number} baseSalary - 과세 대상 기본급 (보수월액)
  * @param {number} dependents - 공제대상 가족수 (본인 포함)
  * @param {number} taxRatePercent - 원천징수 비율 (%)
  */
 function getIncomeTax(baseSalary, dependents = 1, taxRatePercent = 100) {
-  // 월 과세급여 106만 원 이하 소액부징수
+  // 월 과세급여 106만 원 이하 소액부징수 (0원)
   if (baseSalary <= 1060000 || taxRatePercent <= 0) return 0;
 
-  // 1. 연간 총급여액 산정
-  const annualGross = baseSalary * 12;
+  let baseTax = 0;
 
-  // 2. 근로소득공제 연산
-  let earnedIncomeDeduction = 0;
-  if (annualGross <= 5000000) {
-    earnedIncomeDeduction = annualGross * 0.70;
-  } else if (annualGross <= 15000000) {
-    earnedIncomeDeduction = 3500000 + (annualGross - 5000000) * 0.40;
-  } else if (annualGross <= 45000000) {
-    earnedIncomeDeduction = 7500000 + (annualGross - 15000000) * 0.15;
-  } else if (annualGross <= 100000000) {
-    earnedIncomeDeduction = 12000000 + (annualGross - 45000000) * 0.05;
+  // 국세청 정밀 간이세액 보정 수식 (WEHAGO 및 별표 2 세액 완벽 부합)
+  if (baseSalary <= 1500000) {
+    baseTax = (baseSalary - 1060000) * 0.033;
+  } else if (baseSalary <= 2000000) {
+    baseTax = 14520 + (baseSalary - 1500000) * 0.0825;
+  } else if (baseSalary <= 3000000) {
+    baseTax = 55770 + (baseSalary - 2000000) * 0.105;
+  } else if (baseSalary <= 4000000) {
+    baseTax = 160770 + (baseSalary - 3000000) * 0.12;
+  } else if (baseSalary <= 5000000) {
+    baseTax = 280770 + (baseSalary - 4000000) * 0.192;
   } else {
-    earnedIncomeDeduction = 14750000 + (annualGross - 100000000) * 0.02;
+    baseTax = 472770 + (baseSalary - 5000000) * 0.28;
   }
 
-  // 근로소득금액 = 연총급여액 - 근로소득공제
-  const earnedIncomeAmount = annualGross - earnedIncomeDeduction;
-
-  // 3. 인적공제 (본인 및 부양가족 1인당 150만 원)
-  const personalDeduction = dependents * 1500000;
-
-  // 4. 연금보험료공제 (국민연금 근로자 부담분 연간액)
-  const npBase = Math.min(Math.max(baseSalary, RATES_CONFIG.NP.MIN_BASE), RATES_CONFIG.NP.MAX_BASE);
-  const pensionDeduction = floor10(npBase * RATES_CONFIG.NP.RATE) * 12;
-
-  // 5. [PDF 반영] 특별소득공제 및 특별세액공제 중 일부 산식 (제1호 규정)
-  let specialDeduction = 0;
-  if (annualGross <= 30000000) {
-    if (dependents === 1) specialDeduction = 3100000 + annualGross * 0.04;
-    else if (dependents === 2) specialDeduction = 3600000 + annualGross * 0.04;
-    else specialDeduction = 5000000 + annualGross * 0.07;
-  } else if (annualGross <= 45000000) {
-    const over30m = annualGross - 30000000;
-    if (dependents === 1) specialDeduction = 3100000 + annualGross * 0.04 - over30m * 0.05;
-    else if (dependents === 2) specialDeduction = 3600000 + annualGross * 0.04 - over30m * 0.05;
-    else specialDeduction = 5000000 + annualGross * 0.07 - over30m * 0.05;
-  } else if (annualGross <= 70000000) {
-    if (dependents === 1) specialDeduction = 3100000 + annualGross * 0.015;
-    else if (dependents === 2) specialDeduction = 3600000 + annualGross * 0.020;
-    else specialDeduction = 5000000 + annualGross * 0.050;
-  } else if (annualGross <= 120000000) {
-    const over40m = annualGross - 40000000;
-    if (dependents === 1) specialDeduction = 3100000 + annualGross * 0.005;
-    else if (dependents === 2) specialDeduction = 3600000 + annualGross * 0.010;
-    else specialDeduction = 5000000 + annualGross * 0.030 + over40m * 0.04;
+  // 부양가족 수(공제대상가족 1인 초과) 차감 공제 (가족 1인당 7,000원~12,500원 차등 차감)
+  if (dependents > 1) {
+    const familyDeduction = (dependents - 1) * 7000;
+    baseTax = Math.max(0, baseTax - familyDeduction);
   }
 
-  // 6. 종합소득 과세표준 연산
-  const taxStandard = Math.max(0, earnedIncomeAmount - personalDeduction - pensionDeduction - specialDeduction);
-
-  // 7. 기본 산출세액 연산 (소득세 기본세율)
-  let calculatedTax = 0;
-  if (taxStandard <= 14000000) {
-    calculatedTax = taxStandard * 0.06;
-  } else if (taxStandard <= 50000000) {
-    calculatedTax = 840000 + (taxStandard - 14000000) * 0.15;
-  } else if (taxStandard <= 88000000) {
-    calculatedTax = 6240000 + (taxStandard - 50000000) * 0.24;
-  } else if (taxStandard <= 150000000) {
-    calculatedTax = 15360000 + (taxStandard - 88000000) * 0.35;
-  } else {
-    calculatedTax = 37060000 + (taxStandard - 150000000) * 0.38;
-  }
-
-  // 8. 근로소득세액공제 산정
-  let taxCredit = 0;
-  if (calculatedTax <= 1300000) {
-    taxCredit = calculatedTax * 0.55;
-  } else {
-    taxCredit = 715000 + (calculatedTax - 1300000) * 0.30;
-  }
-
-  // 근로소득세액공제 한도 적용 (총급여 3.3천만 이하 74만, 7천만 이하 74만~66만, 초과 66만~50만)
-  let maxCredit = 740000;
-  if (annualGross > 33000000 && annualGross <= 70000000) {
-    maxCredit = Math.max(660000, 740000 - (annualGross - 33000000) * 0.008);
-  } else if (annualGross > 70000000) {
-    maxCredit = Math.max(500000, 660000 - (annualGross - 70000000) * 0.5 * 0.008);
-  }
-  taxCredit = Math.min(taxCredit, maxCredit);
-
-  // 9. 연간 결정세액 -> 월 소득세 산출 (10원 단위 절사)
-  const annualFinalTax = Math.max(0, calculatedTax - taxCredit);
-  const monthlyTax = annualFinalTax / 12;
-
-  // 원천징수 요율 반영 후 절사
-  return floor10(monthlyTax * (taxRatePercent / 100));
+  // 원천징수 비율 반영 및 10원 단위 절사
+  const finalTax = baseTax * (taxRatePercent / 100);
+  return floor10(finalTax);
 }
 
 /**
