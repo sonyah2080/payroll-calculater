@@ -42,14 +42,17 @@ function renderHeader() {
     { name: '일할 계산기', link: 'prorated.html' }
   ];
 
+// 모든 페이지에서 동일한 너비와 중앙 정렬을 유지하도록 wrapper 구성
   const navHtml = `
-    <nav class="top-nav">
-      ${menuItems.map(item => `
-        <a href="${item.link}" class="nav-tab ${currentPath === item.link ? 'active' : ''}">
-          ${item.name}
-        </a>
-      `).join('')}
-    </nav>
+    <div class="header-nav-wrapper">
+      <nav class="top-nav">
+        ${menuItems.map(item => `
+          <a href="${item.link}" class="nav-tab ${currentPath === item.link ? 'active' : ''}">
+            ${item.name}
+          </a>
+        `).join('')}
+      </nav>
+    </div>
   `;
 
   headerEl.innerHTML = navHtml;
