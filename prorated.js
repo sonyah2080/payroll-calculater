@@ -128,19 +128,28 @@ function calculateProrated() {
   const chkEi = document.getElementById('proChkEi').checked;
   const chkTax = document.getElementById('proChkTax').checked;
 
-  // 4. 입/퇴사자 4대보험 부과 판단 (1일 입사 or 말일 퇴사시 부과)
-  const isFullMonth = (startDay === 1 && endDay === daysInMonth);
-  const isFirstDayEntry = (startDay === 1);
-  const isLastDayResign = (endDay === daysInMonth);
+// 4. 입/퇴사자 4대보험 부과 정확한 판별 로직
+  // - 입사 조건: 시작일이 1일이어야 당월 보험료 부과 대상
+  // - 퇴사 조건: 종료일이 해당 월 말일이어야 당월 보험료 부과 대상
+  const isFirstDayEntry = (startDay === 1);           // 1일 입사 여부
+  const isLastDayResign = (endDay === daysInMonth);   // 말일 퇴사 여부
 
-  const isMonthlyInsuranceTarget = isFullMonth || isFirstDayEntry || isLastDayResign;
+  // 국민연금 / 건강보험 부과 여부 결정:
+  // 1일 입사이면서 동시에 말일 근무(또는 말일 퇴사)를 만족해야만 당월 보험료가 부과됩니다.
+  // 즉, 10일 입사 ~ 31일 근무 처럼 1일 입사가 아닌 중도입사자는 0원(면제) 처리됩니다.
+  const isMonthlyInsuranceTarget = isFirstDayEntry && isLastDayResign;
+
   const noteText = !isMonthlyInsuranceTarget ? '(월중 입/퇴사 면제)' : '';
 
   // 5. 4대보험 계산
   const npBase = Math.min(Math.max(proratedTaxable, 390000), 6170000);
+  
+  // 국민연금 & 건강보험: 중도 입사(1일이 아닌 경우) 및 중도 퇴사(말일이 아닌 경우) 0원 적용
   const np = (chkNp && isMonthlyInsuranceTarget) ? floor10(npBase * 0.045) : 0;
   const hi = (chkHi && isMonthlyInsuranceTarget) ? floor10(proratedTaxable * 0.03545) : 0;
   const lt = (chkHi && isMonthlyInsuranceTarget) ? floor10(hi * 0.1295) : 0;
+  
+  // 고용보험: 입사일/퇴사일과 상관없이 일할 과세급여의 0.9% 정상 공제
   const ei = chkEi ? floor10(proratedTaxable * 0.009) : 0;
 
   // 6. 소득세 요율 및 부양가족 수 반영 계산
