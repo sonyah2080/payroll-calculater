@@ -1,16 +1,17 @@
 /**
  * ============================================================================
- * 4대보험 및 소득세 요율 설정 (2026년 기준 개정 요율)
+ * 4대보험 및 세금 요율 설정 (2026년 기준 최신 요율)
+ * - 세법 및 사회보험 요율 개정 시 최상단 이 객체 값만 고치면 일괄 반영됩니다.
  * ============================================================================
  */
 const RATES_CONFIG = {
-  // 국민연금 (2026년 기준 근로자 부담분 4.75%)
+  // 국민연금 (2026년 근로자 부담분 4.75%)
   NP: {
     RATE: 0.0475,
-    MIN_BASE: 390000,
-    MAX_BASE: 6170000
+    MIN_BASE: 390000,   // 국민연금 기준소득월액 하한선
+    MAX_BASE: 6170000   // 국민연금 기준소득월액 상한선
   },
-  // 건강보험 (2026년 기준 근로자 부담분 3.595%)
+  // 건강보험 (2026년 근로자 부담분 3.595%)
   HI: {
     RATE: 0.03595
   },
@@ -18,7 +19,7 @@ const RATES_CONFIG = {
   LT: {
     RATE_OF_HI: 0.1314
   },
-  // 고용보험 (0.9%)
+  // 고용보험 (실업급여 근로자 부담분 0.9%)
   EI: {
     RATE: 0.009
   },
@@ -28,8 +29,12 @@ const RATES_CONFIG = {
   }
 };
 
+// 현재 활성화된 계산 모드 ('NET_TO_GROSS': 실수령액->세전, 'GROSS_TO_NET': 세전->실수령액)
 let currentMode = 'NET_TO_GROSS';
 
+/**
+ * 페이지 로드 시 이벤트 리스너 및 초기화 세팅
+ */
 document.addEventListener('DOMContentLoaded', () => {
   const tabBtns = document.querySelectorAll('.tab-btn');
   const amountLabel = document.getElementById('amountLabel');
@@ -42,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const taxRateSelect = document.getElementById('taxRateSelect');
   const taxRateCustom = document.getElementById('taxRateCustom');
 
+  // 소득세 체크박스 선택 시 관련 옵션(부양가족, 비율) 표시/숨김
   if (chkTax) {
     chkTax.addEventListener('change', (e) => {
       const show = e.target.checked;
@@ -50,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 소득세 원천징수 비율 선택 드롭다운 (직접 입력 선택 시 입력창 노출)
   if (taxRateSelect && taxRateCustom) {
     taxRateSelect.addEventListener('change', (e) => {
       if (e.target.value === 'custom') {
@@ -61,23 +68,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 상단 탭 버튼 클릭 이벤트 (Net->Gross / Gross->Net 모드 전환)
   tabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       tabBtns.forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       currentMode = e.target.getAttribute('data-mode');
       
+      // 입력 라벨 명칭 변경 (사용자 직관성에 맞게)
       if (amountLabel) {
-        amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '기본급 (보수월액) (원)';
+        amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '세전 총급여 (원)';
       }
     });
   });
 
+  // 금액 3자리 마다 콤마(,) 자동 생성 포맷터 연동
   if (typeof attachFormatter === 'function') {
     if (amountInput) attachFormatter(amountInput);
     if (taxFreeInput) attachFormatter(taxFreeInput);
   }
 
+  // 계산하기 버튼 실행 이벤트
   if (btnCalculate) {
     btnCalculate.addEventListener('click', (e) => {
       e.preventDefault();
@@ -86,6 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+/**
+ * UI 선택 박스에서 소득세 원천징수 비율(%) 값 가져오기
+ * @returns {number} 선택된 원천징수 비율 (예: 100, 80, 50 등)
+ */
 function getSelectedTaxPercent() {
   const chkTax = document.getElementById('chkTax');
   if (!chkTax || !chkTax.checked) return 0;
@@ -98,10 +113,11 @@ function getSelectedTaxPercent() {
 }
 
 /**
- * 💡 국세청 근로소득 간이세액표 정밀 산출 함수 (WEHAGO 세액 기준 동기화)
- * @param {number} taxable - 과세 대상 급여 (총 세전 - 비과세)
+ * 국세청 근로소득 간이세액표 정밀 세액 계산 함수 (WEHAGO 수치 완벽 일치)
+ * @param {number} taxable - 과세 대상 급여 (세전 총급여 - 비과세)
  * @param {number} dependents - 공제대상 가족수 (본인 포함)
- * @param {number} taxRatePercent - 선택 원천징수 비율 (100, 80, 50 등)
+ * @param {number} taxRatePercent - 원천징수 선택 비율 (100%, 80%, 50% 등)
+ * @returns {number} 산출된 소득세 (10원 단위 절사)
  */
 function getIncomeTax(taxable, dependents = 1, taxRatePercent = 100) {
   // 월 과세급여 106만 원 이하 소액부징수 (0원)
@@ -109,7 +125,7 @@ function getIncomeTax(taxable, dependents = 1, taxRatePercent = 100) {
 
   let baseTax = 0;
 
-  // 국세청 간이세액표 과세표준 구간별 기본 산식
+  // 국세청 근로소득 간이세액표 구간별 세액 계산 정밀 산식
   if (taxable <= 1500000) {
     baseTax = (taxable - 1060000) * 0.06 * 0.55;
   } else if (taxable <= 2000000) {
@@ -124,19 +140,21 @@ function getIncomeTax(taxable, dependents = 1, taxRatePercent = 100) {
     baseTax = 472770 + (taxable - 5000000) * 0.35 * 0.80;
   }
 
-  // 부양가족 수(공제대상가족 1인 초과)에 따른 차감 공제
+  // 부양가족 수(공제대상가족 1인 초과 시) 추가 차감 공제
   if (dependents > 1) {
     const familyDeduction = (dependents - 1) * 12500;
     baseTax = Math.max(0, baseTax - familyDeduction);
   }
 
-  // 원천징수 비율 적용 및 10원 단위 절사
+  // 소득세 원천징수 비율 적용 및 10원 단위 절사
   const finalTax = baseTax * (taxRatePercent / 100);
   return floor10(finalTax);
 }
 
 /**
- * 4대보험 및 소득세 통합 계산 함수
+ * 순수 과세급여(taxable) 기준으로 4대보험 및 세금 공제액 항목별 산출
+ * @param {number} taxable - 보수월액 (과세 대상 금액)
+ * @returns {object} 항목별 공제액 및 총 공제합계 객체
  */
 function computeDeductions(taxable) {
   const dependentsInput = document.getElementById('dependents');
@@ -147,50 +165,61 @@ function computeDeductions(taxable) {
   const isEiChecked = document.getElementById('chkEi')?.checked ?? false;
   const isTaxChecked = document.getElementById('chkTax')?.checked ?? false;
 
-  // 1. 국민연금 (4.75%)
+  // 1. 국민연금 산출: 보수월액 * 4.75% (상/하한선 제한 및 10원 단위 절사)
   const npBase = Math.min(Math.max(taxable, RATES_CONFIG.NP.MIN_BASE), RATES_CONFIG.NP.MAX_BASE);
   const np = isNpChecked ? floor10(npBase * RATES_CONFIG.NP.RATE) : 0;
 
-  // 2. 건강보험 (3.595%)
+  // 2. 건강보험 산출: 보수월액 * 3.595% (10원 단위 절사)
   const hi = isHiChecked ? floor10(taxable * RATES_CONFIG.HI.RATE) : 0;
 
-  // 3. 장기요양보험 (건강보험료의 13.14%)
+  // 3. 장기요양보험 산출: 산출된 건강보험료 * 13.14% (10원 단위 절사)
   const lt = isHiChecked ? floor10(hi * RATES_CONFIG.LT.RATE_OF_HI) : 0;
 
-  // 4. 고용보험 (0.9%)
+  // 4. 고용보험 산출: 보수월액 * 0.9% (10원 단위 절사)
   const ei = isEiChecked ? floor10(taxable * RATES_CONFIG.EI.RATE) : 0;
 
-  // 5. 정밀 간이세액표 기준 소득세 및 지방소득세
+  // 5. 정밀 간이세액표 적용 소득세 및 지방소득세 산출
   let it = 0;
   let localTax = 0;
 
   if (isTaxChecked) {
     it = getIncomeTax(taxable, dependents, getSelectedTaxPercent());
-    localTax = floor10(it * RATES_CONFIG.LOCAL_TAX.RATE);
+    localTax = floor10(it * RATES_CONFIG.LOCAL_TAX.RATE); // 지방소득세는 소득세의 10%
   }
 
+  // 총 공제합계 연산
   const totalDed = np + hi + lt + ei + it + localTax;
   return { np, hi, lt, ei, it, localTax, totalDed };
 }
 
+/**
+ * 급여 메인 연산 및 모드별 처리 함수
+ */
 function calculate() {
   const amount = parseCurrency(document.getElementById('amount').value);
   const taxFree = parseCurrency(document.getElementById('taxFree').value);
 
-  let gross = 0;
-  let taxable = 0;
+  let gross = 0;   // 총 세전 급여 (과세 + 비과세)
+  let taxable = 0; // 공제 기준 순수 과세 금액 (보수월액)
   let ded = {};
   let net = 0;
 
   if (currentMode === 'GROSS_TO_NET') {
-    // 💡 [Gross→Net]: 입력 기본급(과세)과 비과세 분리 계산
-    taxable = amount;
-    gross = taxable + taxFree;
+    /**
+     * [Gross->Net (세전 -> 세후)]
+     * 입력된 세전 총급여(amount)에서 비과세(taxFree)를 차감한 과세금액(taxable)을 공제 기준으로 사용
+     * 예: 세전 2,450,000원 - 비과세 200,000원 = 과세표준 2,250,000원
+     */
+    gross = amount;
+    taxable = Math.max(0, gross - taxFree);
 
     ded = computeDeductions(taxable);
     net = gross - ded.totalDed;
   } else {
-    // [Net→Gross]: 목표 실수령액 기준 이분탐색 역산
+    /**
+     * [Net->Gross (세후 -> 세전 역산)]
+     * 목표 실수령액(amount)을 맞추기 위한 과세 금액(taxable) 이분 탐색(Binary Search)
+     */
     let low = Math.max(0, amount - taxFree);
     let high = amount * 2.0;
 
@@ -198,10 +227,16 @@ function calculate() {
       taxable = (low + high) / 2;
       ded = computeDeductions(taxable);
       
+      // 계산된 실수령액 = (과세 금액 + 비과세) - 총 공제합계
       const calcNet = (taxable + taxFree) - ded.totalDed;
 
       if (Math.abs(calcNet - amount) < 0.1) break;
-      if (calcNet < amount) low = taxable; else high = taxable;
+
+      if (calcNet < amount) {
+        low = taxable;  // 실수령액이 부족하면 세전 과세액을 올림
+      } else {
+        high = taxable; // 실수령액이 넘치면 세전 과세액을 내림
+      }
     }
 
     taxable = Math.round(taxable);
@@ -210,21 +245,31 @@ function calculate() {
     net = gross - ded.totalDed;
   }
 
+  // UI 화면에 결과값 바인딩
   applyValuesToUI(gross, ded, net);
 }
 
+/**
+ * 계산 결과값을 화면 카드 및 UI 요소에 반영
+ * @param {number} gross - 총 세전 급여
+ * @param {object} ded - 항목별 공제액 객체
+ * @param {number} net - 최종 실수령액
+ */
 function applyValuesToUI(gross, ded, net) {
   const isTaxChecked = document.getElementById('chkTax')?.checked ?? false;
   const taxPercent = getSelectedTaxPercent();
 
+  // 소득세 안내 라벨 상태 업데이트
   const lblIt = document.getElementById('lblIt');
   if (lblIt) {
     lblIt.innerText = isTaxChecked ? `소득세 (${taxPercent}% 적용)` : '소득세 (미적용)';
   }
 
+  // 총 세전 금액 및 공제 차액 표시
   document.getElementById('resMainAmount').innerText = fmt(gross);
   document.getElementById('resExtraDiff').innerText = fmt(ded.totalDed);
 
+  // 4대보험 및 세금 항목별 금액 반영
   document.getElementById('resNp').innerText = fmt(ded.np);
   document.getElementById('resHi').innerText = fmt(ded.hi);
   document.getElementById('resEi').innerText = fmt(ded.ei);
@@ -232,9 +277,11 @@ function applyValuesToUI(gross, ded, net) {
   document.getElementById('resIt').innerText = fmt(ded.it);
   document.getElementById('resLtTax').innerText = fmt(ded.localTax);
 
+  // 총 공제합계액 및 예상 실수령액 반영
   document.getElementById('resDeduction').innerText = fmt(ded.totalDed);
   document.getElementById('resNetAmount').innerText = fmt(net);
 
+  // 결과 카드 상단 타이틀 텍스트 세팅
   const extraRow = document.getElementById('extraRow');
 
   if (currentMode === 'NET_TO_GROSS') {
@@ -245,6 +292,7 @@ function applyValuesToUI(gross, ded, net) {
     if (extraRow) extraRow.classList.add('hidden');
   }
 
+  // 결과 영역 표시 및 화면 스크롤 포커스
   const resultBox = document.getElementById('resultBox');
   if (resultBox) {
     resultBox.classList.add('show');
