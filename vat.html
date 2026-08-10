@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>부가가치세 계산기</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
+  <link rel="stylesheet" href="assets/css/common.css">
+  <link rel="stylesheet" href="assets/css/calculator.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 자바스크립트가 자동으로 헤더 탭을 그려주는 영역 -->
+    <header id="mainHeader"></header>
+
+    <main class="card">
+      <div class="header">
+        <h1>부가가치세(VAT) 계산기</h1>
+        <p>공급가액 및 합계금액(공급대가) 양방향 자동 계산</p>
+      </div>
+
+      <div class="tab-group">
+        <button type="button" class="tab-btn active" data-mode="TOTAL_TO_VAT">합계금액 기준</button>
+        <button type="button" class="tab-btn" data-mode="SUPPLY_TO_VAT">공급가액 기준</button>
+      </div>
+
+        <form id="vatForm" onsubmit="return false;">
+        <div class="form-group">
+          <label id="amountLabel" for="amount">합계 금액 (공급대가, VAT 포함) (원)</label>
+          <div class="input-wrapper">
+            <input type="text" id="amount" value="1,100,000" inputmode="numeric">
+            <button type="button" id="btnClearAmount" class="btn-clear" aria-label="금액 지우기">✕</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="vatCutUnit">절사 단위 선택</label>
+          <select id="vatCutUnit">
+            <option value="1" selected>원 단위 절사 (기본)</option>
+            <option value="10">10원 단위 절사</option>
+            <option value="0">절사 없음 (소수점 반올림)</option>
+          </select>
+        </div>
+
+        <div class="result-section show" id="resultBox">
+          <div class="summary-card">
+            <div class="summary-row main">
+              <span id="resMainTitle">총 합계 금액 (공급대가)</span>
+              <span id="resMainAmount">0 원</span>
+            </div>
+          </div>
+
+          <div class="detail-box">
+            <div class="detail-title">세부 금액 산출 내역</div>
+            <ul class="detail-list">
+              <li class="detail-item">
+                <span>공급가액 (세전 금액)</span>
+                <span class="amount" id="resSupplyValue" style="color: #1e3a8a; font-weight: 700;">0 원</span>
+              </li>
+              <li class="detail-item">
+                <span>부가가치세 (VAT 10%)</span>
+                <span class="amount" id="resVatValue" style="color: #1e3a8a; font-weight: 700;">0 원</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </form>
+      <div class="footer">
+        Copyright © 2026 wayer. All rights reserved.
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/vat.js"></script>
+</body>
+</html>

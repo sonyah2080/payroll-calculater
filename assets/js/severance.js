@@ -41,18 +41,6 @@ function getConvertedSalaryDeduction(convertedSalary) {
   return 151700000 + (convertedSalary - 300000000) * 0.35;
 }
 
-// 기본 세율 계산 (6% ~ 45%)
-function getBasicTax(taxBase) {
-  if (taxBase <= 14000000) return taxBase * 0.06;
-  if (taxBase <= 50000000) return 840000 + (taxBase - 14000000) * 0.15;
-  if (taxBase <= 88000000) return 6240000 + (taxBase - 50000000) * 0.24;
-  if (taxBase <= 150000000) return 15360000 + (taxBase - 88000000) * 0.35;
-  if (taxBase <= 300000000) return 37060000 + (taxBase - 150000000) * 0.38;
-  if (taxBase <= 500000000) return 94060000 + (taxBase - 300000000) * 0.40;
-  if (taxBase <= 1000000000) return 174060000 + (taxBase - 500000000) * 0.42;
-  return 384060000 + (taxBase - 1000000000) * 0.45;
-}
-
 // 퇴직금 & 퇴직소득세 산정내역서 생성
 function generateStatement() {
   const name = document.getElementById('workerName').value || '근로자';
@@ -154,7 +142,9 @@ function generateStatement() {
     const convertedDeduction = getConvertedSalaryDeduction(convertedSalary);
     const taxBaseConverted = Math.max(0, convertedSalary - convertedDeduction);
     
+    // 🔥 taxTable.js 에 있는 getBasicTax() 함수를 불러와서 적용합니다.
     const convertedTax = getBasicTax(taxBaseConverted);
+    
     incomeTax = Math.floor((convertedTax * serviceYears) / 12 / 10) * 10;
     localTax = Math.floor((incomeTax * 0.1) / 10) * 10;
     totalTax = incomeTax + localTax;
@@ -177,7 +167,7 @@ function generateStatement() {
   }
 
   // 리포트 UI 데이터 동기화
- document.getElementById('rptName').innerText = name;
+  document.getElementById('rptName').innerText = name;
   document.getElementById('rptStartDate').innerText = startDateStr;
   document.getElementById('rptEndDate').innerText = endDateStr;
   document.getElementById('rptWorkingDays').innerText = `${workingDays.toLocaleString()} 일 (${serviceYears}년차)`;

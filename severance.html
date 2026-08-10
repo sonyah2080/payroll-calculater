@@ -6,7 +6,8 @@
   <title>퇴직금계산기</title>
   
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/common.css">
+  <link rel="stylesheet" href="assets/css/severance.css">
   <link rel="stylesheet" href="assets/css/report.css">
  
   <!-- PDF 다운로드용 html2pdf.js CDN 라이브러리 -->
@@ -80,15 +81,19 @@
       <div class="date-row" style="grid-template-columns: 2fr 1fr !important;">
         <div class="form-group" style="margin-bottom:0 !important;">
           <label for="regularSalary">통상임금 (월 기본 통상임금 수당 합계)</label>
-          <input type="text" id="regularSalary" value="3,000,000" placeholder="미입력 시 1개월전 급여 적용" inputmode="numeric">
+          <div class="input-group">
+            <input type="text" id="regularSalary" value="3,000,000" placeholder="미입력 시 1개월전 급여 적용" inputmode="numeric">
+          </div>
         </div>
         <div class="form-group" style="margin-bottom:0 !important;">
           <label for="calcMethod">계산 기준 선택</label>
-          <select id="calcMethod">
-            <option value="AUTO" selected>자동 선택 (비교)</option>
-            <option value="AVG">평균임금 기준</option>
-            <option value="REG">통상임금 기준</option>
-          </select>
+          <div class="input-group">
+            <select id="calcMethod">
+              <option value="AUTO" selected>자동 선택 (비교)</option>
+              <option value="AVG">평균임금 기준</option>
+              <option value="REG">통상임금 기준</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -97,7 +102,7 @@
         <label for="chkCalcTax">퇴직소득세 자동 계산 포함 (근속연수 공제 및 기본세율 반영)</label>
       </div>
 
-      <button type="button" class="btn-primary" id="btnCalculate">퇴직금 산정내역서 생성</button>
+      <button type="button" class="btn-primary" id="btnCalculate">퇴직금 계산하기</button>
 
       <!-- 계산 결과 리포트 영역 -->
       <div class="result-section" id="resultBox">
@@ -235,7 +240,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script src="assets/js/common.js"></script>
+<script src="assets/js/taxTable.js"></script>
 <script src="assets/js/severance.js"></script>
+
 
 </body>
 </html>

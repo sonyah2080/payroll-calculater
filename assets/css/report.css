@@ -3,6 +3,11 @@
 /* ==========================================
    1. 화면 표시용 기본 디자인 (카드 형태)
    ========================================== */
+#resultBox .result-section {
+  border: none;
+  border-radius: none;
+  box-shadow: none;
+}
 
 #pdfArea.statement-card {
   background-color: #ffffff;

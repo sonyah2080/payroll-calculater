@@ -145,10 +145,11 @@ function calculateProrated() {
 
   const diffTime = endDate.getTime() - startDate.getTime();
   const workedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  const proratedRatio = workedDays / daysInMonth;
 
   // 2. 일할 과세급여 및 비과세급여 산출 (10원 절사)
-  const proratedTaxable = floor10(baseSalary * (workedDays / daysInMonth));
-  const proratedTaxFree = floor10(taxFree * (workedDays / daysInMonth));
+  const proratedTaxable = floor10(baseSalary * proratedRatio);
+  const proratedTaxFree = floor10(taxFree * proratedRatio);
   const totalProratedGross = proratedTaxable + proratedTaxFree;
 
   // 3. 체크박스 상태 확인
@@ -157,25 +158,24 @@ function calculateProrated() {
   const chkEi = document.getElementById('proChkEi').checked;
   const chkTax = document.getElementById('proChkTax').checked;
 
-  // 4. 입/퇴사자 4대보험 부과 판단 (1일 입사 AND 말일 근무 시에만 적용)
-  const isFirstDayEntry = (startDay === 1);
-  const isLastDayResign = (endDay === daysInMonth);
-  const isMonthlyInsuranceTarget = isFirstDayEntry && isLastDayResign;
+  // 4. 입/퇴사자 4대보험 부과 판단 (1일 재직 여부)
+  const isEmployedOnFirstDay = (startDay === 1);
+  const noteText = !isEmployedOnFirstDay ? '(월중 입사로 당월 면제)' : '(1일 재직자 전액 부과)';
 
-  const noteText = !isMonthlyInsuranceTarget ? '(월중 입/퇴사 면제)' : '';
-
-  // 5. RATES_CONFIG(calculator.js) 참조하여 4대보험 산출
+  // 5. RATES_CONFIG 참조하여 4대보험 산출
   const npConfig = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.NP : { RATE: 0.0475, MIN_BASE: 390000, MAX_BASE: 6170000 };
   const hiRate = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.HI.RATE : 0.03595;
   const ltRate = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.LT.RATE_OF_HI : 0.1314;
   const eiRate = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.EI.RATE : 0.009;
   const localTaxRate = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.LOCAL_TAX.RATE : 0.10;
 
-  const npBase = Math.min(Math.max(proratedTaxable, npConfig.MIN_BASE), npConfig.MAX_BASE);
-  
-  const np = (chkNp && isMonthlyInsuranceTarget) ? floor10(npBase * npConfig.RATE) : 0;
-  const hi = (chkHi && isMonthlyInsuranceTarget) ? floor10(proratedTaxable * hiRate) : 0;
-  const lt = (chkHi && isMonthlyInsuranceTarget) ? floor10(hi * ltRate) : 0;
+  // 국민연금/건강보험: 원래 월급 100% 기준
+  const npBase = Math.min(Math.max(baseSalary, npConfig.MIN_BASE), npConfig.MAX_BASE);
+  const np = (chkNp && isEmployedOnFirstDay) ? floor10(npBase * npConfig.RATE) : 0;
+  const hi = (chkHi && isEmployedOnFirstDay) ? floor10(baseSalary * hiRate) : 0;
+  const lt = (chkHi && isEmployedOnFirstDay) ? floor10(hi * ltRate) : 0;
+
+  // 고용보험: 일할 계산된 급여 기준
   const ei = chkEi ? floor10(proratedTaxable * eiRate) : 0;
 
   // 6. 소득세 및 지방소득세 산출
@@ -192,11 +192,13 @@ function calculateProrated() {
   let incomeTax = 0;
   if (chkTax) {
     if (typeof getIncomeTax === 'function') {
-      incomeTax = floor10(getIncomeTax(proratedTaxable, dependents, taxRatePercent));
+      const fullMonthTax = getIncomeTax(baseSalary, dependents, taxRatePercent);
+      incomeTax = floor10(fullMonthTax * proratedRatio); 
     } else {
       incomeTax = floor10(proratedTaxable * 0.03 * (taxRatePercent / 100));
     }
   }
+  
   const localTax = chkTax ? floor10(incomeTax * localTaxRate) : 0;
 
   const totalDeduction = np + hi + lt + ei + incomeTax + localTax;
@@ -216,8 +218,9 @@ function calculateProrated() {
 
   document.getElementById('resProTaxRateLabel').innerText = chkTax ? `(${taxRatePercent}% 적용)` : '';
 
-  document.getElementById('noteNp').innerText = (!chkNp || !isMonthlyInsuranceTarget) ? noteText : '';
-  document.getElementById('noteHi').innerText = (!chkHi || !isMonthlyInsuranceTarget) ? noteText : '';
+  // 🔥 에러가 났던 텍스트 출력 부분 변수명 수정 완료
+  document.getElementById('noteNp').innerText = (!chkNp || !isEmployedOnFirstDay) ? noteText : '';
+  document.getElementById('noteHi').innerText = (!chkHi || !isEmployedOnFirstDay) ? noteText : '';
 
   document.getElementById('resProTotalDeduction').innerText = fmt(totalDeduction);
   document.getElementById('resProNet').innerText = fmt(netPay);

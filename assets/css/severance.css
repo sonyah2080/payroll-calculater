@@ -1,0 +1,78 @@
+@charset "UTF-8";
+
+/* ==========================================
+   퇴직금 계산기 폼 전용 Grid 레이아웃
+   ========================================== */
+
+/* 상단 정보 3단, 통상임금 2단 등 공통 Row */
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* 연간 상여금 / 연차수당 2단 그리드 */
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+/* 최근 3개월 급여 입력 박스 패널 */
+.month-grid {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 최근 3개월 급여 행 (구분 / 과세 / 비과세) */
+.month-header, 
+.month-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+}
+.month-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-align: center;
+}
+.month-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  text-align: center;
+}
+
+/* 🚨 핵심: Grid 내부 Input 강제 확장 방지 (Grid 레이아웃 깨짐 100% 방지) 🚨 */
+.date-row input,
+.date-row select,
+.option-grid input,
+.month-row input {
+  min-width: 0;
+  width: 100%;
+}
+
+/* ==========================================
+   🚨 결과창(산정내역서) 숨김/노출 강제 제어 🚨
+   ========================================== */
+
+/* 1. 평상시에는 무조건 숨김 (ID 선택자 + important로 최우선 적용) */
+#resultBox {
+  display: none !important;
+}
+
+/* 2. 계산하기 버튼을 눌러서 JS가 'show' 클래스를 붙여주면 무조건 노출 */
+#resultBox.show {
+  display: block !important;
+}

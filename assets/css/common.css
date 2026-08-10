@@ -1,0 +1,358 @@
+@charset "UTF-8";
+
+/* ==========================================
+   1. 기본 리셋 및 레이아웃 설정
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  overflow-y: scroll; /* 스크롤바 유무에 따른 페이지 좌우 덜컹거림 방지 */
+}
+
+body {
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 40px 16px;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* 최외곽 감싸기 박스 */
+.container {
+  width: 100%;
+  max-width: 680px; 
+  margin: 0 auto;
+}
+
+/* 본문 메인 카드 박스 */
+.card, 
+.statement-card {
+  background: #ffffff;
+  width: 100%;
+  padding: 28px 32px 32px 32px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  margin: 0 auto;
+}
+
+/* ==========================================
+   2. 상단 공통 헤더 탭 메뉴 (mainHeader)
+   ========================================== */
+#mainHeader {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.header-nav-wrapper {
+  width: 100%;
+}
+
+.top-nav, 
+.nav-tab-group {
+  display: flex;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.nav-tab, 
+.nav-tab-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-tab:hover, 
+.nav-tab-btn:hover {
+  color: #1e3a8a;
+}
+
+.nav-tab.active, 
+.nav-tab-btn.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 800;
+}
+
+/* ==========================================
+   3. 타이틀 및 푸터
+   ========================================== */
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* ==========================================
+   4. 공통 폼 입력 요소 (Input, Select) 기본
+   ========================================== */
+.form-group {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+input[type="text"], 
+input[type="number"], 
+input[type="date"], 
+input[type="month"], 
+select {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background-color: #ffffff;
+  color: #0f172a;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus, 
+input[type="number"]:focus, 
+input[type="date"]:focus, 
+input[type="month"]:focus, 
+select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%2364748b" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  cursor: pointer;
+}
+
+/* 1. 인풋과 버튼을 감싸는 부모 요소를 relative로 설정 */
+.input-group, 
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* 2. 글씨가 X버튼에 가려지지 않도록 인풋 우측에 여백(padding) 확보 */
+.input-group input, 
+.input-wrapper input {
+  width: 100%;
+  padding-right: 40px; /* 버튼이 들어갈 공간 */
+}
+
+/* 3. X 버튼을 우측에 띄워서 고정 (absolute) */
+.btn-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%); /* 세로 중앙 정렬 */
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px; /* 클릭 영역 확보 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+/* 마우스 올렸을 때 색상 진하게 */
+.btn-clear:hover {
+  color: #334155;
+}
+
+/* 브라우저 기본 화살표/X 아이콘 강제 제거 */
+input::-ms-clear,
+input::-ms-reveal { display: none; width: 0; height: 0; }
+input::-webkit-search-decoration,
+input::-webkit-search-cancel-button,
+input::-webkit-search-results-button,
+input::-webkit-search-results-decoration { display: none; -webkit-appearance: none; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
+
+
+/* ==========================================
+   5. 공통 버튼 (Submit, Primary)
+   ========================================== */
+.btn-submit, 
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transition: background 0.2s ease;
+}
+
+.btn-submit:hover, 
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+
+/* ==========================================
+   6. 섹션별 헤더
+   ========================================== */
+
+   .section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 20px 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background-color: #2563eb;
+  border-radius: 2px;
+}
+
+/* ==========================================
+   7. 체크박스 요소
+   ========================================== */
+.checkbox-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  background-color: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 18px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  background: #eff6ff;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #dbeafe;
+}
+
+.checkbox-label input[type="checkbox"],
+.checkbox-container input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.checkbox-container label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e40af;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* ==========================================
+   💡 안내용 Tip Box 스타일
+   ========================================== */
+.tip-box {
+  background-color: #fffbeb; /* 은은한 노란색 배경 */
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: #92400e;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.tip-box strong {
+  color: #b45309;
+  font-weight: 700;
+}

@@ -1,0 +1,70 @@
+@charset "UTF-8";
+
+/* ==========================================
+   일할 계산기 (Prorated) 전용 레이아웃
+   ========================================== */
+
+/* 상단 날짜 입력부 3단 그리드 (입사일 / 퇴사일 / 일할기준) */
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* 월별 상세 정보 (입사월 / 퇴사월) 2단 그리드 */
+.month-info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* 개별 월 정보 박스 */
+.month-grid {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 월 정보 박스 내부 항목 (항목명 | 일수 | 설명) */
+.month-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.month-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.month-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+  text-align: right;
+}
+
+/* 4대보험 부과 여부 알림 뱃지 */
+.badge-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge-status.active {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+.badge-status.exempt {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}

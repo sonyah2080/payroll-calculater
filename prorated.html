@@ -6,7 +6,9 @@
   <title>급여 일할 계산기</title>
   
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/common.css">
+  <link rel="stylesheet" href="assets/css/calculator.css">
+
 </head>
 <body>
   <div class="container">
@@ -86,9 +88,14 @@
             <span>└ 일할 과세 급여</span>
             <span id="resProTaxable" style="font-weight: 700; color: #334155;">0 원</span>
           </div>
-          <div class="summary-row extra" style="margin-top: 4px;">
+          <div class="summary-row extra" style="margin-top: 4px; ">
             <span>└ 일할 비과세 수당</span>
-            <span id="resProTaxFree" style="font-weight: 700; color: #059669;">0 원</span>
+            <span id="resProTaxFree" style="font-weight: 700; color: #334155;">0 원</span>
+          </div>
+
+          <!-- 👇 여기에 팁 박스 추가 👇 -->
+          <div class="tip-box">
+            <strong>💡 Tip:</strong> 소득세 및 지방소득세는 <strong>'중도퇴사 연말정산'이 반영되기 전의 단순 일할 계산 금액</strong>이므로 참고용으로만 활용해 주세요. (실제 퇴사 시에는 기납부 세액 정산에 따라 환급되거나 0원으로 처리될 수 있습니다.)
           </div>
         </div>
 
@@ -96,20 +103,20 @@
           <div class="detail-title">공제 항목별 상세 내역 (10원 단위 절사)</div>
           <ul class="detail-list">
             <li class="detail-item">
-              <span>국민연금 (4.5%) <small id="noteNp" style="color:#64748b; font-size:11px;"></small></span>
+              <span>국민연금 (4.75%) <small id="noteNp" style="color:#64748b; font-size:11px;"></small></span>
               <span class="amount" id="resProNp">0 원</span>
             </li>
             <li class="detail-item">
-              <span>건강보험 (3.545%) <small id="noteHi" style="color:#64748b; font-size:11px;"></small></span>
+              <span>건강보험 (3.595%) <small id="noteHi" style="color:#64748b; font-size:11px;"></small></span>
               <span class="amount" id="resProHi">0 원</span>
-            </li>
-            <li class="detail-item">
-              <span>장기요양보험 (12.95%)</span>
-              <span class="amount" id="resProLt">0 원</span>
             </li>
             <li class="detail-item">
               <span>고용보험 (0.9%)</span>
               <span class="amount" id="resProEi">0 원</span>
+            </li>
+            <li class="detail-item">
+              <span>장기요양보험 (13.14%)</span>
+              <span class="amount" id="resProLt">0 원</span>
             </li>
             <li class="detail-item">
               <span>소득세 <small id="resProTaxRateLabel" style="color:#2563eb; font-size:12px;"></small></span>
@@ -120,7 +127,7 @@
               <span class="amount" id="resProLtTax">0 원</span>
             </li>
           </ul>
-
+          
           <div class="total-deduction-row">
             <span>총 공제 합계</span>
             <span id="resProTotalDeduction">0 원</span>
