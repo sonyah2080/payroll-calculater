@@ -51,17 +51,17 @@
     </div>
     <div class="month-row">
       <span class="month-label">1개월전</span>
-      <input type="text" class="month-input salary" value="3,800,000" inputmode="numeric">
+      <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
       <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
     </div>
     <div class="month-row">
       <span class="month-label">2개월전</span>
-      <input type="text" class="month-input salary" value="3,800,000" inputmode="numeric">
+      <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
       <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
     </div>
     <div class="month-row">
       <span class="month-label">3개월전</span>
-      <input type="text" class="month-input salary" value="3,800,000" inputmode="numeric">
+      <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
       <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
     </div>
   </div>
@@ -82,7 +82,7 @@
   <div class="date-row" style="grid-template-columns: 2fr 1fr !important;">
     <div class="form-group" style="margin-bottom:0!important;">
       <label for="regularSalary">통상임금 (월 기본 통상임금 수당 합계)</label>
-      <input type="text" id="regularSalary" value="4,000,000" placeholder="미입력 시 1개월전 급여 적용" inputmode="numeric">
+      <input type="text" id="regularSalary" value="3,000,000" placeholder="미입력 시 1개월전 급여 적용" inputmode="numeric">
     </div>
     <div class="form-group" style="margin-bottom:0!important;">
       <label for="calcMethod">계산 기준 선택</label>
@@ -99,7 +99,7 @@
     <label for="chkCalcTax">퇴직소득세 자동 계산 포함 (근속연수 공제 및 기본세율 반영)</label>
   </div>
 
-  <button type="button" class="btn-submit" id="btnCalculate">퇴직금 & 소득세 산정내역서 생성</button>
+  <button type="button" class="btn-submit" id="btnCalculate">퇴직금 산정내역서 생성</button>
 
   <div class="result-section" id="resultBox">
     <!-- PDF 저장 영역 -->
@@ -109,20 +109,25 @@
         <p>근로기준법 및 소득세법에 따른 퇴직금·퇴직소득세 계산서</p>
       </div>
 
-      <table class="report-table">
-        <tr>
-          <th style="width: 20%;">성 명</th>
-          <td style="width: 30%;" class="center" id="rptName">-</td>
-          <th style="width: 20%;">재직 기간</th>
-          <td style="width: 30%;" class="center" id="rptPeriod">-</td>
-        </tr>
-        <tr>
-          <th>입사 일자</th>
-          <td class="center" id="rptStartDate">-</td>
-          <th>근속연수 (일수)</th>
-          <td class="center" id="rptWorkingDays">-</td>
-        </tr>
-      </table>
+      <!-- 인적사항 및 재직정보 표 -->
+    <table class="report-table">
+      <tr>
+        <th style="width: 20%;">성 명</th>
+        <td style="width: 30%;" class="center" id="rptName">홍길동</td>
+        <th style="width: 20%;">입사 일자</th>
+        <td style="width: 30%;" class="center" id="rptStartDate">-</td>
+      </tr>
+      <tr>
+        <th>퇴사 일자</th>
+        <td class="center" id="rptEndDate">-</td>
+        <th>총 재직일수</th>
+        <td class="center" id="rptWorkingDays">-</td>
+      </tr>
+      <tr>
+        <th>재직 기간</th>
+        <td colspan="3" class="center" id="rptPeriod">-</td>
+      </tr>
+    </table>
 
       <table class="report-table">
         <thead>
