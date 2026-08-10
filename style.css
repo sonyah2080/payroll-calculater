@@ -395,9 +395,8 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 
 .statement-header {
   text-align: center !important;
-  margin-bottom: 20px !important;
-  border-bottom: 2px solid #e2e8f0 !important;
-  padding-bottom: 12px !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 0px !important;
 }
 
 .statement-header h2 {
