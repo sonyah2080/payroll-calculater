@@ -74,7 +74,7 @@
   background-color: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 0.5rem;
   margin-top: 1rem;
 }
 
@@ -127,8 +127,8 @@
 
 #pdfArea.pdf-mode .report-table th, 
 #pdfArea.pdf-mode .report-table td {
-  padding: 5px 8px;
-  line-height: 1.2;
+  padding: 0.5rem;
+  line-height: 1.5;
 }
 
 #pdfArea.pdf-mode .highlight-box {
