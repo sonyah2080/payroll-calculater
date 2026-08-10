@@ -393,3 +393,36 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
   color: #94a3b8 !important;
   font-weight: 500 !important;
 }
+
+/* ==========================================
+   전체 페이지 레이아웃 및 카드 박스 위치 고정
+   ========================================== */
+
+/* 1. HTML/Body 여백 및 스크롤바 이동 방지 */
+html {
+  overflow-y: scroll; /* 스크롤바 유무에 따른 화면 덜컹거림 완벽 차단 */
+}
+
+body {
+  margin: 0;
+  padding: 40px 0;
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: center;
+}
+
+/* 2. 최외곽 감싸기 박스 (모든 페이지 공통 규격) */
+.container {
+  width: 100%;
+  max-width: 800px; /* 전체 카드 상자의 폭을 800px로 일괄 고정 */
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* 3. 본문 카드 박스 규격 통일 */
+.card, .statement-card {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: 0 !important;
+}
