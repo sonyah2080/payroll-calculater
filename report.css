@@ -41,13 +41,13 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 0.75rem;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 #pdfArea .report-table th, 
 #pdfArea .report-table td {
   border: 1px solid #cbd5e1;
-  padding: 1rem;
+  padding: 0.5rem;
   line-height: 1.3;
 }
 
