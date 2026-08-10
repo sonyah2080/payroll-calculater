@@ -85,15 +85,15 @@
 
 #pdfArea .highlight-box .title {
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #1e40af;
   margin: 0;
   white-space: nowrap;
 }
 
 #pdfArea .highlight-box .amount {
-  font-size: 1.25rem;
-  font-weight: 900;
+  font-size: 1rem;
+  font-weight: 800;
   color: #1e3a8a;
   white-space: nowrap;
 }
