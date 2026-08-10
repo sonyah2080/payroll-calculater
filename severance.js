@@ -2,14 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCalculate = document.getElementById('btnCalculate');
   const btnDownloadPdf = document.getElementById('btnDownloadPdf');
 
+  // 입력창 콤마 및 키패드 + 키(000) 지원 포맷터 연결
   document.querySelectorAll('input[type="text"]').forEach(attachFormatter);
 
-  btnCalculate.addEventListener('click', (e) => {
-    e.preventDefault();
-    generateStatement();
-  });
+  // 산정내역서 생성 버튼
+  if (btnCalculate) {
+    btnCalculate.addEventListener('click', (e) => {
+      e.preventDefault();
+      generateStatement();
+    });
+  }
 
-  // PDF 다운로드 버튼 핸들러
+  // PDF 다운로드 버튼
   if (btnDownloadPdf) {
     btnDownloadPdf.addEventListener('click', (e) => {
       e.preventDefault();
@@ -18,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// 근속연수 공제 계산
 function getServiceYearsDeduction(years) {
   if (years <= 5) return years * 1000000;
   if (years <= 10) return 5000000 + (years - 5) * 2000000;
@@ -25,6 +30,7 @@ function getServiceYearsDeduction(years) {
   return 40000000 + (years - 20) * 3000000;
 }
 
+// 환산급여 공제 계산
 function getConvertedSalaryDeduction(convertedSalary) {
   if (convertedSalary <= 8000000) return convertedSalary;
   if (convertedSalary <= 70000000) return 8000000 + (convertedSalary - 8000000) * 0.6;
@@ -33,6 +39,7 @@ function getConvertedSalaryDeduction(convertedSalary) {
   return 151700000 + (convertedSalary - 300000000) * 0.35;
 }
 
+// 기본 세율 계산 (6% ~ 45%)
 function getBasicTax(taxBase) {
   if (taxBase <= 14000000) return taxBase * 0.06;
   if (taxBase <= 50000000) return 840000 + (taxBase - 14000000) * 0.15;
@@ -44,6 +51,7 @@ function getBasicTax(taxBase) {
   return 384060000 + (taxBase - 1000000000) * 0.45;
 }
 
+// 퇴직금 & 퇴직소득세 산정내역서 생성
 function generateStatement() {
   const name = document.getElementById('workerName').value || '근로자';
   const startDateStr = document.getElementById('startDate').value;
@@ -65,6 +73,7 @@ function generateStatement() {
     alert('재직일수가 1년(365일) 미만인 경우 법정 퇴직금 지급 대상이 아닙니다.');
   }
 
+  // 최근 3개월 급여 처리
   const salaries = document.querySelectorAll('.month-input.salary');
   const taxFrees = document.querySelectorAll('.month-input.taxfree');
   const rpt3MonthBody = document.getElementById('rpt3MonthBody');
@@ -101,6 +110,7 @@ function generateStatement() {
   `;
   rpt3MonthBody.appendChild(trSubtotal);
 
+  // 상여금 및 연차수당 3/12 반영
   const annualBonus = parseCurrency(document.getElementById('annualBonus').value);
   const annualLeaveFee = parseCurrency(document.getElementById('annualLeaveFee').value);
   const bonus312 = annualBonus * (3 / 12);
@@ -109,14 +119,17 @@ function generateStatement() {
   const total3MonthPay = totalSalarySum + totalTaxFreeSum + bonus312 + leave312;
   const daysIn3Months = 92;
 
+  // 1일 평균임금
   const avg1DayPay = total3MonthPay / daysIn3Months;
 
+  // 1일 통상임금
   let regularSalaryMonthly = parseCurrency(document.getElementById('regularSalary').value);
   if (regularSalaryMonthly === 0) {
     regularSalaryMonthly = parseCurrency(salaries[0].value) + parseCurrency(taxFrees[0].value);
   }
   const reg1DayPay = (regularSalaryMonthly / 209) * 8;
 
+  // 계산 기준 선택 (평균임금 vs 통상임금)
   const calcMethod = document.getElementById('calcMethod').value;
   let final1DayPay = 0;
 
@@ -124,8 +137,10 @@ function generateStatement() {
   else if (calcMethod === 'REG') final1DayPay = reg1DayPay;
   else final1DayPay = Math.max(avg1DayPay, reg1DayPay);
 
+  // 세전 퇴직금 산출
   const grossSeverance = final1DayPay * 30 * (workingDays / 365);
 
+  // 퇴직소득세 자동 계산
   const chkCalcTax = document.getElementById('chkCalcTax').checked;
   let incomeTax = 0, localTax = 0, totalTax = 0;
   let netSeverance = grossSeverance;
@@ -161,6 +176,7 @@ function generateStatement() {
     document.getElementById('rptCalcFormula').innerText = '산식: 1일 산정임금 × 30일 × (재직일수 ÷ 365)';
   }
 
+  // 리포트 UI 데이터 동기화
   document.getElementById('rptName').innerText = name;
   document.getElementById('rptPeriod').innerText = `${startDateStr} ~ ${endDateStr}`;
   document.getElementById('rptStartDate').innerText = startDateStr;
@@ -181,18 +197,38 @@ function generateStatement() {
   resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// PDF 다운로드 기능 함수
+// PDF 다운로드 기능 함수 (스크롤 백지 현상 보정 반영)
 function downloadPdf() {
   const element = document.getElementById('pdfArea');
+  const resultBox = document.getElementById('resultBox');
   const name = document.getElementById('workerName').value || '근로자';
-  
+
+  if (!element) {
+    alert('PDF로 변환할 산정내역서 영역을 찾을 수 없습니다.');
+    return;
+  }
+
+  // 결과 박스가 숨겨져 있다면 출력 상태로 보정
+  if (resultBox) {
+    resultBox.style.display = 'block';
+  }
+
   const opt = {
-    margin:       10,
+    margin:       [10, 10, 10, 10], // 여백 (mm)
     filename:     `퇴직금_산정내역서_${name}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
+    html2canvas:  { 
+      scale: 2,             // 해상도
+      useCORS: true,        // 폰트 및 리소스 캡처 허용
+      scrollY: 0,           // 스크롤 위치 보정 (백지 출력 방지)
+      scrollX: 0,
+      windowWidth: document.documentElement.offsetWidth
+    },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
-  
-  html2pdf().set(opt).from(element).save();
+
+  html2pdf().set(opt).from(element).save().catch(err => {
+    console.error('PDF 다운로드 에러:', err);
+    alert('PDF 다운로드 처리 중 오류가 발생했습니다.');
+  });
 }
