@@ -1,6 +1,7 @@
 /**
  * ============================================================================
  * 급여 일할 계산기 연동 로직 (prorated.js)
+ * - calculator.js의 RATES_CONFIG 및 getIncomeTax 모듈 연동
  * ============================================================================
  */
 
@@ -23,11 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     monthEl.addEventListener('change', (e) => {
       updateMonthDates(e.target.value);
-      checkMidMonthEntry(); // 날짜 변경 시 중도입사 여부 즉시 체크
+      checkMidMonthEntry();
     });
   }
 
-  // 8자리 연속 입력 지원 및 날짜 변경 감지
+  // 8자리 연달아 쓰기 (YYYYMMDD -> YYYY-MM-DD)
   [startEl, endEl].forEach(input => {
     if (!input) return;
 
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         e.target.value = val;
       }
-      checkMidMonthEntry(); // 날짜 변경 시 체크박스 상태 즉시 업데이트
+      checkMidMonthEntry();
     });
 
     input.addEventListener('change', checkMidMonthEntry);
@@ -62,11 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCalc.addEventListener('click', calculateProrated);
   }
 
-  // 최초 로딩 시 중도입사 여부 체크하여 체크박스 상태 반영
   checkMidMonthEntry();
 });
 
-// 기준년월 변경 시 날짜 세팅
+// 기준년월 변경 시 시작일/종료일 자동 세팅
 function updateMonthDates(yearMonthStr) {
   if (!yearMonthStr) return;
   const [y, m] = yearMonthStr.split('-').map(Number);
@@ -82,9 +82,7 @@ function updateMonthDates(yearMonthStr) {
   if (endEl) endEl.value = endDateStr;
 }
 
-/**
- * 중도 입사 여부를 판단하여 국민연금/건강보험 체크박스를 disabled 처리하는 함수
- */
+// 1일 입사가 아닌 중도입사자 체크박스 disabled 비활성화 처리
 function checkMidMonthEntry() {
   const startStr = document.getElementById('proStartDate').value.trim();
   const chkNp = document.getElementById('proChkNp');
@@ -92,10 +90,8 @@ function checkMidMonthEntry() {
 
   if (!chkNp || !chkHi || !startStr) return;
 
-  // 시작일 일자(Day) 추출
   const day = parseInt(startStr.split('-')[2], 10);
 
-  // 1일 입사가 아닌 중도 입사자일 경우
   if (!isNaN(day) && day !== 1) {
     chkNp.checked = false;
     chkNp.disabled = true;
@@ -103,7 +99,6 @@ function checkMidMonthEntry() {
     chkHi.checked = false;
     chkHi.disabled = true;
   } else {
-    // 1일 입사일 경우 다시 활성화
     chkNp.disabled = false;
     chkNp.checked = true;
 
@@ -151,7 +146,7 @@ function calculateProrated() {
   const diffTime = endDate.getTime() - startDate.getTime();
   const workedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-  // 2. 일할 과세급여 및 비과세급여 분리 산출 (10원 절사)
+  // 2. 일할 과세급여 및 비과세급여 산출 (10원 절사)
   const proratedTaxable = floor10(baseSalary * (workedDays / daysInMonth));
   const proratedTaxFree = floor10(taxFree * (workedDays / daysInMonth));
   const totalProratedGross = proratedTaxable + proratedTaxFree;
@@ -169,14 +164,21 @@ function calculateProrated() {
 
   const noteText = !isMonthlyInsuranceTarget ? '(월중 입/퇴사 면제)' : '';
 
-  // 5. 4대보험 계산
-  const npBase = Math.min(Math.max(proratedTaxable, 390000), 6170000);
-  const np = (chkNp && isMonthlyInsuranceTarget) ? floor10(npBase * 0.045) : 0;
-  const hi = (chkHi && isMonthlyInsuranceTarget) ? floor10(proratedTaxable * 0.03545) : 0;
-  const lt = (chkHi && isMonthlyInsuranceTarget) ? floor10(hi * 0.1295) : 0;
-  const ei = chkEi ? floor10(proratedTaxable * 0.009) : 0;
+  // 5. RATES_CONFIG(calculator.js) 참조하여 4대보험 산출
+  const npConfig = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.NP : { RATE: 0.0475, MIN_BASE: 390000, MAX_BASE: 6170000 };
+  const hiRate = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.HI.RATE : 0.03595;
+  const ltRate = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.LT.RATE_OF_HI : 0.1314;
+  const eiRate = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.EI.RATE : 0.009;
+  const localTaxRate = (typeof RATES_CONFIG !== 'undefined') ? RATES_CONFIG.LOCAL_TAX.RATE : 0.10;
 
-  // 6. 소득세 요율 및 부양가족 수 반영 계산
+  const npBase = Math.min(Math.max(proratedTaxable, npConfig.MIN_BASE), npConfig.MAX_BASE);
+  
+  const np = (chkNp && isMonthlyInsuranceTarget) ? floor10(npBase * npConfig.RATE) : 0;
+  const hi = (chkHi && isMonthlyInsuranceTarget) ? floor10(proratedTaxable * hiRate) : 0;
+  const lt = (chkHi && isMonthlyInsuranceTarget) ? floor10(hi * ltRate) : 0;
+  const ei = chkEi ? floor10(proratedTaxable * eiRate) : 0;
+
+  // 6. 소득세 및 지방소득세 산출
   const dependents = parseInt(document.getElementById('proDependents').value, 10) || 1;
   const selectVal = document.getElementById('proTaxRateSelect').value;
   let taxRatePercent = 100;
@@ -195,7 +197,7 @@ function calculateProrated() {
       incomeTax = floor10(proratedTaxable * 0.03 * (taxRatePercent / 100));
     }
   }
-  const localTax = chkTax ? floor10(incomeTax * 0.1) : 0;
+  const localTax = chkTax ? floor10(incomeTax * localTaxRate) : 0;
 
   const totalDeduction = np + hi + lt + ei + incomeTax + localTax;
   const netPay = totalProratedGross - totalDeduction;
