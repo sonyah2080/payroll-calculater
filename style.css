@@ -1,88 +1,132 @@
+@charset "UTF-8";
+
+/* ==========================================
+   1. 기본 리셋 및 레이아웃 설정
+   ========================================== */
 * {
-  box-sizing: border-box !important;
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  overflow-y: scroll; /* 스크롤바 유무에 따른 페이지 좌우 덜컹거림 방지 */
 }
 
 body {
-  background-color: #f8fafc !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: flex-start !important;
-  min-height: 100vh !important;
-  padding: 30px 16px !important;
-  color: #0f172a !important;
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 40px 16px;
+  color: #0f172a;
+  margin: 0;
 }
 
-.card {
-  background: #ffffff !important;
-  width: 100% !important;
-  max-width: 580px !important;
-  padding: 28px 32px 32px 32px !important;
-  border-radius: 20px !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid #e2e8f0 !important;
-  margin: 0 auto !important;
+/* 최외곽 감싸기 박스 (모든 페이지 공통 규격) */
+.container {
+  width: 100%;
+  max-width: 680px; /* 전체 중앙 박스 너비 기준 */
+  margin: 0 auto;
 }
 
-/* 상단 페이지 네비게이션 탭 */
+/* 본문 메인 카드 박스 */
+.card, 
+.statement-card {
+  background: #ffffff;
+  width: 100%;
+  padding: 28px 32px 32px 32px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  margin: 0 auto;
+}
+
+
+/* ==========================================
+   2. 상단 공통 헤더 탭 메뉴 (mainHeader)
+   ========================================== */
+#mainHeader {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.header-nav-wrapper {
+  width: 100%;
+}
+
+.top-nav, 
 .nav-tab-group {
-  display: flex !important;
-  background: #e2e8f0 !important;
-  padding: 4px !important;
-  border-radius: 12px !important;
-  margin-bottom: 24px !important;
+  display: flex;
+  background: #e2e8f0;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
 }
 
+.nav-tab, 
 .nav-tab-btn {
-  flex: 1 !important;
-  padding: 12px 8px !important;
-  border: none !important;
-  background: transparent !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  color: #64748b !important;
-  border-radius: 8px !important;
-  text-align: center !important;
-  text-decoration: none !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
+.nav-tab:hover, 
+.nav-tab-btn:hover {
+  color: #1e3a8a;
+}
+
+.nav-tab.active, 
 .nav-tab-btn.active {
-  background: #ffffff !important;
-  color: #2563eb !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 800;
 }
 
+
+/* ==========================================
+   3. 타이틀 및 섹션 헤더
+   ========================================== */
 .header {
-  text-align: center !important;
-  margin-bottom: 24px !important;
+  text-align: center;
+  margin-bottom: 24px;
 }
 
 .header h1 {
-  font-size: 22px !important;
-  font-weight: 800 !important;
-  color: #0f172a !important;
-  margin: 0 0 4px 0 !important;
-  letter-spacing: -0.5px !important;
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
 }
 
 .header p {
-  font-size: 13px !important;
-  color: #64748b !important;
-  margin: 0 !important;
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
 }
 
 .section-title {
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  color: #1e3a8a !important;
-  margin: 20px 0 10px 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 20px 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .section-title::before {
@@ -94,335 +138,327 @@ body {
   border-radius: 2px;
 }
 
+
+/* ==========================================
+   4. 서브 탭 (계산기 내부 탭 버튼)
+   ========================================== */
 .tab-group {
-  display: flex !important;
-  background: #f1f5f9 !important;
-  padding: 4px !important;
-  border-radius: 12px !important;
-  margin-bottom: 20px !important;
-  border: 1px solid #e2e8f0 !important;
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
 }
 
 .tab-btn {
-  flex: 1 !important;
-  padding: 12px 8px !important;
-  border: none !important;
-  background: transparent !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  color: #64748b !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  text-align: center !important;
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
 }
 
 .tab-btn.active {
-  background: #ffffff !important;
-  color: #2563eb !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
-  font-weight: 700 !important;
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
 }
 
+
+/* ==========================================
+   5. 폼 입력 요소 (Input, Select, Grids)
+   ========================================== */
 .form-group {
-  margin-bottom: 16px !important;
-  text-align: left !important;
+  margin-bottom: 16px;
+  text-align: left;
 }
 
 .form-group label {
-  display: block !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  color: #475569 !important;
-  margin-bottom: 6px !important;
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
 }
 
-input[type="text"], input[type="number"], input[type="date"], select {
-  width: 100% !important;
-  padding: 11px 13px !important;
-  border: 1px solid #cbd5e1 !important;
-  border-radius: 10px !important;
-  font-size: 14px !important;
-  outline: none !important;
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  transition: all 0.2s ease !important;
+input[type="text"], 
+input[type="number"], 
+input[type="date"], 
+select {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background-color: #ffffff;
+  color: #0f172a;
+  transition: all 0.2s ease;
 }
 
-input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus {
-  border-color: #2563eb !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+input[type="text"]:focus, 
+input[type="number"]:focus, 
+input[type="date"]:focus, 
+select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .custom-tax-input {
-  margin-top: 8px !important;
+  margin-top: 8px;
   display: none;
 }
 
 .date-row {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 12px !important;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.month-grid, 
+.option-grid {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
 }
 
 .month-grid {
-  background: #f8fafc !important;
-  padding: 16px !important;
-  border-radius: 14px !important;
-  border: 1px solid #e2e8f0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 10px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.month-header, 
+.month-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 1fr;
+  gap: 10px;
+  align-items: center;
 }
 
 .month-header {
-  display: grid !important;
-  grid-template-columns: 70px 1fr 1fr !important;
-  gap: 10px !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  color: #64748b !important;
-  text-align: center !important;
-}
-
-.month-row {
-  display: grid !important;
-  grid-template-columns: 70px 1fr 1fr !important;
-  gap: 10px !important;
-  align-items: center !important;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-align: center;
 }
 
 .month-label {
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  color: #334155 !important;
-  text-align: center !important;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  text-align: center;
 }
 
 .option-grid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
-  background: #f8fafc !important;
-  padding: 16px !important;
-  border-radius: 14px !important;
-  border: 1px solid #e2e8f0 !important;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
+
+/* ==========================================
+   6. 체크박스 요소
+   ========================================== */
 .checkbox-group-title {
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  color: #475569 !important;
-  margin-bottom: 8px !important;
-  display: block !important;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+  display: block;
 }
 
 .checkbox-group {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 12px !important;
-  background-color: #f8fafc !important;
-  padding: 10px 12px !important;
-  border-radius: 10px !important;
-  border: 1px solid #e2e8f0 !important;
-  margin-bottom: 18px !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  background-color: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 18px;
 }
 
 .checkbox-label {
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  font-size: 13px !important;
-  color: #334155 !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 16px !important;
-  height: 16px !important;
-  accent-color: #2563eb !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .checkbox-container {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  margin-top: 14px !important;
-  background: #eff6ff !important;
-  padding: 12px 14px !important;
-  border-radius: 10px !important;
-  border: 1px solid #dbeafe !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  background: #eff6ff;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #dbeafe;
 }
 
+.checkbox-label input[type="checkbox"],
 .checkbox-container input[type="checkbox"] {
-  width: 18px !important;
-  height: 18px !important;
-  accent-color: #2563eb !important;
-  cursor: pointer !important;
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+  cursor: pointer;
 }
 
 .checkbox-container label {
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  color: #1e40af !important;
-  cursor: pointer !important;
-  margin: 0 !important;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e40af;
+  cursor: pointer;
+  margin: 0;
 }
 
-.btn-submit {
-  width: 100% !important;
-  padding: 15px !important;
-  background-color: #2563eb !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 16px !important;
-  font-weight: 700 !important;
-  cursor: pointer !important;
-  margin-top: 16px !important;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
-  transition: background 0.2s !important;
+
+/* ==========================================
+   7. 공통 버튼 (Submit, Action Buttons)
+   ========================================== */
+.btn-submit, 
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transition: background 0.2s ease;
 }
 
-.btn-submit:hover {
-  background-color: #1d4ed8 !important;
+.btn-submit:hover, 
+.btn-primary:hover {
+  background-color: #1d4ed8;
 }
 
+
+/* ==========================================
+   8. 계산 결과 출력 영역 (Result Section)
+   ========================================== */
 .result-section {
-  margin-top: 28px !important;
-  padding-top: 24px !important;
-  border-top: 2px dashed #cbd5e1 !important;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 2px dashed #cbd5e1;
   display: none;
 }
 
 .result-section.show {
-  display: block !important;
+  display: block;
 }
 
 .summary-card {
-  margin-bottom: 20px !important;
+  margin-bottom: 20px;
 }
 
 .summary-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .summary-row.main {
-  font-size: 18px !important;
-  font-weight: 800 !important;
-  color: #1e3a8a !important;
-  margin-bottom: 12px !important;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 12px;
 }
 
 .summary-row.extra {
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  color: #2563eb !important;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
 }
 
 .summary-row.extra.hidden {
-  display: none !important;
+  display: none;
 }
 
 .detail-box {
-  background-color: #eff6ff !important;
-  border: 1px solid #dbeafe !important;
-  border-radius: 16px !important;
-  padding: 20px !important;
+  background-color: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  padding: 20px;
 }
 
 .detail-title {
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  color: #1e3a8a !important;
-  margin-bottom: 14px !important;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 14px;
 }
 
 .detail-list {
-  list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .detail-item {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 6px 0 !important;
-  font-size: 14px !important;
-  color: #334155 !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 14px;
+  color: #334155;
 }
 
 .detail-item .amount {
-  font-weight: 600 !important;
-  color: #0f172a !important;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .total-deduction-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-top: 12px !important;
-  padding-top: 12px !important;
-  border-top: 1px dashed #bfdbfe !important;
-  font-size: 15px !important;
-  font-weight: 700 !important;
-  color: #1e40af !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #bfdbfe;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e40af;
 }
 
 .net-result-box {
-  margin-top: 16px !important;
-  padding-top: 14px !important;
-  border-top: 2px solid #2563eb !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  font-size: 18px !important;
-  font-weight: 800 !important;
-  color: #1e3a8a !important;
-}
-
-.footer {
-  margin-top: 24px !important;
-  padding-top: 16px !important;
-  border-top: 1px solid #f1f5f9 !important;
-  text-align: center !important;
-  font-size: 12px !important;
-  color: #94a3b8 !important;
-  font-weight: 500 !important;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 2px solid #2563eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e3a8a;
 }
 
 /* ==========================================
-   전체 페이지 레이아웃 및 카드 박스 위치 고정
+   9. 푸터
    ========================================== */
-
-/* 1. HTML/Body 여백 및 스크롤바 이동 방지 */
-html {
-  overflow-y: scroll; /* 스크롤바 유무에 따른 화면 덜컹거림 완벽 차단 */
-}
-
-body {
-  margin: 0;
-  padding: 40px 0;
-  background-color: #f8fafc;
-  display: flex;
-  justify-content: center;
-}
-
-/* 2. 최외곽 감싸기 박스 (모든 페이지 공통 규격) */
-.container {
-  width: 100%;
-  max-width: 800px; /* 전체 카드 상자의 폭을 800px로 일괄 고정 */
-  margin: 0 auto;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-/* 3. 본문 카드 박스 규격 통일 */
-.card, .statement-card {
-  width: 100% !important;
-  box-sizing: border-box !important;
-  margin-top: 0 !important;
+.footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
 }
