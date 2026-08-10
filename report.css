@@ -137,7 +137,7 @@
   border: none;
   border-radius: 0;
   padding: 12px 4px 4px 4px;
-  margin-top: 10px;
+  margin-top: 1rem;
 }
 
 #pdfArea.pdf-mode .highlight-box .title {
@@ -146,6 +146,6 @@
 }
 
 #pdfArea.pdf-mode .highlight-box .amount {
-  font-size: 20px;
+  font-size: 1.25rem;
   color: #1e3a8a;
 }
