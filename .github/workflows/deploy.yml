@@ -1,4 +1,4 @@
-name: Deploy GitHub Pages
+name: Deploy static content to Pages
 
 on:
   push:
@@ -9,10 +9,9 @@ permissions:
   pages: write
   id-token: write
 
-# 배포 중 새 커밋이 들어왔을 때 진행 중인 배포가 강제 취소되지 않도록 설정 변경
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -21,18 +20,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      # 2. Configure Pages
       - name: Setup Pages
-        uses: actions/configure-pages@983d7736d9b0ae728b41a50e50140652636c06bb # v5.0.0
+        uses: actions/configure-pages@983d7736d9b0ae728b41a50e50140652636c06bb
 
-      # 3. Upload Artifact
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@0b7d39141e71f2861bf47964500255d3df0b5edc # v3.0.0
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@0b7d39141e71f2861bf47964500255d3df0b5edc
+        with:
+          path: '.'
 
-      # 4. Deploy Pages
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@d6db596a1aedd2342c2b12a08c4818ed30f564bf # v4.0.5
+        id: deployment
+        uses: actions/deploy-pages@d6db596a1aedd2342c2b12a08c4818ed30f564bf
