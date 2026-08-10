@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const taxRateCustom = document.getElementById('taxRateCustom');
 
   /**
-   * 💡 계산 모드 및 체크박스 상태에 따른 소득세율 옵션 그룹 숨김(hidden) 제어 함수
+   * Gross->Net 모드일 때 소득세 원천징수 비율 선택 박스 숨김(hidden) 제어
    */
   function updateTaxRateGroupVisibility() {
     if (!taxRateGroup) return;
@@ -52,19 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const isTaxChecked = chkTax ? chkTax.checked : true;
 
     if (currentMode === 'GROSS_TO_NET') {
-      // Gross->Net 모드일 때는 소득세율 비율 선택 옵션을 완전히 숨기고(hidden) 비활성화
       taxRateGroup.style.display = 'none';
       if (taxRateSelect) taxRateSelect.disabled = true;
       if (taxRateCustom) taxRateCustom.disabled = true;
     } else {
-      // Net->Gross 모드일 때는 소득세 체크박스 유무에 맞춰 노출 및 활성화
       taxRateGroup.style.display = isTaxChecked ? 'block' : 'none';
       if (taxRateSelect) taxRateSelect.disabled = false;
       if (taxRateCustom) taxRateCustom.disabled = false;
     }
   }
 
-  // 소득세 공제 체크박스 이벤트
   if (chkTax) {
     chkTax.addEventListener('change', (e) => {
       const show = e.target.checked;
@@ -73,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 소득세 원천징수 비율 선택 드롭다운 제어
   if (taxRateSelect && taxRateCustom) {
     taxRateSelect.addEventListener('change', (e) => {
       if (e.target.value === 'custom') {
@@ -85,33 +81,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 상단 탭 버튼 클릭 이벤트 (계산 모드 전환)
   tabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       tabBtns.forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       currentMode = e.target.getAttribute('data-mode');
       
-      // 입력 라벨 변경
       if (amountLabel) {
         amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '기본급 (과세 대상) (원)';
       }
 
-      // 모드 변경 시 세율 박스 hidden 상태 즉시 업데이트
       updateTaxRateGroupVisibility();
     });
   });
 
-  // 금액 천단위 콤마 자동 포맷터 연동
   if (typeof attachFormatter === 'function') {
     if (amountInput) attachFormatter(amountInput);
     if (taxFreeInput) attachFormatter(taxFreeInput);
   }
 
-  // 초기 상태 세팅 실행
   updateTaxRateGroupVisibility();
 
-  // 계산하기 버튼 실행
   if (btnCalculate) {
     btnCalculate.addEventListener('click', (e) => {
       e.preventDefault();
@@ -120,15 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/**
- * 소득세 원천징수 비율 값 가져오기
- * 💡 Gross->Net 모드일 경우 국세청 100% 간이세액표 정밀 산식을 무조건 적용
- */
 function getSelectedTaxPercent() {
   const chkTax = document.getElementById('chkTax');
   if (!chkTax || !chkTax.checked) return 0;
 
-  // Gross->Net 모드에서는 무조건 100% (국세청 정밀 간이세액표) 적용
+  // Gross->Net 모드에서는 무조건 100% 국세청 간이세액표 적용
   if (currentMode === 'GROSS_TO_NET') {
     return 100;
   }
@@ -141,46 +127,108 @@ function getSelectedTaxPercent() {
 }
 
 /**
- * 💡 국세청 근로소득 간이세액표 정밀 세액 산출 함수 (WEHAGO 세액 일치)
- * @param {number} baseSalary - 과세 대상 기본급
+ * 📄 2026.03.01 개정 국세청 근로소득 간이세액표 공식 정밀 구현
+ * @param {number} baseSalary - 과세 대상 기본급 (보수월액)
  * @param {number} dependents - 공제대상 가족수 (본인 포함)
- * @param {number} taxRatePercent - 원천징수 선택 비율 (Gross->Net은 100% 고정)
- * @returns {number} 산출 소득세 (10원 단위 절사)
+ * @param {number} taxRatePercent - 원천징수 비율 (%)
  */
 function getIncomeTax(baseSalary, dependents = 1, taxRatePercent = 100) {
+  // 월 과세급여 106만 원 이하 소액부징수
   if (baseSalary <= 1060000 || taxRatePercent <= 0) return 0;
 
-  let baseTax = 0;
+  // 1. 연간 총급여액 산정
+  const annualGross = baseSalary * 12;
 
-  // 국세청 근로소득 간이세액표 2026 개정 구간 산식
-  if (baseSalary <= 1500000) {
-    baseTax = (baseSalary - 1060000) * 0.06 * 0.55;
-  } else if (baseSalary <= 2000000) {
-    baseTax = 14520 + (baseSalary - 1500000) * 0.15 * 0.55;
-  } else if (baseSalary <= 3000000) {
-    baseTax = 55770 + (baseSalary - 2000000) * 0.15 * 0.70;
-  } else if (baseSalary <= 4000000) {
-    baseTax = 160770 + (baseSalary - 3000000) * 0.15 * 0.80;
-  } else if (baseSalary <= 5000000) {
-    baseTax = 280770 + (baseSalary - 4000000) * 0.24 * 0.80;
+  // 2. 근로소득공제 연산
+  let earnedIncomeDeduction = 0;
+  if (annualGross <= 5000000) {
+    earnedIncomeDeduction = annualGross * 0.70;
+  } else if (annualGross <= 15000000) {
+    earnedIncomeDeduction = 3500000 + (annualGross - 5000000) * 0.40;
+  } else if (annualGross <= 45000000) {
+    earnedIncomeDeduction = 7500000 + (annualGross - 15000000) * 0.15;
+  } else if (annualGross <= 100000000) {
+    earnedIncomeDeduction = 12000000 + (annualGross - 45000000) * 0.05;
   } else {
-    baseTax = 472770 + (baseSalary - 5000000) * 0.35 * 0.80;
+    earnedIncomeDeduction = 14750000 + (annualGross - 100000000) * 0.02;
   }
 
-  // 부양가족 수 1인 초과 시 차감 공제
-  if (dependents > 1) {
-    const familyDeduction = (dependents - 1) * 12500;
-    baseTax = Math.max(0, baseTax - familyDeduction);
+  // 근로소득금액 = 연총급여액 - 근로소득공제
+  const earnedIncomeAmount = annualGross - earnedIncomeDeduction;
+
+  // 3. 인적공제 (본인 및 부양가족 1인당 150만 원)
+  const personalDeduction = dependents * 1500000;
+
+  // 4. 연금보험료공제 (국민연금 근로자 부담분 연간액)
+  const npBase = Math.min(Math.max(baseSalary, RATES_CONFIG.NP.MIN_BASE), RATES_CONFIG.NP.MAX_BASE);
+  const pensionDeduction = floor10(npBase * RATES_CONFIG.NP.RATE) * 12;
+
+  // 5. [PDF 반영] 특별소득공제 및 특별세액공제 중 일부 산식 (제1호 규정)
+  let specialDeduction = 0;
+  if (annualGross <= 30000000) {
+    if (dependents === 1) specialDeduction = 3100000 + annualGross * 0.04;
+    else if (dependents === 2) specialDeduction = 3600000 + annualGross * 0.04;
+    else specialDeduction = 5000000 + annualGross * 0.07;
+  } else if (annualGross <= 45000000) {
+    const over30m = annualGross - 30000000;
+    if (dependents === 1) specialDeduction = 3100000 + annualGross * 0.04 - over30m * 0.05;
+    else if (dependents === 2) specialDeduction = 3600000 + annualGross * 0.04 - over30m * 0.05;
+    else specialDeduction = 5000000 + annualGross * 0.07 - over30m * 0.05;
+  } else if (annualGross <= 70000000) {
+    if (dependents === 1) specialDeduction = 3100000 + annualGross * 0.015;
+    else if (dependents === 2) specialDeduction = 3600000 + annualGross * 0.020;
+    else specialDeduction = 5000000 + annualGross * 0.050;
+  } else if (annualGross <= 120000000) {
+    const over40m = annualGross - 40000000;
+    if (dependents === 1) specialDeduction = 3100000 + annualGross * 0.005;
+    else if (dependents === 2) specialDeduction = 3600000 + annualGross * 0.010;
+    else specialDeduction = 5000000 + annualGross * 0.030 + over40m * 0.04;
   }
 
-  // 원천징수 비율 연산 및 10원 단위 절사
-  const finalTax = baseTax * (taxRatePercent / 100);
-  return floor10(finalTax);
+  // 6. 종합소득 과세표준 연산
+  const taxStandard = Math.max(0, earnedIncomeAmount - personalDeduction - pensionDeduction - specialDeduction);
+
+  // 7. 기본 산출세액 연산 (소득세 기본세율)
+  let calculatedTax = 0;
+  if (taxStandard <= 14000000) {
+    calculatedTax = taxStandard * 0.06;
+  } else if (taxStandard <= 50000000) {
+    calculatedTax = 840000 + (taxStandard - 14000000) * 0.15;
+  } else if (taxStandard <= 88000000) {
+    calculatedTax = 6240000 + (taxStandard - 50000000) * 0.24;
+  } else if (taxStandard <= 150000000) {
+    calculatedTax = 15360000 + (taxStandard - 88000000) * 0.35;
+  } else {
+    calculatedTax = 37060000 + (taxStandard - 150000000) * 0.38;
+  }
+
+  // 8. 근로소득세액공제 산정
+  let taxCredit = 0;
+  if (calculatedTax <= 1300000) {
+    taxCredit = calculatedTax * 0.55;
+  } else {
+    taxCredit = 715000 + (calculatedTax - 1300000) * 0.30;
+  }
+
+  // 근로소득세액공제 한도 적용 (총급여 3.3천만 이하 74만, 7천만 이하 74만~66만, 초과 66만~50만)
+  let maxCredit = 740000;
+  if (annualGross > 33000000 && annualGross <= 70000000) {
+    maxCredit = Math.max(660000, 740000 - (annualGross - 33000000) * 0.008);
+  } else if (annualGross > 70000000) {
+    maxCredit = Math.max(500000, 660000 - (annualGross - 70000000) * 0.5 * 0.008);
+  }
+  taxCredit = Math.min(taxCredit, maxCredit);
+
+  // 9. 연간 결정세액 -> 월 소득세 산출 (10원 단위 절사)
+  const annualFinalTax = Math.max(0, calculatedTax - taxCredit);
+  const monthlyTax = annualFinalTax / 12;
+
+  // 원천징수 요율 반영 후 절사
+  return floor10(monthlyTax * (taxRatePercent / 100));
 }
 
 /**
  * 과세 기본급(baseSalary) 기준 4대보험 및 세금 공제 항목 산출
- * @param {number} baseSalary - 과세 대상 기본급
  */
 function computeDeductions(baseSalary) {
   const dependentsInput = document.getElementById('dependents');
@@ -210,40 +258,29 @@ function computeDeductions(baseSalary) {
 
   if (isTaxChecked) {
     it = getIncomeTax(baseSalary, dependents, getSelectedTaxPercent());
-    localTax = floor10(it * RATES_CONFIG.LOCAL_TAX.RATE); // 지방소득세 = 소득세의 10%
+    localTax = floor10(it * RATES_CONFIG.LOCAL_TAX.RATE);
   }
 
   const totalDed = np + hi + lt + ei + it + localTax;
   return { np, hi, lt, ei, it, localTax, totalDed };
 }
 
-/**
- * 메인 계산 연산 함수
- */
 function calculate() {
   const amount = parseCurrency(document.getElementById('amount').value);
   const taxFree = parseCurrency(document.getElementById('taxFree').value);
 
-  let totalGross = 0; // 총 세전 지급액 (기본급 + 비과세)
-  let baseSalary = 0; // 과세 대상 기본급
+  let totalGross = 0;
+  let baseSalary = 0;
   let ded = {};
   let net = 0;
 
   if (currentMode === 'GROSS_TO_NET') {
-    /**
-     * [Gross->Net (세전->세후)]
-     * 기본급(amount)을 과세표준으로 사용하고, 국세청 100% 간이세액표 정밀 산출을 직통 연결
-     */
     baseSalary = amount;
     totalGross = baseSalary + taxFree;
 
     ded = computeDeductions(baseSalary);
     net = totalGross - ded.totalDed;
   } else {
-    /**
-     * [Net->Gross (실수령액 세후 -> 세전 역산)]
-     * 선택된 소득세율을 반영하여 목표 실수령액(amount)을 맞추는 이분 탐색
-     */
     let low = Math.max(0, amount - taxFree);
     let high = amount * 2.0;
 
@@ -271,14 +308,10 @@ function calculate() {
   applyValuesToUI(totalGross, ded, net);
 }
 
-/**
- * 계산 결과값을 UI 카드 요소에 바인딩
- */
 function applyValuesToUI(totalGross, ded, net) {
   const isTaxChecked = document.getElementById('chkTax')?.checked ?? false;
   const taxPercent = getSelectedTaxPercent();
 
-  // 소득세 안내 라벨 세팅
   const lblIt = document.getElementById('lblIt');
   if (lblIt) {
     if (currentMode === 'GROSS_TO_NET') {
@@ -288,11 +321,9 @@ function applyValuesToUI(totalGross, ded, net) {
     }
   }
 
-  // 총 세전 금액 및 차액 표시
   document.getElementById('resMainAmount').innerText = fmt(totalGross);
   document.getElementById('resExtraDiff').innerText = fmt(ded.totalDed);
 
-  // 4대보험 및 세금 수치 반영
   document.getElementById('resNp').innerText = fmt(ded.np);
   document.getElementById('resHi').innerText = fmt(ded.hi);
   document.getElementById('resEi').innerText = fmt(ded.ei);
@@ -300,7 +331,6 @@ function applyValuesToUI(totalGross, ded, net) {
   document.getElementById('resIt').innerText = fmt(ded.it);
   document.getElementById('resLtTax').innerText = fmt(ded.localTax);
 
-  // 총 공제합계 및 예상 실수령액
   document.getElementById('resDeduction').innerText = fmt(ded.totalDed);
   document.getElementById('resNetAmount').innerText = fmt(net);
 
