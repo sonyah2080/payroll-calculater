@@ -7,6 +7,9 @@
   
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
   <link rel="stylesheet" href="style.css">
+  
+  <!-- PDF 다운로드용 html2pdf.js CDN 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -18,8 +21,8 @@
   </div>
 
   <div class="header">
-    <h1>2026년 퇴직금 & 퇴직소득세 계산기</h1>
-    <p>퇴직금 산정 및 퇴직소득세 세액 계산서 자동 생성</p>
+    <h1>퇴직금 계산기</h1>
+    <p>퇴직금 산정 및 퇴직소득세 세액 계산서</p>
   </div>
 
   <div class="section-title">근로자 및 재직 정보</div>
@@ -98,7 +101,8 @@
   <button type="button" class="btn-submit" id="btnCalculate">퇴직금 & 소득세 산정내역서 생성</button>
 
   <div class="result-section" id="resultBox">
-    <div class="statement-card">
+    <!-- PDF 저장 영역 -->
+    <div class="statement-card" id="pdfArea">
       <div class="statement-header">
         <h2>퇴 직 금 산 정 내 역 서</h2>
         <p>근로기준법 및 소득세법에 따른 퇴직금·퇴직소득세 계산서</p>
@@ -210,6 +214,11 @@
         <div class="subtext" id="rptCalcFormula">산식: 세전 퇴직금 - 총 원천징수 세액</div>
       </div>
     </div>
+
+    <!-- PDF 다운로드 버튼 -->
+    <button type="button" class="btn-submit" id="btnDownloadPdf" style="background-color: #059669 !important; margin-top: 14px !important;">
+      📄 산정내역서 PDF 다운로드
+    </button>
   </div>
 
   <div class="footer">
