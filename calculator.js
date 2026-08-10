@@ -127,8 +127,8 @@ function getSelectedTaxPercent() {
 }
 
 /**
- * 📄 국세청 근로소득 간이세액표(2026.03 개정) 정밀 보정 산식
- * @param {number} baseSalary - 과세 대상 기본급 (보수월액)
+ * 💡 국세청 근로소득 간이세액 산출 (taxTable.js 모듈 우선 매핑 조회)
+ * @param {number} baseSalary - 과세 대상 기본급
  * @param {number} dependents - 공제대상 가족수 (본인 포함)
  * @param {number} taxRatePercent - 원천징수 비율 (%)
  */
@@ -136,27 +136,32 @@ function getIncomeTax(baseSalary, dependents = 1, taxRatePercent = 100) {
   // 월 과세급여 106만 원 이하 소액부징수 (0원)
   if (baseSalary <= 1060000 || taxRatePercent <= 0) return 0;
 
-  let baseTax = 0;
+  let baseTax = null;
 
-  // 국세청 정밀 간이세액 보정 수식 (WEHAGO 및 별표 2 세액 완벽 부합)
-  if (baseSalary <= 1500000) {
-    baseTax = (baseSalary - 1060000) * 0.033;
-  } else if (baseSalary <= 2000000) {
-    baseTax = 14520 + (baseSalary - 1500000) * 0.0825;
-  } else if (baseSalary <= 3000000) {
-    baseTax = 55770 + (baseSalary - 2000000) * 0.105;
-  } else if (baseSalary <= 4000000) {
-    baseTax = 160770 + (baseSalary - 3000000) * 0.12;
-  } else if (baseSalary <= 5000000) {
-    baseTax = 280770 + (baseSalary - 4000000) * 0.192;
-  } else {
-    baseTax = 472770 + (baseSalary - 5000000) * 0.28;
+  // 1. taxTable.js 파일의 테이블 룩업 조회
+  if (typeof lookupNtsTaxTable === 'function') {
+    baseTax = lookupNtsTaxTable(baseSalary, dependents);
   }
 
-  // 부양가족 수(공제대상가족 1인 초과) 차감 공제 (가족 1인당 7,000원~12,500원 차등 차감)
-  if (dependents > 1) {
-    const familyDeduction = (dependents - 1) * 7000;
-    baseTax = Math.max(0, baseTax - familyDeduction);
+  // 2. 테이블 매핑 데이터가 없는 일반 구간은 간이세액 산식으로 추정 산출
+  if (baseTax === null) {
+    if (baseSalary <= 1500000) {
+      baseTax = (baseSalary - 1060000) * 0.033;
+    } else if (baseSalary <= 2000000) {
+      baseTax = 14520 + (baseSalary - 1500000) * 0.0825;
+    } else if (baseSalary <= 3000000) {
+      baseTax = 55770 + (baseSalary - 2000000) * 0.105;
+    } else if (baseSalary <= 4000000) {
+      baseTax = 160770 + (baseSalary - 3000000) * 0.12;
+    } else if (baseSalary <= 5000000) {
+      baseTax = 280770 + (baseSalary - 4000000) * 0.192;
+    } else {
+      baseTax = 472770 + (baseSalary - 5000000) * 0.28;
+    }
+
+    if (dependents > 1) {
+      baseTax = Math.max(0, baseTax - (dependents - 1) * 7000);
+    }
   }
 
   // 원천징수 비율 반영 및 10원 단위 절사
