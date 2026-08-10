@@ -21,17 +21,18 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      # 1. Checkout
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
+      # 2. Configure Pages
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@983d7736d9b0ae728b41a50e50140652636c06bb # v5.0.0
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
+      # 3. Upload Artifact
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@0b7d39141e71f2861bf47964500255d3df0b5edc # v3.0.0
 
+      # 4. Deploy Pages
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db596a1aedd2342c2b12a08c4818ed30f564bf # v4.0.5
