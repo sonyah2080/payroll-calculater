@@ -1,0 +1,94 @@
+@charset "UTF-8";
+
+/* ==========================================
+   퇴직금 산정내역서 (Report Area) 전용 스타일
+   ========================================== */
+
+/* 리포트 전체 카드 용지 영역 */
+.statement-card {
+  background-color: #ffffff;
+  border: 1px solid #1e3a8a;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  width: 100% !important;
+}
+
+/* 상단 타이틀 영역 (구분선 제거) */
+.statement-header {
+  text-align: center !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 0 !important;
+}
+
+.statement-header h2 {
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  color: #1e3a8a !important;
+  letter-spacing: 1.5 !important;
+  margin: 0 0 4px 0 !important;
+}
+
+.statement-header p {
+  font-size: 0.5rem !important;
+  color: #64748b !important;
+  margin: 0 !important;
+}
+
+/* 리포트 내 테이블 공통 스타일 */
+.report-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin-bottom: 0.25rem !important;
+  font-size: 0.8rem !important;
+}
+
+.report-table th, 
+.report-table td {
+  border: 1px solid #cbd5e1 !important;
+  padding: 5px 8px !important;
+  line-height: 1.2 !important;
+}
+
+.report-table th {
+  background-color: #f1f5f9 !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  text-align: center !important;
+}
+
+.report-table td.num {
+  text-align: right !important;
+  font-weight: 600 !important;
+}
+
+.report-table td.center {
+  text-align: center !important;
+}
+
+/* 하단 실수령액 한 줄 배치 영역 (배경/테두리 제거) */
+.highlight-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent; /* 배경색 제거 */
+  border: none;                  /* 테두리 제거 */
+  padding: 12px 4px 4px 4px;     /* A4 세로 다이어트 */
+  margin-top: 10px;
+  border-top: 1px solid #1e3a8a; /* 상단 마감선 */
+}
+
+.highlight-box .title {
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  color: #1e3a8a !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+.highlight-box .amount {
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  color: #1e3a8a !important;
+  white-space: nowrap !important;
+}
