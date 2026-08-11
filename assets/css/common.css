@@ -491,3 +491,38 @@ select:focus {
   background-image: url('data:image/svg+xml;utf8,<svg fill="%230062BD" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 }
 
+
+
+/* ==========================================
+   1. 섹션 헤더 & 서브 탭 (계산기 내부)
+   ========================================== */
+
+.tab-group {
+  display: flex;
+  background: var(--bluescale-100);
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid var(--bluescale-200);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bluescale-700);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: var(--white);
+  color: var(--blue-500);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}

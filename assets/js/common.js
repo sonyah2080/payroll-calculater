@@ -40,7 +40,8 @@ function renderHeader() {
     { name: '급여 계산기', link: 'index.html' },
     { name: '퇴직금 계산기', link: 'severance.html' },
     { name: '일할 계산기', link: 'prorated.html' },
-    { name: '부가세 계산기', link: 'vat.html' }
+    { name: '부가세 계산기', link: 'vat.html' },
+    { name: '환율 계산기', link: 'exchange.html' }
   ];
 
   // 모든 페이지에서 동일한 너비와 중앙 정렬을 유지하도록 wrapper 구성

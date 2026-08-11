@@ -1,0 +1,36 @@
+@import 'colors.css';
+
+/* 하단 결과 요약 박스 */
+.result-box {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: var(--bg-color, var(--bluescale-100));
+    border-radius: 10px;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: var(--text-main, var(--grayscale-800));
+}
+
+.result-row:last-child {
+    margin-bottom: 0;
+    padding-top: 15px;
+    border-top: 2px dashed var(--border-color, var(--grayscale-300));
+    font-size: 18px;
+}
+
+/* 이익/손실 색상 (style.css :root 변수 활용) */
+.val-gain { color: var(--gain-color, var(--green-500)) !important; }
+.val-loss { color: var(--loss-color, var(--red-500)) !important; }
+
+/* 헬프 텍스트 미세 조정 */
+.help-text {
+    font-size: 12px;
+    color: var(--text-muted, var(--grayscale-400));
+    margin-left: 4px;
+    font-weight: normal;
+}

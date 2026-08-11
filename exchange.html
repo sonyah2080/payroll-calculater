@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>환율 계산기</title>
+    <link href="assets/css/common.css" rel="stylesheet" />
+    <link href="assets/css/exchange.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <header id="mainHeader"></header>
+      <div class="card">
+        <h2>외환차익/차손 계산기</h2>
+
+        <div class="section-card">
+        <div class="section-title">01. 거래 기본 정보</div>
+        
+        <div class="tab-group" style="margin-bottom: 16px;">
+            <button type="button" class="tab-btn active" data-mode="export">수출 (외화 수취)</button>
+            <button type="button" class="tab-btn" data-mode="import">수입 (외화 지급)</button>
+        </div>
+
+        <div class="form-group mb-0">
+            <label for="foreign_amount">외화 금액 (USD 등)</label>
+            <input type="text" id="foreign_amount" placeholder="0" class="num-input">
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">02. 발생 내역 (인보이스 / 통관일 기준)</div>
+        
+        <div class="form-group">
+            <label for="invoice_date">발생 일자 <span class="help-text">인보이스 발행일 또는 통관일</span></label>
+            <input type="date" id="invoice_date" class="date-input">
+        </div>
+
+        <div class="form-group mb-0">
+            <label for="invoice_rate">발생일 기준 환율 (₩)</label>
+            <input type="text" id="invoice_rate" placeholder="날짜 선택 시 자동입력 (직접 입력 가능)" class="num-input">
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">03. 결제 내역 (실제 대금 수수일 기준)</div>
+        
+        <div class="form-group">
+            <label for="payment_date">결제 일자 <span class="help-text">실제 대금이 입금/출금된 날짜</span></label>
+            <input type="date" id="payment_date" class="date-input">
+        </div>
+
+        <div class="form-group mb-0">
+            <label for="payment_rate">결제일 기준 환율 (₩)</label>
+            <input type="text" id="payment_rate" placeholder="날짜 선택 시 자동입력 (직접 입력 가능)" class="num-input">
+        </div>
+    </div>
+
+    <div class="result-box">
+        <div class="result-row">
+            <span>발생 금액 (장부 반영가):</span>
+            <span id="res_invoice_krw" class="num">0 원</span>
+        </div>
+        <div class="result-row">
+            <span>결제 금액 (실제 정산가):</span>
+            <span id="res_payment_krw" class="num">0 원</span>
+        </div>
+        <div class="result-row">
+            <span id="res_type_label">외환차익/차손:</span>
+            <span id="res_diff_krw" class="num font-bold">0 원</span>
+        </div>
+    </div>
+      </div>
+    </div>
+    <div id="mainFooter"></div>
+    <!-- 공통 포맷터 및 유틸리티 -->
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/exchange.js"></script>
+  </body>
+</html>
