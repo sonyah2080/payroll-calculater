@@ -141,10 +141,10 @@ function generateStatement() {
     const convertedSalary = (taxBaseBeforeConvert * 12) / serviceYears;
     const convertedDeduction = getConvertedSalaryDeduction(convertedSalary);
     const taxBaseConverted = Math.max(0, convertedSalary - convertedDeduction);
-    
+
     // 🔥 taxTable.js 에 있는 getBasicTax() 함수를 불러와서 적용합니다.
     const convertedTax = getBasicTax(taxBaseConverted);
-    
+
     incomeTax = Math.floor((convertedTax * serviceYears) / 12 / 10) * 10;
     localTax = Math.floor((incomeTax * 0.1) / 10) * 10;
     totalTax = incomeTax + localTax;
@@ -172,7 +172,7 @@ function generateStatement() {
   document.getElementById('rptEndDate').innerText = endDateStr;
   document.getElementById('rptWorkingDays').innerText = `${workingDays.toLocaleString()} 일 (${serviceYears}년차)`;
   document.getElementById('rptPeriod').innerText = `${startDateStr} ~ ${endDateStr}`;
-  
+
   document.getElementById('rptBonus312').innerText = fmt(bonus312);
   document.getElementById('rptLeave312').innerText = fmt(leave312);
   document.getElementById('rptTotal3M').innerText = fmt(total3MonthPay);
@@ -210,18 +210,18 @@ function downloadPdf() {
 
   // 2. html2pdf 변환 옵션
   const opt = {
-    margin:       [8, 8, 8, 8],
-    filename:     `퇴직금_산정내역서_${name}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { 
+    margin: [8, 8, 8, 8],
+    filename: `퇴직금_산정내역서_${name}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
       scale: 2,
-      useCORS: true, 
-      scrollY: 0, 
+      useCORS: true,
+      scrollY: 0,
       scrollX: 0,
       windowWidth: document.documentElement.offsetWidth
     },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
   // 3. PDF 생성 수행 후 원상복구

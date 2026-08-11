@@ -77,13 +77,13 @@ function lookupNtsTaxTable(taxableSalary, dependents = 1) {
  */
 const BASIC_TAX_TABLE = [
   { over: 1000000000, rate: 0.45, deduction: 65940000 },
-  { over: 500000000,  rate: 0.42, deduction: 35940000 },
-  { over: 300000000,  rate: 0.40, deduction: 25940000 },
-  { over: 150000000,  rate: 0.38, deduction: 19940000 },
-  { over: 88000000,   rate: 0.35, deduction: 15440000 },
-  { over: 50000000,   rate: 0.24, deduction: 5760000 },
-  { over: 14000000,   rate: 0.15, deduction: 1260000 },
-  { over: 0,          rate: 0.06, deduction: 0 }
+  { over: 500000000, rate: 0.42, deduction: 35940000 },
+  { over: 300000000, rate: 0.40, deduction: 25940000 },
+  { over: 150000000, rate: 0.38, deduction: 19940000 },
+  { over: 88000000, rate: 0.35, deduction: 15440000 },
+  { over: 50000000, rate: 0.24, deduction: 5760000 },
+  { over: 14000000, rate: 0.15, deduction: 1260000 },
+  { over: 0, rate: 0.06, deduction: 0 }
 ];
 
 // 과세표준(taxBase)을 입력받아 산출세액을 반환하는 함수

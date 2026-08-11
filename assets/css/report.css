@@ -47,7 +47,7 @@
   font-size: 0.75rem;
 }
 
-#pdfArea .report-table th, 
+#pdfArea .report-table th,
 #pdfArea .report-table td {
   border: 1px solid var(--bluescale-400);
   padding: 0.5rem;
@@ -132,7 +132,7 @@
   font-size: 0.8rem;
 }
 
-#pdfArea.pdf-mode .report-table th, 
+#pdfArea.pdf-mode .report-table th,
 #pdfArea.pdf-mode .report-table td {
   padding: 0.5rem;
   line-height: 1.5;

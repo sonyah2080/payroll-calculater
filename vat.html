@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>부가가치세 계산기</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
   <link rel="stylesheet" href="assets/css/common.css">
   <link rel="stylesheet" href="assets/css/calculator.css">
 </head>
+
 <body>
   <div class="container">
     <!-- 자바스크립트가 자동으로 헤더 탭을 그려주는 영역 -->
@@ -24,7 +27,7 @@
         <button type="button" class="tab-btn" data-mode="SUPPLY_TO_VAT">공급가액 기준</button>
       </div>
 
-        <form id="vatForm" onsubmit="return false;">
+      <form id="vatForm" onsubmit="return false;">
         <div class="form-group">
           <label id="amountLabel" for="amount">합계 금액 (공급대가, VAT 포함) (원)</label>
           <div class="input-wrapper">
@@ -66,9 +69,10 @@
         </div>
       </form>
     </main>
-  </div>  
+  </div>
   <div id="mainFooter"></div>
   <script src="assets/js/common.js"></script>
   <script src="assets/js/vat.js"></script>
 </body>
+
 </html>

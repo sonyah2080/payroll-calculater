@@ -37,19 +37,21 @@
 }
 
 /* 최근 3개월 급여 행 (구분 / 과세 / 비과세) */
-.month-header, 
+.month-header,
 .month-row {
   display: grid;
   grid-template-columns: 70px 1fr 1fr;
   gap: 10px;
   align-items: center;
 }
+
 .month-header {
   font-size: 12px;
   font-weight: 700;
   color: var(--bluescale-700);
   text-align: center;
 }
+
 .month-label {
   font-size: 13px;
   font-weight: 700;

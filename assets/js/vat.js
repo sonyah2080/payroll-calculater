@@ -42,11 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
       currentVatMode = e.target.getAttribute('data-mode');
 
       if (amountLabel) {
-        amountLabel.innerText = currentVatMode === 'TOTAL_TO_VAT' 
-          ? '합계 금액 (공급대가, VAT 포함) (원)' 
+        amountLabel.innerText = currentVatMode === 'TOTAL_TO_VAT'
+          ? '합계 금액 (공급대가, VAT 포함) (원)'
           : '공급가액 (세전 금액) (원)';
       }
-      
+
       calculateVat();
     });
   });
@@ -87,7 +87,7 @@ function calculateVat() {
       supplyValue = Math.round(rawSupply);
     }
 
-    vatValue = totalAmount - supplyValue; 
+    vatValue = totalAmount - supplyValue;
   } else {
     supplyValue = amount;
     let rawVat = supplyValue * 0.1;

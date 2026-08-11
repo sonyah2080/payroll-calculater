@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tabBtns.forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       currentMode = e.target.getAttribute('data-mode');
-      
+
       if (amountLabel) {
         amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '기본급 (과세 대상) (원)';
       }
@@ -236,7 +236,7 @@ function calculateNetToGross(targetNet, taxFree) {
   for (let i = 0; i < 50; i++) {
     baseSalary = (low + high) / 2;
     ded = computeDeductions(baseSalary);
-    
+
     const calculatedNet = (baseSalary + taxFree) - ded.totalDed;
 
     if (Math.abs(calculatedNet - targetNet) < 0.1) break;

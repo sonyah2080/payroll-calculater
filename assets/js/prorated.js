@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const now = new Date();
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, '0');
-  
+
   if (monthEl) {
     monthEl.value = `${yyyy}-${mm}`;
     updateMonthDates(`${yyyy}-${mm}`);
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function updateMonthDates(yearMonthStr) {
   if (!yearMonthStr) return;
   const [y, m] = yearMonthStr.split('-').map(Number);
-  
+
   const startDateStr = `${y}-${String(m).padStart(2, '0')}-01`;
   const lastDay = new Date(y, m, 0).getDate();
   const endDateStr = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
@@ -193,12 +193,12 @@ function calculateProrated() {
   if (chkTax) {
     if (typeof getIncomeTax === 'function') {
       const fullMonthTax = getIncomeTax(baseSalary, dependents, taxRatePercent);
-      incomeTax = floor10(fullMonthTax * proratedRatio); 
+      incomeTax = floor10(fullMonthTax * proratedRatio);
     } else {
       incomeTax = floor10(proratedTaxable * 0.03 * (taxRatePercent / 100));
     }
   }
-  
+
   const localTax = chkTax ? floor10(incomeTax * localTaxRate) : 0;
 
   const totalDeduction = np + hi + lt + ei + incomeTax + localTax;

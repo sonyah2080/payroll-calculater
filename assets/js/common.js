@@ -6,14 +6,14 @@ const fmt = num => Math.round(num).toLocaleString() + ' 원';
 // 입력창 천단위 콤마 및 키패드 + 키 지원 함수 (000 자동 입력)
 const attachFormatter = (inputEl) => {
   if (!inputEl) return;
-  
+
   inputEl.addEventListener('keydown', (e) => {
     if (e.key === '+' || e.code === 'NumpadAdd') {
       e.preventDefault();
       const start = inputEl.selectionStart, end = inputEl.selectionEnd, val = inputEl.value;
       const newVal = val.substring(0, start) + '000' + val.substring(end);
       const digits = newVal.replace(/[^0-9]/g, '');
-      if(!digits){ inputEl.value = ''; return; }
+      if (!digits) { inputEl.value = ''; return; }
       const formatted = Number(digits).toLocaleString();
       inputEl.value = formatted;
       const newCursor = Math.min(start + 4, formatted.length);
@@ -43,7 +43,7 @@ function renderHeader() {
     { name: '부가세 계산기', link: 'vat.html' }
   ];
 
-// 모든 페이지에서 동일한 너비와 중앙 정렬을 유지하도록 wrapper 구성
+  // 모든 페이지에서 동일한 너비와 중앙 정렬을 유지하도록 wrapper 구성
   const navHtml = `
     <div class="header-nav-wrapper">
       <nav class="top-nav">
