@@ -1,5 +1,7 @@
 @charset "UTF-8";
 
+@import url("common.css");
+
 /* ==========================================
    1. 화면 표시용 기본 디자인 (카드 형태)
    ========================================== */
@@ -10,7 +12,7 @@
 }
 
 #pdfArea.statement-card {
-  background-color: #ffffff;
+  background-color: var(--white);
   width: 100%;
   margin-top: 1.25rem;
   box-sizing: border-box;
@@ -27,14 +29,14 @@
 #pdfArea .statement-header h2 {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #1e3a8a;
+  color: var(--blue-600);
   letter-spacing: 1.5px;
   margin: 0 0 4px 0;
 }
 
 #pdfArea .statement-header p {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--bluescale-700);
   margin: 0;
 }
 
@@ -47,15 +49,15 @@
 
 #pdfArea .report-table th, 
 #pdfArea .report-table td {
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--bluescale-400);
   padding: 0.5rem;
   line-height: 1.3;
 }
 
 #pdfArea .report-table th {
-  background-color: #f1f5f9;
+  background-color: var(--bluescale-100);
   font-weight: 700;
-  color: #334155;
+  color: var(--bluescale-900);
   text-align: center;
 }
 
@@ -77,8 +79,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background-color: var(--blue-100);
+  border: 1px solid var(--blue-200);
   border-radius: 8px;
   padding: 0.75rem;
   margin-top: 1rem;
@@ -87,7 +89,7 @@
 #pdfArea .highlight-box .title {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--blue-600);
   margin: 0;
   white-space: nowrap;
 }
@@ -95,7 +97,7 @@
 #pdfArea .highlight-box .amount {
   font-size: 1rem;
   font-weight: 800;
-  color: #1e3a8a;
+  color: var(--blue-600);
   white-space: nowrap;
 }
 
@@ -138,7 +140,7 @@
 
 #pdfArea.pdf-mode .highlight-box {
   background-color: transparent;
-  border-top: 1px solid #1e3a8a !important;
+  border-top: 1px solid var(--blue-600) !important;
   border: none;
   border-radius: 0;
   padding: 12px 4px 4px 4px;
@@ -147,10 +149,10 @@
 
 #pdfArea.pdf-mode .highlight-box .title {
   font-size: 1rem;
-  color: #1e3a8a;
+  color: var(--blue-600);
 }
 
 #pdfArea.pdf-mode .highlight-box .amount {
   font-size: 1.25rem;
-  color: #1e3a8a;
+  color: var(--blue-600);
 }

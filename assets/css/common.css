@@ -1,4 +1,10 @@
 @charset "UTF-8";
+/* 분리해둔 style.css(색상 변수)를 CSS 파일 내부에서 불러옵니다 */
+@import url("color.css");
+
+/* pretendard font 적용 */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
 
 /* ==========================================
    1. 기본 리셋 및 레이아웃 설정
@@ -7,7 +13,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard Variable", Pretendard, Roboto, "Noto Sans KR", "Segoe UI", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 }
 
 html {
@@ -15,13 +21,13 @@ html {
 }
 
 body {
-  background-color: #f8fafc;
+  background-color: var(--background-200);
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
   padding: 40px 16px;
-  color: #0f172a;
+  color: var(--black);
   margin: 0;
 }
 
@@ -35,12 +41,12 @@ body {
 /* 본문 메인 카드 박스 */
 .card, 
 .statement-card {
-  background: #ffffff;
+  background: var(--white);
   width: 100%;
   padding: 28px 32px 32px 32px;
   border-radius: 20px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--bluescale-200);
   margin: 0 auto;
 }
 
@@ -59,7 +65,7 @@ body {
 .top-nav, 
 .nav-tab-group {
   display: flex;
-  background: #e2e8f0;
+  background: var(--bluescale-200);
   padding: 4px;
   border-radius: 12px;
   gap: 4px;
@@ -73,7 +79,7 @@ body {
   background: transparent;
   font-size: 14px;
   font-weight: 700;
-  color: #64748b;
+  color: var(--bluescale-700);
   border-radius: 8px;
   text-align: center;
   text-decoration: none;
@@ -84,13 +90,13 @@ body {
 
 .nav-tab:hover, 
 .nav-tab-btn:hover {
-  color: #1e3a8a;
+  color: var(--blue-600);
 }
 
 .nav-tab.active, 
 .nav-tab-btn.active {
-  background: #ffffff;
-  color: #2563eb;
+  background: var(--white);
+  color: var(--blue-500);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   font-weight: 800;
 }
@@ -106,24 +112,24 @@ body {
 .header h1 {
   font-size: 22px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--black);
   margin: 0 0 4px 0;
   letter-spacing: -0.5px;
 }
 
 .header p {
   font-size: 13px;
-  color: #64748b;
+  color: var(--bluescale-700);
   margin: 0;
 }
 
 .footer {
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--bluescale-100);
   text-align: center;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--bluescale-600);
   font-weight: 500;
 }
 
@@ -139,7 +145,7 @@ body {
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: var(--bluescale-800);
   margin-bottom: 6px;
 }
 
@@ -149,13 +155,13 @@ input[type="date"],
 input[type="month"], 
 select {
   width: 100%;
-  padding: 11px 13px;
-  border: 1px solid #cbd5e1;
+  padding: 12px 16px;
+  border: 1px solid var(--bluescale-400);
   border-radius: 10px;
   font-size: 14px;
   outline: none;
-  background-color: #ffffff;
-  color: #0f172a;
+  background-color: var(--white);
+  color: var(--black);
   transition: all 0.2s ease;
 }
 
@@ -164,14 +170,17 @@ input[type="number"]:focus,
 input[type="date"]:focus, 
 input[type="month"]:focus, 
 select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: var(--blue-500);
+  /* 새로운 메인 컬러(#0062BD)의 RGB 값(0, 98, 189)을 적용한 그림자 */
+  box-shadow: 0 0 0 3px rgba(0, 98, 189, 0.12);
 }
+
 select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%2364748b" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  /* SVG 아이콘 색상을 var(--bluescale-700)의 Hex인 #818DA1로 변경 */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23818DA1" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 20px;
@@ -203,7 +212,7 @@ select {
   background: transparent;
   border: none;
   font-size: 14px;
-  color: #94a3b8;
+  color: var(--bluescale-600);
   cursor: pointer;
   padding: 4px; /* 클릭 영역 확보 */
   display: flex;
@@ -214,7 +223,7 @@ select {
 
 /* 마우스 올렸을 때 색상 진하게 */
 .btn-clear:hover {
-  color: #334155;
+  color: var(--bluescale-900);
 }
 
 /* 브라우저 기본 화살표/X 아이콘 강제 제거 */
@@ -229,7 +238,6 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; marg
 input[type="number"] { -moz-appearance: textfield; }
 
 
-
 /* ==========================================
    5. 공통 버튼 (Submit, Primary)
    ========================================== */
@@ -237,21 +245,21 @@ input[type="number"] { -moz-appearance: textfield; }
 .btn-primary {
   width: 100%;
   padding: 15px;
-  background-color: #2563eb;
-  color: #ffffff;
+  background-color: var(--blue-500);
+  color: var(--white);
   border: none;
   border-radius: 12px;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   margin-top: 16px;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 98, 189, 0.2);
   transition: background 0.2s ease;
 }
 
 .btn-submit:hover, 
 .btn-primary:hover {
-  background-color: #1d4ed8;
+  background-color: var(--blue-600);
 }
 
 
@@ -259,10 +267,10 @@ input[type="number"] { -moz-appearance: textfield; }
    6. 섹션별 헤더
    ========================================== */
 
-   .section-title {
+.section-title {
   font-size: 14px;
   font-weight: 700;
-  color: #1e3a8a;
+  color: var(--blue-600);
   margin: 20px 0 10px 0;
   display: flex;
   align-items: center;
@@ -274,7 +282,7 @@ input[type="number"] { -moz-appearance: textfield; }
   display: inline-block;
   width: 4px;
   height: 14px;
-  background-color: #2563eb;
+  background-color: var(--blue-500);
   border-radius: 2px;
 }
 
@@ -284,7 +292,7 @@ input[type="number"] { -moz-appearance: textfield; }
 .checkbox-group-title {
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: var(--bluescale-800);
   margin-bottom: 8px;
   display: block;
 }
@@ -293,10 +301,10 @@ input[type="number"] { -moz-appearance: textfield; }
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  background-color: #f8fafc;
+  background-color: var(--background-200);
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--bluescale-200);
   margin-bottom: 18px;
 }
 
@@ -305,7 +313,7 @@ input[type="number"] { -moz-appearance: textfield; }
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #334155;
+  color: var(--bluescale-900);
   font-weight: 600;
   cursor: pointer;
 }
@@ -315,24 +323,24 @@ input[type="number"] { -moz-appearance: textfield; }
   align-items: center;
   gap: 8px;
   margin-top: 14px;
-  background: #eff6ff;
+  background: var(--blue-100);
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid #dbeafe;
+  border: 1px solid var(--blue-200);
 }
 
 .checkbox-label input[type="checkbox"],
 .checkbox-container input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: #2563eb;
+  accent-color: var(--blue-500);
   cursor: pointer;
 }
 
 .checkbox-container label {
   font-size: 13px;
   font-weight: 700;
-  color: #1e40af;
+  color: var(--blue-600);
   cursor: pointer;
   margin: 0;
 }
@@ -341,18 +349,18 @@ input[type="number"] { -moz-appearance: textfield; }
    💡 안내용 Tip Box 스타일
    ========================================== */
 .tip-box {
-  background-color: #fffbeb; /* 은은한 노란색 배경 */
-  border: 1px solid #fde68a;
+  background-color: var(--yellow-100);
+  border: 1px solid var(--yellow-200);
   border-radius: 8px;
   padding: 12px 14px;
   margin-top: 16px;
   font-size: 12px;
-  color: #92400e;
+  color: var(--grayscale-800);
   line-height: 1.5;
   word-break: keep-all;
 }
 
 .tip-box strong {
-  color: #b45309;
+  color: var(--yellow-400);
   font-weight: 700;
 }

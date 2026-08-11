@@ -1,0 +1,84 @@
+/* ==========================================
+   🎨 공통 색상 변수 (Loplat UI Design System)
+   ========================================== */
+:root {
+  /* Basic & Transparent */
+  --black: #222222;
+  --white: #ffffff;
+  --transparent: #ffffff00;
+
+  /* Blue */
+/* Blue (#0062BD Base) */
+  --blue-600: #004b94; /* 호버(Hover) 효과, 더 짙은 강조용 */
+  --blue-500: #0062bd; /* 메인 브랜드 컬러 (버튼, 체크박스 등) */
+  --blue-400: #3b88d3; /* 보조 강조 컬러 */
+  --blue-300: #78afe7; /* 비활성화된 버튼, 진한 테두리 */
+  --blue-200: #b3d4f4; /* 선택된 영역, 연한 테두리 */
+  --blue-100: #e6f2fd; /* 알림창, 아주 연한 배경 (하이라이트 박스) */
+
+  /* Bluescale */
+  --bluescale-900: #626B7A;
+  --bluescale-800: #6B778C;
+  --bluescale-700: #818DA1;
+  --bluescale-600: #9CA7B8;
+  --bluescale-500: #BFC8D6;
+  --bluescale-400: #CFD9E6;
+  --bluescale-300: #DCE3ED;
+  --bluescale-200: #EBEFF5;
+  --bluescale-100: #F5F7FA;
+  --bluescale-50: #FAFBFC;
+
+  /* Grayscale */
+  --grayscale-900: #444444;
+  --grayscale-800: #666666;
+  --grayscale-700: #888888;
+  --grayscale-600: #aaaaaa;
+  --grayscale-500: #b5b5b5;
+  --grayscale-400: #c1c1c1;
+  --grayscale-300: #d1d1d1;
+  --grayscale-200: #e1e1e1;
+  --grayscale-100: #f0f0f0;
+  --grayscale-50: #f7f7f7;
+
+  /* Slate */
+  --slate-500: #314050;
+  --slate-400: #515e6d;
+  --slate-350: #4e5e6f;
+  --slate-300: #59697a;
+  --slate-200: #8499ae;
+  --slate-100: #92a7b9;
+  --slate-50: #c1c8d7;
+  --slate-10: #dcdfe6;
+
+  /* Background */
+  --background-300: #EEF0F3;
+  --background-200: #FAFBFC;
+  --background-100: #F7F7F7;
+
+  /* Red */
+  --red-400: #ba2547;
+  --red-300: #d83a5e;
+  --red-200: #e57a92;
+  --red-100: #f7d7de;
+
+  /* Yellow */
+  --yellow-400: #cd9500;
+  --yellow-300: #ffba00;
+  --yellow-200: #fecf4f;
+  --yellow-100: #fff1cd;
+
+  /* Green & Point Colors */
+  --green-400: #529a2e;
+  --green-300: #67c23a;
+  --green-200: #94d573;
+  --green-100: #eff8eb;
+  
+  /* Single Point Colors */
+  --olive: #b4be52;
+  --orange: #ffa25c;
+  --pink: #d26aaf;
+  --purple: #d999ff;
+  --teal: #2cd1ac;
+  --turquoise: #98a8ff;
+  --yellow-green: #7adb63;
+}

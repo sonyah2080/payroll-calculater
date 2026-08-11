@@ -1,5 +1,8 @@
 @charset "UTF-8";
 
+@import url("common.css");
+@import url("report.css");
+
 /* ==========================================
    퇴직금 계산기 폼 전용 Grid 레이아웃
    ========================================== */
@@ -16,18 +19,18 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  background: #f8fafc;
+  background: var(--background-200);
   padding: 16px;
   border-radius: 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--bluescale-200);
 }
 
 /* 최근 3개월 급여 입력 박스 패널 */
 .month-grid {
-  background: #f8fafc;
+  background: var(--background-200);
   padding: 16px;
   border-radius: 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--bluescale-200);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -44,13 +47,13 @@
 .month-header {
   font-size: 12px;
   font-weight: 700;
-  color: #64748b;
+  color: var(--bluescale-700);
   text-align: center;
 }
 .month-label {
   font-size: 13px;
   font-weight: 700;
-  color: #334155;
+  color: var(--bluescale-900);
   text-align: center;
 }
 
