@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // HTML 요소 가져오기
     const inputs = document.querySelectorAll('.num-input');
-    
-    // ✨ 라디오 버튼 대신 탭 버튼 요소 가져오기
     const tabBtns = document.querySelectorAll('.tab-btn');
     
     const elAmount = document.getElementById('foreign_amount');
@@ -16,19 +13,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const resLabel = document.getElementById('res_type_label');
     const resDiff = document.getElementById('res_diff_krw');
 
-    // 숫자 콤마 및 형변환 유틸리티
     const fmt = (num) => Math.round(num).toLocaleString('ko-KR');
     const getNum = (str) => Number(str.replace(/,/g, '')) || 0;
 
-    // 1. 한국수출입은행 환율 API 호출 함수 (CORS 우회 프록시 적용)
-    async function fetchExchangeRate(date, currencyCode = "USD") {
-        const authKey = "DCHUv43PJEUeuIrq44VFnFpl8EfETo5cY"; 
+    // 1. 한국수출입은행 환율 API 호출 함수 (구글 시트 웹 앱 경유)
+    async function fetchExchangeRate(dateStr, currencyCode = "USD") {
+        // dateStr 형태 ("2026-02-12")를 API 규격("20260212")으로 변환
+        const searchDate = dateStr.replace(/-/g, '');
         
-        // 원본 수출입은행 API 주소
-        const targetUrl = `https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=${authKey}&searchdate=${date}&data=AP01`;
+        // ✨ 대표님이 주신 배포 ID가 포함된 구글 시트 웹 앱 URL
+        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbxWtviPTWeShdXVbWldlN63HEhimeSaot1PO_N4Jdaq-_zSq5jRFq9ZrkC1-3UBGFqiBg/exec";
         
-        // ✨ CORS 우회 프록시 서버(codetabs)를 경유하도록 설정
-        const url = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`;
+        const url = `${googleScriptUrl}?date=${searchDate}`;
 
         try {
             const response = await fetch(url);
@@ -38,14 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!Array.isArray(data) || data.length === 0) return null;
 
-            // 매뉴얼에 따른 에러코드 방어 로직 (1이 정상)
+            // 수출입은행 API 에러 코드 방어 (1이 정상)
             if (data[0].result && data[0].result !== 1) {
-                console.error("API 오류 발생. Result Code:", data[0].result);
-                if (data[0].result === 3) alert("API 인증키가 유효하지 않습니다.");
-                if (data[0].result === 4) alert("API 일일 호출 횟수를 초과했습니다.");
+                console.error("API 데이터 없음 또는 주말/공휴일");
                 return null;
             }
             
+            // 해당 통화(USD 등)의 매매기준율(deal_bas_r) 추출
             const rateInfo = data.find(item => item.cur_unit === currencyCode);
             if (rateInfo && rateInfo.deal_bas_r) {
                 return parseFloat(rateInfo.deal_bas_r.replace(/,/g, ''));
@@ -62,9 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let difference = 0;
         
         if (type === 'export') { 
-            difference = (paymentRate - invoiceRate) * amount;
+            difference = (paymentRate - invoiceRate) * amount; // 수출: 결제일 환율이 높으면 이익
         } else if (type === 'import') { 
-            difference = (invoiceRate - paymentRate) * amount;
+            difference = (invoiceRate - paymentRate) * amount; // 수입: 발생일 환율이 높으면(결제일이 낮으면) 이익
         }
 
         const gainLossType = difference > 0 ? "🎉 외환차익 (이익)" : (difference < 0 ? "📉 외환차손 (손실)" : "차이 없음");
@@ -78,28 +73,26 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 3. 날짜 선택 시 API 연동
+    // 3. 날짜 선택 시 자동으로 구글 시트를 통해 환율을 가져오는 함수
     async function handleDateSelect(event, targetRateInput) {
-        const dateVal = event.target.value;
+        const dateVal = event.target.value; // "YYYY-MM-DD"
         if (!dateVal) return;
         
-        const formattedDate = dateVal.replace(/-/g, '');
         targetRateInput.value = "불러오는 중...";
         
-        const rate = await fetchExchangeRate(formattedDate, "USD");
+        const rate = await fetchExchangeRate(dateVal, "USD");
         
         if (rate !== null) {
             targetRateInput.value = fmt(rate);
-            calculateMain(); 
+            calculateMain(); // 환율 수신 후 즉시 계산 실행
         } else {
             targetRateInput.value = "";
-            alert("해당 날짜의 환율 데이터를 불러올 수 없습니다.\n(주말/공휴일이거나 11시 이전인 경우 직접 입력해주세요.)");
+            alert("해당 날짜의 환율 데이터를 불러올 수 없습니다.\n(주말/공휴일은 환율 데이터가 없으니 직접 입력해 주세요.)");
         }
     }
 
-    // 4. 메인 실시간 계산 로직
+    // 4. 메인 실시간 연산 로직
     function calculateMain() {
-        // ✨ 활성화된(active) 탭 버튼의 data-mode 값을 가져옴
         const activeTab = document.querySelector('.tab-btn.active');
         if (!activeTab) return;
         
@@ -131,14 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ✨ 탭 버튼 클릭 이벤트 바인딩
+    // 탭 버튼 클릭 이벤트 바인딩
     tabBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // 모든 탭에서 active 제거 후 클릭한 탭에만 추가
             tabBtns.forEach(b => b.classList.remove('active'));
             e.currentTarget.classList.add('active');
-            
-            // 탭이 변경되었으므로 즉시 재계산
             calculateMain();
         });
     });
