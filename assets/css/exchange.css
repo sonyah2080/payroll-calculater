@@ -1,6 +1,33 @@
 @charset "UTF-8";
 @import url("common.css");
 
+
+/* 1. 그리드 1:1 동일 비율 보장 */
+.form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.form-row .form-group {
+    flex: 1 !important; /* 1:1 동일 비율 유지 */
+    margin-bottom: 0;
+}
+
+/* 2. 외화 금액 및 수치 입력창 우측 정렬 */
+.num-input, .text-right {
+    text-align: right !important;
+}
+
+/* 3. color.css 변수 연동 (color.css에 변수가 지정되어 있다면 자동 적용, 없을 경우 시스템 기본 색상) */
+.val-gain {
+    color: var(--color-gain, var(--success-color, var(--emerald-600, #16a34a))) !important; /* 이익: 초록 계열 */
+}
+
+.val-loss {
+    color: var(--color-loss, var(--danger-color, var(--red-600, #dc2626))) !important; /* 손실: 빨강 계열 */
+}
+
 /* 하단 결과 요약 박스 */
 .result-box {
     margin-top: 30px;
