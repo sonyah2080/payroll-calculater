@@ -51,19 +51,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      currentMode = e.target.getAttribute('data-mode');
+  // tabBtns.forEach(btn => {
+  //   btn.addEventListener('click', (e) => {
+  //     tabBtns.forEach(b => b.classList.remove('active'));
+  //     e.target.classList.add('active');
+  //     currentMode = e.target.getAttribute('data-mode');
 
-      if (amountLabel) {
-        amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '기본급 (과세 대상) (원)';
-      }
+  //     if (amountLabel) {
+  //       amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '기본급 (과세 대상) (원)';
+  //     }
 
+  //     updateTaxRateGroupVisibility();
+  //   });
+  // });
+
+// 탭 버튼 클릭 이벤트 (오류 방지 보정판)
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    // 1. 버튼 내부 텍스트 클릭 시에도 정확히 .tab-btn 요소를 찾도록 보정
+    const targetBtn = e.target.closest('.tab-btn') || e.currentTarget;
+    if (!targetBtn) return;
+
+    // 2. 모든 탭에서 active 클래스 제거 후 클릭된 탭에 추가
+    tabBtns.forEach(b => b.classList.remove('active'));
+    targetBtn.classList.add('active');
+
+    // 3. currentMode 모드 값 추출
+    currentMode = targetBtn.getAttribute('data-mode') || 'GROSS_TO_NET';
+
+    // 4. 라벨 및 플레이스홀더 변경 (Null 체크로 스크립트 멈춤 방지)
+    if (amountLabel) {
+      amountLabel.innerText = (currentMode === 'NET_TO_GROSS') 
+        ? '목표 실수령액 (원)' 
+        : '기본 급여 (원)';
+    }
+
+    if (amountInput) {
+      amountInput.placeholder = (currentMode === 'NET_TO_GROSS') 
+        ? '총 지급액 입력' 
+        : '기본급(과세) 금액 입력';
+    }
+
+    // 5. 소득세 비율 관련 그룹 숨김/노출 함수 실행
+    if (typeof updateTaxRateGroupVisibility === 'function') {
       updateTaxRateGroupVisibility();
-    });
+    }
   });
+});
+
 
   if (typeof attachFormatter === 'function') {
     if (amountInput) attachFormatter(amountInput);
