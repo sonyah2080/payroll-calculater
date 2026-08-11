@@ -1,4 +1,4 @@
-@import 'colors.css';
+@import url('colors.css');
 
 /* 하단 결과 요약 박스 */
 .result-box {
