@@ -193,6 +193,8 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(0, 98, 189, 0.12);
 }
 
+
+
 /* 1. 인풋과 버튼을 감싸는 부모 요소를 relative로 설정 */
 .input-group, 
 .input-wrapper {
@@ -462,7 +464,6 @@ input[type="number"] { -moz-appearance: textfield; }
 
 select {
   width: 100%;
-  padding: 11px 13px;
   border: 1px solid var(--bluescale-400);
   border-radius: 10px;
   font-size: 14px;
@@ -490,19 +491,3 @@ select:focus {
   background-image: url('data:image/svg+xml;utf8,<svg fill="%230062BD" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 }
 
-/* ==========================================
-   💡 네이티브 Option(선택지) CSS 스타일링
-   ========================================== */
-select option {
-  background-color: var(--white);
-  color: var(--black);
-  font-size: 14px;
-  padding: 8px; /* 일부 브라우저에서만 적용됨 */
-}
-
-/* 안내용 기본 문구 (예: "항목을 선택하세요") 흐리게 처리 */
-select option[value=""],
-select option:disabled {
-  color: var(--bluescale-600);
-  background-color: var(--bluescale-50);
-}
