@@ -20,21 +20,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const fmt = (num) => Math.round(num).toLocaleString('ko-KR');
     const getNum = (str) => Number(str.replace(/,/g, '')) || 0;
 
-    // 1. 한국수출입은행 환율 API 호출 함수
+    // 1. 한국수출입은행 환율 API 호출 함수 (프록시 우회 적용 완결판)
     async function fetchExchangeRate(date, currencyCode = "USD") {
         const authKey = "DCHUv43PJEUeuIrq44VFnFpl8EfETo5cY"; 
-        const url = `https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=${authKey}&searchdate=${date}&data=AP01`;
+        
+        // 원본 수출입은행 API 주소
+        const targetUrl = `https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=${authKey}&searchdate=${date}&data=AP01`;
+        
+        // ✨ 해결책: 무료 CORS 프록시 서버(allorigins)를 거쳐서 호출하도록 URL 변경
+        // 브라우저가 직접 은행을 찌르지 않아 보안 차단(CORS)을 피할 수 있습니다!
+        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
         try {
             const response = await fetch(url);
-            const data = await response.json();
+            if (!response.ok) throw new Error('네트워크 오류가 발생했습니다.');
+            
+            // allorigins 우회 서버는 진짜 데이터를 .contents 안에 포장해서 줍니다.
+            const proxyData = await response.json();
+            
+            // 포장지를 뜯고 진짜 JSON 데이터로 변환
+            const data = JSON.parse(proxyData.contents);
             
             if (!Array.isArray(data) || data.length === 0) return null;
 
+            // 매뉴얼에 따른 에러코드 방어 로직 (1이 정상)
             if (data[0].result && data[0].result !== 1) {
                 console.error("API 오류 발생. Result Code:", data[0].result);
                 if (data[0].result === 3) alert("API 인증키가 유효하지 않습니다.");
-                if (data[0].result === 4) alert("API 일일 호출 횟수를 초과했습니다.");
+                if (data[0].result === 4) alert("API 일일 호출 횟수(1000회)를 초과했습니다.");
                 return null;
             }
             
