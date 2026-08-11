@@ -193,18 +193,6 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(0, 98, 189, 0.12);
 }
 
-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* SVG 아이콘 색상을 var(--bluescale-700)의 Hex인 #818DA1로 변경 */
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%23818DA1" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 20px;
-  cursor: pointer;
-}
-
 /* 1. 인풋과 버튼을 감싸는 부모 요소를 relative로 설정 */
 .input-group, 
 .input-wrapper {
@@ -220,6 +208,19 @@ select {
   width: 100%;
   padding-right: 40px; /* 버튼이 들어갈 공간 */
 }
+
+
+/* 브라우저 기본 화살표/X 아이콘 강제 제거 */
+input::-ms-clear,
+input::-ms-reveal { display: none; width: 0; height: 0; }
+input::-webkit-search-decoration,
+input::-webkit-search-cancel-button,
+input::-webkit-search-results-button,
+input::-webkit-search-results-decoration { display: none; -webkit-appearance: none; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
 
 /* 3. X 버튼을 우측에 띄워서 고정 (absolute) */
 .btn-clear {
@@ -243,17 +244,6 @@ select {
 .btn-clear:hover {
   color: var(--bluescale-900);
 }
-
-/* 브라우저 기본 화살표/X 아이콘 강제 제거 */
-input::-ms-clear,
-input::-ms-reveal { display: none; width: 0; height: 0; }
-input::-webkit-search-decoration,
-input::-webkit-search-cancel-button,
-input::-webkit-search-results-button,
-input::-webkit-search-results-decoration { display: none; -webkit-appearance: none; }
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input[type="number"] { -moz-appearance: textfield; }
 
 
 /* ==========================================
@@ -381,4 +371,57 @@ input[type="number"] { -moz-appearance: textfield; }
 .tip-box strong {
   color: var(--yellow-400);
   font-weight: 700;
+}
+
+/* ==========================================
+   4. 공통 폼 입력 요소 (Input, Select) 기본
+   ========================================== */
+
+/* ... 기존 input 스타일 유지 ... */
+
+select {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--bluescale-400);
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background-color: var(--white);
+  color: var(--black);
+  transition: all 0.2s ease;
+  
+  /* 기본 화살표 숨기고 커스텀 SVG 아이콘 적용 (기본: 회색) */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23818DA1" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  cursor: pointer;
+}
+
+/* 입력창 클릭(포커스) 시 테두리와 화살표 파란색으로 변경 */
+select:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(0, 98, 189, 0.12);
+  /* 포커스 시 화살표 색상 메인 블루(#0062BD)로 변경 */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%230062BD" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+}
+
+/* ==========================================
+   💡 네이티브 Option(선택지) CSS 스타일링
+   ========================================== */
+select option {
+  background-color: var(--white);
+  color: var(--black);
+  font-size: 14px;
+  padding: 8px; /* 일부 브라우저에서만 적용됨 */
+}
+
+/* 안내용 기본 문구 (예: "항목을 선택하세요") 흐리게 처리 */
+select option[value=""],
+select option:disabled {
+  color: var(--bluescale-600);
+  background-color: var(--bluescale-50);
 }
