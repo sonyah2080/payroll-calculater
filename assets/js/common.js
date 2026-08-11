@@ -61,3 +61,24 @@ function renderHeader() {
 
 // DOM 로드 완료 시 헤더 자동 실행
 document.addEventListener('DOMContentLoaded', renderHeader);
+
+
+// common.js 최하단에 추가
+
+document.addEventListener("DOMContentLoaded", function () {
+  renderFooter();
+});
+
+function renderFooter() {
+  const footerContainer = document.getElementById("mainFooter");
+  if (!footerContainer) return;
+
+  const currentYear = new Date().getFullYear();
+
+  footerContainer.innerHTML = `
+    <footer class="footer">
+      <p class="copyright">© ${currentYear} wayer. All rights reserved.
+      <p class="disclaimer">본 계산 결과는 법적 효력을 갖지 않으며 참고용으로만 활용 가능합니다.</p>
+    </footer>
+  `;
+}
