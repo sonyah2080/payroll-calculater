@@ -51,54 +51,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // tabBtns.forEach(btn => {
-  //   btn.addEventListener('click', (e) => {
-  //     tabBtns.forEach(b => b.classList.remove('active'));
-  //     e.target.classList.add('active');
-  //     currentMode = e.target.getAttribute('data-mode');
+  // 탭 버튼 클릭 이벤트 (오류 방지 보정판)
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const targetBtn = e.target.closest('.tab-btn') || e.currentTarget;
+      if (!targetBtn) return;
 
-  //     if (amountLabel) {
-  //       amountLabel.innerText = currentMode === 'NET_TO_GROSS' ? '목표 실수령액 (원)' : '기본급 (과세 대상) (원)';
-  //     }
+      tabBtns.forEach(b => b.classList.remove('active'));
+      targetBtn.classList.add('active');
 
-  //     updateTaxRateGroupVisibility();
-  //   });
-  // });
+      currentMode = targetBtn.getAttribute('data-mode') || 'GROSS_TO_NET';
 
-// 탭 버튼 클릭 이벤트 (오류 방지 보정판)
-tabBtns.forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    // 1. 버튼 내부 텍스트 클릭 시에도 정확히 .tab-btn 요소를 찾도록 보정
-    const targetBtn = e.target.closest('.tab-btn') || e.currentTarget;
-    if (!targetBtn) return;
+      if (amountLabel) {
+        amountLabel.innerText = (currentMode === 'NET_TO_GROSS') 
+          ? '목표 실수령액 (원)' 
+          : '기본 급여 (원)';
+      }
 
-    // 2. 모든 탭에서 active 클래스 제거 후 클릭된 탭에 추가
-    tabBtns.forEach(b => b.classList.remove('active'));
-    targetBtn.classList.add('active');
+      if (amountInput) {
+        amountInput.placeholder = (currentMode === 'NET_TO_GROSS') 
+          ? '총 지급액 입력' 
+          : '기본급(과세) 금액 입력';
+      }
 
-    // 3. currentMode 모드 값 추출
-    currentMode = targetBtn.getAttribute('data-mode') || 'GROSS_TO_NET';
-
-    // 4. 라벨 및 플레이스홀더 변경 (Null 체크로 스크립트 멈춤 방지)
-    if (amountLabel) {
-      amountLabel.innerText = (currentMode === 'NET_TO_GROSS') 
-        ? '목표 실수령액 (원)' 
-        : '기본 급여 (원)';
-    }
-
-    if (amountInput) {
-      amountInput.placeholder = (currentMode === 'NET_TO_GROSS') 
-        ? '총 지급액 입력' 
-        : '기본급(과세) 금액 입력';
-    }
-
-    // 5. 소득세 비율 관련 그룹 숨김/노출 함수 실행
-    if (typeof updateTaxRateGroupVisibility === 'function') {
-      updateTaxRateGroupVisibility();
-    }
+      if (typeof updateTaxRateGroupVisibility === 'function') {
+        updateTaxRateGroupVisibility();
+      }
+    });
   });
-});
-
 
   if (typeof attachFormatter === 'function') {
     if (amountInput) attachFormatter(amountInput);
@@ -132,81 +112,8 @@ function getSelectedTaxPercent() {
 }
 
 /**
- * 💡 소득세 산출 컨트롤러 (taxTable.js 매핑 후 예외 구간 시 홈택스 공식 산식 호출)
- */
-function getIncomeTax(baseSalary, dependents = 1, taxRatePercent = 100) {
-  if (baseSalary <= 1060000 || taxRatePercent <= 0) return 0;
-
-  let baseTax = null;
-
-  // 1. taxTable.js 파일의 테이블 룩업 조회 (1순위)
-  if (typeof lookupNtsTaxTable === 'function') {
-    baseTax = lookupNtsTaxTable(baseSalary, dependents);
-  }
-
-  // 2. 테이블 매핑 데이터가 없는 구간은 홈택스 정밀 공식 산식으로 보정 (2순위)
-  if (baseTax === null) {
-    baseTax = calculateNtsFormulaTax(baseSalary, dependents);
-  }
-
-  // 원천징수 비율 반영 및 10원 단위 절사
-  const finalTax = baseTax * (taxRatePercent / 100);
-  return floor10(finalTax);
-}
-
-/**
- * 국세청 홈택스 정밀 자동계산 공식 산식 (테이블 외 구간 대응용)
- */
-function calculateNtsFormulaTax(baseSalary, dependents) {
-  const Y = baseSalary * 12;
-
-  let E = 0;
-  if (Y <= 5000000) E = Y * 0.7;
-  else if (Y <= 15000000) E = 3500000 + (Y - 5000000) * 0.4;
-  else if (Y <= 45000000) E = 7500000 + (Y - 15000000) * 0.15;
-  else if (Y <= 100000000) E = 12000000 + (Y - 45000000) * 0.05;
-  else E = 14750000 + (Y - 100000000) * 0.02;
-
-  const I = Y - E;
-  const P = dependents * 1500000;
-  const pensionBase = Math.max(RATES_CONFIG.NP.MIN_BASE, Math.min(baseSalary, RATES_CONFIG.NP.MAX_BASE));
-  const N = Math.floor(pensionBase * 0.045) * 12;
-
-  let S = 0;
-  if (dependents === 1) {
-    if (Y <= 30000000) S = 3100000 + (Y * 0.04);
-    else if (Y <= 45000000) S = 3100000 + (Y * 0.04) - ((Y - 30000000) * 0.05);
-    else if (Y <= 70000000) S = 3100000 + (Y * 0.015);
-    else if (Y <= 120000000) S = 3100000 + (Y * 0.005);
-    else S = 3100000;
-  } else {
-    if (Y <= 30000000) S = 3600000 + (Y * 0.04);
-    else if (Y <= 45000000) S = 3600000 + (Y * 0.04) - ((Y - 30000000) * 0.05);
-    else if (Y <= 70000000) S = 3600000 + (Y * 0.02);
-    else if (Y <= 120000000) S = 3600000 + (Y * 0.01);
-    else S = 3600000;
-  }
-
-  const taxBase = Math.max(0, I - P - N - S);
-
-  let calcTax = 0;
-  if (taxBase <= 14000000) calcTax = taxBase * 0.06;
-  else if (taxBase <= 50000000) calcTax = 840000 + (taxBase - 14000000) * 0.15;
-  else if (taxBase <= 88000000) calcTax = 6240000 + (taxBase - 50000000) * 0.24;
-  else if (taxBase <= 150000000) calcTax = 15360000 + (taxBase - 88000000) * 0.35;
-  else calcTax = 37060000 + (taxBase - 150000000) * 0.38;
-
-  let taxCredit = calcTax <= 500000 ? calcTax * 0.55 : 275000 + (calcTax - 500000) * 0.30;
-  let taxCreditLimit = Y <= 33000000 ? 740000 : Math.max(660000, 740000 - (Y - 33000000) * 0.008);
-  taxCredit = Math.min(taxCredit, taxCreditLimit);
-
-  const finalTax = Math.max(0, calcTax - taxCredit);
-  return Math.floor(finalTax / 12 / 10) * 10;
-}
-
-/**
- * 과세 기본급(baseSalary) 기준 4대보험 및 세금 공제 항목 산출
- * (taxTable.js의 RATES_CONFIG 전역 객체 참조)
+ * 💡 과세 기본급(baseSalary) 기준 4대보험 및 세금 공제 항목 산출
+ * (taxTable.js의 RATES_CONFIG 및 getIncomeTax 함수와 완벽 연동)
  */
 function computeDeductions(baseSalary) {
   const dependentsInput = document.getElementById('dependents');
@@ -235,7 +142,13 @@ function computeDeductions(baseSalary) {
   let localTax = 0;
 
   if (isTaxChecked) {
-    it = getIncomeTax(baseSalary, dependents, getSelectedTaxPercent());
+    // 🔥 taxTable.js의 마스터 함수를 바로 호출하여 기본 100% 소득세 확보
+    const baseTax = getIncomeTax(baseSalary, dependents);
+    const taxRatePercent = getSelectedTaxPercent(); // 80%, 100%, 120% 등 비율 가져오기
+    
+    // 원천징수 비율을 곱한 후 10원 단위 절사
+    it = floor10(baseTax * (taxRatePercent / 100));
+    // 지방소득세는 소득세의 10%
     localTax = floor10(it * RATES_CONFIG.LOCAL_TAX.RATE);
   }
 
