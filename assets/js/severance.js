@@ -1,13 +1,45 @@
+/**
+ * ============================================================================
+ * 퇴직금 및 퇴직소득세 산출 메인 컨트롤러 (severance.js)
+ * ============================================================================
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
   const btnCalculate = document.getElementById('btnCalculate');
   const btnDownloadPdf = document.getElementById('btnDownloadPdf');
+  
+  const salary1 = document.querySelectorAll('.month-input.salary')[0];
+  const taxfree1 = document.querySelectorAll('.month-input.taxfree')[0];
+  const regularSalaryInput = document.getElementById('regularSalary');
 
-  // 입력창 콤마 및 키패드 + 키(000) 지원 포맷터 연결
+  // 💡 [수정] 성명(workerName) 입력창을 제외하고 '금액' 입력창에만 콤마 포맷터 적용
   if (typeof attachFormatter === 'function') {
-    document.querySelectorAll('input[type="text"]').forEach(attachFormatter);
+    document.querySelectorAll('.month-input, #annualBonus, #annualLeaveFee').forEach(attachFormatter);
   }
 
-  // 산정내역서 생성 버튼
+  // 💡 [수정] 통상임금 완전 자동 계산 연동 (Disabled 상태 업데이트)
+  function autoUpdateRegularSalary() {
+    if (regularSalaryInput && salary1) {
+      const sal = parseCurrency(salary1.value);
+      const tf = taxfree1 ? parseCurrency(taxfree1.value) : 0;
+      const autoTotal = sal + tf;
+      
+      // toLocaleString()만 사용하여 '원' 글자가 인풋박스 안으로 들어가는 것 방지
+      regularSalaryInput.value = autoTotal.toLocaleString();
+    }
+  }
+
+  // 상단 1개월전 급여/비과세 입력 시 즉각 반응
+  if (salary1) {
+    salary1.addEventListener('input', autoUpdateRegularSalary);
+    salary1.addEventListener('keyup', autoUpdateRegularSalary);
+  }
+  if (taxfree1) {
+    taxfree1.addEventListener('input', autoUpdateRegularSalary);
+    taxfree1.addEventListener('keyup', autoUpdateRegularSalary);
+  }
+
+  // 산정내역서 생성 버튼 이벤트
   if (btnCalculate) {
     btnCalculate.addEventListener('click', (e) => {
       e.preventDefault();
@@ -15,14 +47,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // PDF 다운로드 버튼
+  // PDF 다운로드 버튼 이벤트
   if (btnDownloadPdf) {
     btnDownloadPdf.addEventListener('click', (e) => {
       e.preventDefault();
       downloadPdf();
     });
   }
+
+  // 초기 진입 시 1회 자동 업데이트 수행
+  autoUpdateRegularSalary();
 });
+
+// 날짜 포맷팅 유틸리티 (2026-01-01 -> 2026. 01. 01.)
+function formatDateKor(dateStr) {
+  if (!dateStr) return '-';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  return `${d.getFullYear()}. ${String(d.getMonth() + 1).padStart(2, '0')}. ${String(d.getDate()).padStart(2, '0')}.`;
+}
 
 // 근속연수 공제 계산
 function getServiceYearsDeduction(years) {
@@ -41,9 +84,13 @@ function getConvertedSalaryDeduction(convertedSalary) {
   return 151700000 + (convertedSalary - 300000000) * 0.35;
 }
 
-// 퇴직금 & 퇴직소득세 산정내역서 생성
+/**
+ * =========================================================================
+ * 퇴직금 & 퇴직소득세 산정내역서 생성
+ * =========================================================================
+ */
 function generateStatement() {
-  const name = document.getElementById('workerName').value || '근로자';
+  const name = document.getElementById('workerName').value.trim() || '근로자';
   const startDateStr = document.getElementById('startDate').value;
   const endDateStr = document.getElementById('endDate').value;
 
@@ -55,9 +102,10 @@ function generateStatement() {
     return;
   }
 
+  // 총 재직일수 및 근속연수
   const diffTime = endDate.getTime() - startDate.getTime();
-  const workingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  const serviceYears = Math.max(1, Math.ceil(workingDays / 365));
+  const workingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // 입사일 당일 포함
+  const serviceYears = Math.max(1, Math.floor(workingDays / 365));
 
   if (workingDays < 365) {
     alert('재직일수가 1년(365일) 미만인 경우 법정 퇴직금 지급 대상이 아닙니다.');
@@ -67,44 +115,49 @@ function generateStatement() {
   const salaries = document.querySelectorAll('.month-input.salary');
   const taxFrees = document.querySelectorAll('.month-input.taxfree');
   const rpt3MonthBody = document.getElementById('rpt3MonthBody');
-  rpt3MonthBody.innerHTML = '';
+  if (rpt3MonthBody) rpt3MonthBody.innerHTML = '';
 
   let totalSalarySum = 0;
   let totalTaxFreeSum = 0;
 
   for (let i = 0; i < 3; i++) {
-    const sal = parseCurrency(salaries[i].value);
-    const tf = parseCurrency(taxFrees[i].value);
+    const sal = parseCurrency(salaries[i]?.value || '0');
+    const tf = parseCurrency(taxFrees[i]?.value || '0');
     const rowSum = sal + tf;
 
     totalSalarySum += sal;
     totalTaxFreeSum += tf;
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="center">${i + 1}개월전</td>
-      <td class="num">${fmt(sal)}</td>
-      <td class="num">${fmt(tf)}</td>
-      <td class="num">${fmt(rowSum)}</td>
-    `;
-    rpt3MonthBody.appendChild(tr);
+    if (rpt3MonthBody) {
+      const tr = document.createElement('tr');
+      // 💡 [수정] 템플릿의 '원' 텍스트 삭제 (fmt에서 처리되거나 생략)
+      tr.innerHTML = `
+        <td class="center">${i + 1}개월전</td>
+        <td class="num">${fmt(sal)}</td>
+        <td class="num">${fmt(tf)}</td>
+        <td class="num">${fmt(rowSum)}</td>
+      `;
+      rpt3MonthBody.appendChild(tr);
+    }
   }
 
-  const trSubtotal = document.createElement('tr');
-  trSubtotal.style.backgroundColor = '#f8fafc';
-  trSubtotal.innerHTML = `
-    <td class="center" style="font-weight:700;">소 계</td>
-    <td class="num" style="font-weight:700;">${fmt(totalSalarySum)}</td>
-    <td class="num" style="font-weight:700;">${fmt(totalTaxFreeSum)}</td>
-    <td class="num" style="font-weight:700; color:#1e3a8a;">${fmt(totalSalarySum + totalTaxFreeSum)}</td>
-  `;
-  rpt3MonthBody.appendChild(trSubtotal);
+  if (rpt3MonthBody) {
+    const trSubtotal = document.createElement('tr');
+    trSubtotal.style.backgroundColor = '#f8fafc';
+    trSubtotal.innerHTML = `
+      <td class="center" style="font-weight:700;">소 계</td>
+      <td class="num" style="font-weight:700;">${fmt(totalSalarySum)}</td>
+      <td class="num" style="font-weight:700;">${fmt(totalTaxFreeSum)}</td>
+      <td class="num" style="font-weight:700; color:#1e3a8a;">${fmt(totalSalarySum + totalTaxFreeSum)}</td>
+    `;
+    rpt3MonthBody.appendChild(trSubtotal);
+  }
 
   // 상여금 및 연차수당 3/12 반영
-  const annualBonus = parseCurrency(document.getElementById('annualBonus').value);
-  const annualLeaveFee = parseCurrency(document.getElementById('annualLeaveFee').value);
-  const bonus312 = annualBonus * (3 / 12);
-  const leave312 = annualLeaveFee * (3 / 12);
+  const annualBonus = parseCurrency(document.getElementById('annualBonus').value || '0');
+  const annualLeaveFee = parseCurrency(document.getElementById('annualLeaveFee').value || '0');
+  const bonus312 = Math.floor((annualBonus * (3 / 12)) / 10) * 10;
+  const leave312 = Math.floor((annualLeaveFee * (3 / 12)) / 10) * 10;
 
   const total3MonthPay = totalSalarySum + totalTaxFreeSum + bonus312 + leave312;
   const daysIn3Months = 92;
@@ -112,8 +165,8 @@ function generateStatement() {
   // 1일 평균임금
   const avg1DayPay = total3MonthPay / daysIn3Months;
 
-  // 1일 통상임금
-  let regularSalaryMonthly = parseCurrency(document.getElementById('regularSalary').value);
+  // 1일 통상임금 (월 통상임금 ÷ 209 × 8시간)
+  let regularSalaryMonthly = parseCurrency(document.getElementById('regularSalary').value || '0');
   if (regularSalaryMonthly === 0) {
     regularSalaryMonthly = parseCurrency(salaries[0].value) + parseCurrency(taxFrees[0].value);
   }
@@ -127,8 +180,9 @@ function generateStatement() {
   else if (calcMethod === 'REG') final1DayPay = reg1DayPay;
   else final1DayPay = Math.max(avg1DayPay, reg1DayPay);
 
-  // 세전 퇴직금 산출
-  const grossSeverance = final1DayPay * 30 * (workingDays / 365);
+  // 세전 퇴직금 산출 (10원 단위 절사 적용)
+  const rawSeverance = final1DayPay * 30 * (workingDays / 365);
+  const grossSeverance = Math.floor(rawSeverance / 10) * 10;
 
   // 퇴직소득세 자동 계산
   const chkCalcTax = document.getElementById('chkCalcTax').checked;
@@ -138,19 +192,26 @@ function generateStatement() {
   if (chkCalcTax) {
     const serviceDeduction = getServiceYearsDeduction(serviceYears);
     const taxBaseBeforeConvert = Math.max(0, grossSeverance - serviceDeduction);
-    const convertedSalary = (taxBaseBeforeConvert * 12) / serviceYears;
+    const convertedSalary = Math.floor((taxBaseBeforeConvert * 12) / serviceYears);
     const convertedDeduction = getConvertedSalaryDeduction(convertedSalary);
     const taxBaseConverted = Math.max(0, convertedSalary - convertedDeduction);
 
-    // 🔥 taxTable.js 에 있는 getBasicTax() 함수를 불러와서 적용합니다.
-    const convertedTax = getBasicTax(taxBaseConverted);
+    // taxTable.js에 정의된 getBasicTax() 호출 (없을 시 비상 계산)
+    let convertedTax = 0;
+    if (typeof getBasicTax === 'function') {
+      convertedTax = getBasicTax(taxBaseConverted);
+    } else {
+      convertedTax = calculateBasicTaxFallback(taxBaseConverted);
+    }
 
-    incomeTax = Math.floor((convertedTax * serviceYears) / 12 / 10) * 10;
+    const rawIncomeTax = (convertedTax / 12) * serviceYears;
+    incomeTax = Math.floor(rawIncomeTax / 10) * 10;
     localTax = Math.floor((incomeTax * 0.1) / 10) * 10;
     totalTax = incomeTax + localTax;
 
     netSeverance = grossSeverance - totalTax;
 
+    // 💡 [수정] 템플릿의 '원' 텍스트 모두 삭제
     document.getElementById('rptTaxGross').innerText = fmt(grossSeverance);
     document.getElementById('rptServiceDeduction').innerText = fmt(serviceDeduction);
     document.getElementById('rptConvertedSalary').innerText = fmt(convertedSalary);
@@ -166,34 +227,52 @@ function generateStatement() {
     document.getElementById('resTitleText').innerText = '최종 법정 퇴직금 (세전)';
   }
 
-  // 리포트 UI 데이터 동기화
+  // 💡 리포트 UI 데이터 동기화
   document.getElementById('rptName').innerText = name;
-  document.getElementById('rptStartDate').innerText = startDateStr;
-  document.getElementById('rptEndDate').innerText = endDateStr;
+  document.getElementById('rptStartDate').innerText = formatDateKor(startDateStr);
+  document.getElementById('rptEndDate').innerText = formatDateKor(endDateStr);
   document.getElementById('rptWorkingDays').innerText = `${workingDays.toLocaleString()} 일 (${serviceYears}년차)`;
-  document.getElementById('rptPeriod').innerText = `${startDateStr} ~ ${endDateStr}`;
+  document.getElementById('rptPeriod').innerText = `${formatDateKor(startDateStr)} ~ ${formatDateKor(endDateStr)}`;
 
   document.getElementById('rptBonus312').innerText = fmt(bonus312);
   document.getElementById('rptLeave312').innerText = fmt(leave312);
   document.getElementById('rptTotal3M').innerText = fmt(total3MonthPay);
 
-  document.getElementById('rptAvg1Day').innerText = fmt(avg1DayPay);
-  document.getElementById('rptReg1Day').innerText = fmt(reg1DayPay);
-  document.getElementById('rptApplied1Day').innerText = fmt(final1DayPay);
+  document.getElementById('rptAvg1Day').innerText = fmt(Math.round(avg1DayPay));
+  document.getElementById('rptReg1Day').innerText = fmt(Math.round(reg1DayPay));
+  document.getElementById('rptApplied1Day').innerText = fmt(Math.round(final1DayPay));
 
   document.getElementById('rptFinalSeverance').innerText = fmt(netSeverance);
 
   const resultBox = document.getElementById('resultBox');
-  resultBox.classList.add('show');
-  resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (resultBox) {
+    resultBox.classList.add('show');
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
-// PDF 다운로드 기능 함수 (화면 형태와 PDF 출력 형태 분리)
+// taxTable.js 누락 대비 비상용 기본세율 함수
+function calculateBasicTaxFallback(taxBase) {
+  if (taxBase <= 14000000) return taxBase * 0.06;
+  if (taxBase <= 50000000) return 840000 + (taxBase - 14000000) * 0.15;
+  if (taxBase <= 88000000) return 6240000 + (taxBase - 50000000) * 0.24;
+  if (taxBase <= 150000000) return 15360000 + (taxBase - 88000000) * 0.35;
+  if (taxBase <= 300000000) return 37060000 + (taxBase - 150000000) * 0.38;
+  if (taxBase <= 500000000) return 94060000 + (taxBase - 300000000) * 0.40;
+  if (taxBase <= 1000000000) return 174060000 + (taxBase - 500000000) * 0.42;
+  return 384060000 + (taxBase - 1000000000) * 0.45;
+}
+
+/**
+ * =========================================================================
+ * PDF 다운로드 기능 함수
+ * =========================================================================
+ */
 function downloadPdf() {
   const element = document.getElementById('pdfArea');
   const resultBox = document.getElementById('resultBox');
   const btnDownloadPdf = document.getElementById('btnDownloadPdf');
-  const name = document.getElementById('workerName').value || '근로자';
+  const name = document.getElementById('workerName').value.trim() || '근로자';
 
   if (!element) {
     alert('PDF로 변환할 산정내역서 영역을 찾을 수 없습니다.');
@@ -204,11 +283,9 @@ function downloadPdf() {
     resultBox.style.display = 'block';
   }
 
-  // 1. PDF 캡처 전: 다운로드 버튼 숨기기 & PDF 전용 스타일 클래스(.pdf-mode) 추가
   if (btnDownloadPdf) btnDownloadPdf.style.display = 'none';
   element.classList.add('pdf-mode');
 
-  // 2. html2pdf 변환 옵션
   const opt = {
     margin: [8, 8, 8, 8],
     filename: `퇴직금_산정내역서_${name}.pdf`,
@@ -224,10 +301,8 @@ function downloadPdf() {
     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
-  // 3. PDF 생성 수행 후 원상복구
   html2pdf().set(opt).from(element).save()
     .then(() => {
-      // 변환 완료 후: 버튼 복원 & PDF 전용 스타일 클래스 제거
       if (btnDownloadPdf) btnDownloadPdf.style.display = 'block';
       element.classList.remove('pdf-mode');
     })

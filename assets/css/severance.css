@@ -88,3 +88,38 @@
   gap: 8px;
   margin-top: 2rem;
 }
+
+/* ==========================================
+   💡 그리드 내부 input-group 넘침(일그러짐) 방지 보정
+   ========================================== */
+.month-row .input-group,
+.option-grid .input-group,
+.severance-option-row .input-group {
+  width: 100% !important;
+  min-width: 0 !important; /* 플렉스/그리드 안에서 요소가 터져 나가는 것을 방지 */
+}
+
+.month-row .input-group input,
+.option-grid .input-group input,
+.severance-option-row .input-group input,
+.severance-option-row .input-group select {
+  width: 100% !important;
+  min-width: 0 !important; /* 글자가 길어도 박스가 늘어나지 않고 안에서 잘리도록 보정 */
+  flex: 1;
+}
+
+/* 화면이 너무 좁은 모바일 환경 등에서 3개월 급여 칸 강제 조율 */
+@media (max-width: 500px) {
+  .month-header, 
+  .month-row {
+    grid-template-columns: 55px 1fr 1fr !important; /* 라벨 공간을 살짝 줄여서 입력칸 확보 */
+    gap: 6px !important;
+  }
+  .month-row .input-group {
+    padding: 0; /* 모바일에서 불필요한 패딩 제거 */
+  }
+  .month-row input {
+    padding: 11px 30px 11px 8px !important; /* 모바일에서는 좁은 공간에 맞춰 패딩 축소 */
+    font-size: 13px !important;
+  }
+}

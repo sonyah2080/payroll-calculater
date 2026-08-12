@@ -8,18 +8,15 @@
 
   <link rel="icon" type="image/svg+xml"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
-  <link rel="stylesheet" href="assets/css/severance.css">
-
-  <!-- PDF 다운로드용 html2pdf.js CDN 라이브러리 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <link rel="stylesheet" href="assets/css/common.css?v=3">
+  <link rel="stylesheet" href="assets/css/severance.css?v=3">
 </head>
 
 <body>
   <div class="container">
-    <!-- 자바스크립트가 자동으로 탭을 그려주는 영역 -->
     <header id="mainHeader"></header>
 
-    <!-- 퇴직금 계산기 메인 카드 -->
     <main class="card">
       <div class="header">
         <h1>퇴직금 계산기</h1>
@@ -49,20 +46,30 @@
           <span>기본급/과세수당(원)</span>
           <span>비과세수당(식대등)(원)</span>
         </div>
+        
         <div class="month-row">
           <span class="month-label">1개월전</span>
-          <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
-          <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
+          <div class="input-group">
+            <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
+          </div>
+          <div class="input-group">
+            <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
+          </div>
         </div>
         <div class="month-row">
           <span class="month-label">2개월전</span>
-          <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
-          <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
+          <div class="input-group">
+            <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">          </div>
+          <div class="input-group">
+            <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">          </div>
         </div>
         <div class="month-row">
           <span class="month-label">3개월전</span>
-          <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">
-          <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
+          <div class="input-group">
+            <input type="text" class="month-input salary" value="3,000,000" inputmode="numeric">          </div>
+          <div class="input-group">
+            <input type="text" class="month-input taxfree" value="200,000" inputmode="numeric">
+          </div>
         </div>
       </div>
 
@@ -70,11 +77,15 @@
       <div class="option-grid">
         <div class="form-group" style="margin-bottom:0 !important;">
           <label for="annualBonus">연간 총 상여금 (원)</label>
-          <input type="text" id="annualBonus" value="0" placeholder="지난 1년간 지급된 상여금" inputmode="numeric">
+          <div class="input-group">
+            <input type="text" id="annualBonus" value="0" placeholder="지난 1년간 지급된 상여금" inputmode="numeric">
+          </div>
         </div>
         <div class="form-group" style="margin-bottom:0 !important;">
           <label for="annualLeaveFee">연차유급휴가 수당 (원)</label>
-          <input type="text" id="annualLeaveFee" value="0" placeholder="전년도 미사용 연차수당" inputmode="numeric">
+          <div class="input-group">
+            <input type="text" id="annualLeaveFee" value="0" placeholder="전년도 미사용 연차수당" inputmode="numeric">
+          </div>
         </div>
       </div>
 
@@ -83,7 +94,7 @@
         <div class="form-group" style="margin-bottom:0 !important;">
           <label for="regularSalary">통상임금 (월 기본 통상임금 수당 합계)</label>
           <div class="input-group">
-            <input type="text" id="regularSalary" value="3,000,000" placeholder="미입력 시 1개월전 급여 적용" inputmode="numeric">
+            <input type="text" id="regularSalary" disabled value="" placeholder="상단 1개월 전 급여가 자동 반영됩니다." inputmode="numeric">
           </div>
         </div>
         <div class="form-group" style="margin-bottom:0 !important;">
@@ -105,16 +116,13 @@
 
       <button type="button" class="btn-primary" id="btnCalculate">퇴직금 계산하기</button>
 
-      <!-- 계산 결과 리포트 영역 -->
       <div class="result-section" id="resultBox">
-        <!-- PDF 저장 영역 -->
         <div class="statement-card" id="pdfArea">
           <div class="statement-header">
             <h2>퇴 직 금 산 정 내 역 서</h2>
             <p>근로기준법 및 소득세법에 따른 퇴직금·퇴직소득세 계산서</p>
           </div>
 
-          <!-- 인적사항 및 재직정보 표 -->
           <table class="report-table">
             <tr>
               <th style="width: 20%;">성 명</th>
@@ -219,27 +227,25 @@
             </table>
           </div>
 
-          <!-- 하단 최종 금액 한 줄 배치 영역 -->
           <div class="highlight-box">
             <span class="title" id="resTitleText">최종 차감지급액 (실수령액)</span>
             <span class="amount" id="rptFinalSeverance">0 원</span>
           </div>
         </div>
 
-        <!-- PDF 다운로드 버튼 -->
         <button type="button" class="btn-primary" id="btnDownloadPdf" style="margin-top: 14px !important;">
           📄 산정내역서 PDF 다운로드
         </button>
       </div>
     </main>
   </div>
+  
   <div id="mainFooter"></div>
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <script src="assets/js/common.js"></script>
-  <script src="assets/js/taxTable.js"></script>
-  <script src="assets/js/severance.js"></script>
-
+  <script src="assets/js/common.js?v=3"></script>
+  <script src="assets/js/taxTable.js?v=3"></script>
+  <script src="assets/js/severance.js?v=3"></script>
 
 </body>
 
