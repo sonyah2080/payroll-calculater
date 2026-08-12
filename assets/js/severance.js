@@ -16,6 +16,25 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof attachFormatter === 'function') {
     document.querySelectorAll('.month-input, #annualBonus, #annualLeaveFee').forEach(attachFormatter);
   }
+  // ========================================================
+  // 💡 [추가된 부분] 입사일/퇴사일 날짜 자동 하이픈(-) 포맷팅
+  // ========================================================
+  function autoHyphenDate(e) {
+    // 사용자가 백스페이스(지우기)를 누를 때는 자동 변환 방해 안 함
+    if (e.inputType === 'deleteContentBackward') return;
+    
+    let val = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 추출
+    if (val.length > 4 && val.length <= 6) {
+      // 4자리 입력 시 '-' 자동 추가 (월로 넘어감)
+      e.target.value = val.slice(0, 4) + '-' + val.slice(4);
+    } else if (val.length > 6) {
+      // 6자리 입력 시 '-' 자동 추가 (일로 넘어감)
+      e.target.value = val.slice(0, 4) + '-' + val.slice(4, 6) + '-' + val.slice(6, 8);
+    } else {
+      e.target.value = val;
+    }
+  }
+
 
   // 💡 [수정] 통상임금 완전 자동 계산 연동 (Disabled 상태 업데이트)
   function autoUpdateRegularSalary() {
