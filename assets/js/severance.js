@@ -16,24 +16,34 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof attachFormatter === 'function') {
     document.querySelectorAll('.month-input, #annualBonus, #annualLeaveFee').forEach(attachFormatter);
   }
-  // ========================================================
-  // 💡 [추가된 부분] 입사일/퇴사일 날짜 자동 하이픈(-) 포맷팅
+ // ========================================================
+  // 💡 [완벽 보정] 입사일/퇴사일 연/월/일 자동 하이픈(-) 포맷팅
   // ========================================================
   function autoHyphenDate(e) {
-    // 사용자가 백스페이스(지우기)를 누를 때는 자동 변환 방해 안 함
-    if (e.inputType === 'deleteContentBackward') return;
+    // 1. 숫자 이외의 문자는 모두 제거
+    let val = e.target.value.replace(/[^0-9]/g, '');
     
-    let val = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 추출
-    if (val.length > 4 && val.length <= 6) {
-      // 4자리 입력 시 '-' 자동 추가 (월로 넘어감)
-      e.target.value = val.slice(0, 4) + '-' + val.slice(4);
-    } else if (val.length > 6) {
-      // 6자리 입력 시 '-' 자동 추가 (일로 넘어감)
-      e.target.value = val.slice(0, 4) + '-' + val.slice(4, 6) + '-' + val.slice(6, 8);
-    } else {
+    // 2. 최대 8자리 (YYYYMMDD) 까지만 허용
+    if (val.length > 8) val = val.substring(0, 8);
+
+    // 3. 자릿수에 따라 자동으로 YYYY-MM-DD 형태 생성
+    if (val.length <= 4) {
+      // 4자리 이하 (예: 2026) -> 그대로 출력
       e.target.value = val;
+    } else if (val.length <= 6) {
+      // 5~6자리 (예: 202601) -> 2026-01 (연도 4자리 후 월로 넘어감)
+      e.target.value = `${val.substring(0, 4)}-${val.substring(4)}`;
+    } else {
+      // 7~8자리 (예: 20260101) -> 2026-01-01 (월 2자리 후 일로 넘어감)
+      e.target.value = `${val.substring(0, 4)}-${val.substring(4, 6)}-${val.substring(6)}`;
     }
   }
+
+  // 입사일(#startDate)과 퇴사일(#endDate) 입력창에 이벤트 연결
+  const dateInputs = document.querySelectorAll('#startDate, #endDate');
+  dateInputs.forEach(input => {
+    input.addEventListener('input', autoHyphenDate);
+  });
 
 
   // 💡 [수정] 통상임금 완전 자동 계산 연동 (Disabled 상태 업데이트)
