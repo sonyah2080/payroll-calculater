@@ -29,14 +29,23 @@
           <label for="workerName">성명</label>
           <input type="text" id="workerName" value="홍길동">
         </div>
-<div class="form-group">
-  <label for="startDate">입사일</label>
-  <input type="date" id="startDate" value="2020-01-01">
-</div>
-<div class="form-group">
-  <label for="endDate">퇴사일</label>
-  <input type="date" id="endDate" value="2026-01-01">
-</div>
+        
+        <div class="form-group">
+          <label for="startDate">입사일</label>
+          <div class="date-input-wrapper">
+            <input type="text" id="startDate" placeholder="예: 20200101" maxlength="10" inputmode="numeric">
+            <input type="date" id="startDatePicker" class="hidden-date-picker">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="endDate">퇴사일</label>
+          <div class="date-input-wrapper">
+            <input type="text" id="endDate" placeholder="예: 20260101" maxlength="10" inputmode="numeric">
+            <input type="date" id="endDatePicker" class="hidden-date-picker">
+
+          </div>
+        </div>
       </div>
 
       <div class="section-title">최근 3개월 급여 및 비과세 내역</div>

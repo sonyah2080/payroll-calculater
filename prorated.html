@@ -36,16 +36,19 @@
         </div>
 
         <div class="form-group">
-          <label for="proTargetMonth">계산 기준년월</label>
-          <input type="month" id="proTargetMonth">
-        </div>
-
-        <div class="form-group">
           <label>실제 근무 기간 (숫자 8자리 연달아 입력 가능)</label>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="text" id="proStartDate" placeholder="20260801" maxlength="10">
+            <div class="date-input-wrapper">
+              <input type="text" id="proStartDate" class="date-text-input form-input" placeholder="20260801" maxlength="10" inputmode="numeric">
+              <input type="date" class="hidden-date-picker">
+            </div>
+            
             <span>~</span>
-            <input type="text" id="proEndDate" placeholder="20260831" maxlength="10">
+            
+            <div class="date-input-wrapper">
+              <input type="text" id="proEndDate" class="date-text-input form-input" placeholder="20260831" maxlength="10" inputmode="numeric">
+              <input type="date" class="hidden-date-picker">
+            </div>
           </div>
         </div>
 

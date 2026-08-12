@@ -1,90 +1,99 @@
 <!doctype html>
 <html lang="ko">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>환율 계산기</title>
     <link href="assets/css/common.css" rel="stylesheet" />
     <link href="assets/css/exchange.css" rel="stylesheet" />
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="container">
-      <header id="mainHeader"></header>
-      <div class="card">
-        <h2>외환차익/차손 계산기</h2>
+        <header id="mainHeader"></header>
+        <div class="card">
+            <h2>외환차익/차손 계산기</h2>
 
-        <div class="section-card">
-        <div class="section-title">01. 거래 기본 정보</div>
-        
-        <div class="tab-group" style="margin-bottom: 16px;">
-            <button type="button" class="tab-btn active" data-mode="export">수출 (외화 수취)</button>
-            <button type="button" class="tab-btn" data-mode="import">수입 (외화 지급)</button>
+            <div class="section-card">
+                <div class="section-title">01. 거래 기본 정보</div>
+
+                <div class="tab-group" style="margin-bottom: 16px;">
+                    <button type="button" class="tab-btn active" data-mode="export">수출 (외화 수취)</button>
+                    <button type="button" class="tab-btn" data-mode="import">수입 (외화 지급)</button>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="currency_select">통화 선택</label>
+                    <select id="currency_select" class="form-input">
+                        <option value="usd" selected>USD (미국 달러)</option>
+                        <option value="jpy">JPY (일본 엔화)</option>
+                        <option value="eur">EUR (유로화)</option>
+                        <option value="cny">CNY (중국 위안화)</option>
+                        <option value="gbp">GBP (영국 파운드)</option>
+                        <option value="hkd">HKD (홍콩 달러)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 2;">
+                    <label for="foreign_amount">외화 금액</label>
+                    <input type="text" id="foreign_amount" class="num-input form-input" placeholder="0">
+                </div>
+            </div>
+
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="invoice_date">발생일자</label>
+                    <div class="date-input-wrapper">
+                        <input type="text" id="invoice_date" class="date-text-input form-input" placeholder="예: 20260101" maxlength="10" inputmode="numeric">
+                        <input type="date" class="hidden-date-picker">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="invoice_rate">발생일 기준 환율</label>
+                    <input type="text" id="invoice_rate" class="num-input form-input" placeholder="0">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="payment_date">결제일자</label>
+                    <div class="date-input-wrapper">
+                        <input type="text" id="payment_date" class="date-text-input form-input" placeholder="예: 20260131" maxlength="10" inputmode="numeric">
+                        <input type="date" class="hidden-date-picker">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="payment_rate">결제일 기준 환율</label>
+                    <input type="text" id="payment_rate" class="num-input form-input" placeholder="0">
+                    <span style="font-size: 12px; color: #6b7280; margin-top: 4px; display: block;">
+                        ※ 정산서의 실제 적용 환율로 직접 수정해 주세요.
+                    </span>
+                </div>
+            </div>
+
+            <div class="result-box">
+                <div class="result-row">
+                    <span>발생 금액 (장부 반영가)</span>
+                    <span id="res_invoice_krw" class="num">0 원</span>
+                </div>
+                <div class="result-row">
+                    <span>결제 금액 (실제 정산가)</span>
+                    <span id="res_payment_krw" class="num">0 원</span>
+                </div>
+                <div class="result-row">
+                    <span id="res_type_label">결과 정산 중</span>
+                    <span id="res_diff_krw" class="num font-bold">-</span>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div class="form-row">
-    <div class="form-group">
-        <label for="currency_select">통화 선택</label>
-        <select id="currency_select" class="form-input">
-            <option value="usd" selected>USD (미국 달러)</option>
-            <option value="jpy">JPY (일본 엔화)</option>
-            <option value="eur">EUR (유로화)</option>
-            <option value="cny">CNY (중국 위안화)</option>
-            <option value="gbp">GBP (영국 파운드)</option>
-            <option value="hkd">HKD (홍콩 달러)</option>
-        </select>
-    </div>
-    <div class="form-group" style="flex: 2;">
-        <label for="foreign_amount">외화 금액</label>
-        <input type="text" id="foreign_amount" class="num-input form-input" placeholder="0">
-    </div>
-</div>
-    
-
-    <div class="form-row">
-    <div class="form-group">
-        <label for="invoice_date">발생일자</label>
-        <input type="date" id="invoice_date" class="form-input">
-    </div>
-    <div class="form-group">
-        <label for="invoice_rate">발생일 기준 환율</label>
-        <input type="text" id="invoice_rate" class="num-input form-input" placeholder="0">
-    </div>
-</div>
-
-<div class="form-row">
-    <div class="form-group">
-        <label for="payment_date">결제일자</label>
-        <input type="date" id="payment_date" class="form-input">
-    </div>
-    <div class="form-group">
-        <label for="payment_rate">결제일 기준 환율</label>
-        <input type="text" id="payment_rate" class="num-input form-input" placeholder="0">
-        <span style="font-size: 12px; color: #6b7280; margin-top: 4px; display: block;">
-        ※ 정산서의 실제 적용 환율로 직접 수정해 주세요.
-         </span>
-    </div>
-</div>
-
-    <div class="result-box">
-        <div class="result-row">
-            <span>발생 금액 (장부 반영가)</span>
-            <span id="res_invoice_krw" class="num">0 원</span>
-        </div>
-        <div class="result-row">
-            <span>결제 금액 (실제 정산가)</span>
-            <span id="res_payment_krw" class="num">0 원</span>
-        </div>
-        <div class="result-row">
-            <span id="res_type_label">결과 정산 중</span>
-            <span id="res_diff_krw" class="num font-bold">-</span>
-        </div>
-    </div>
-      </div>
     </div>
     <div id="mainFooter"></div>
     <!-- 공통 포맷터 및 유틸리티 -->
     <script src="assets/js/common.js"></script>
     <script src="assets/js/exchange.js"></script>
-  </body>
+</body>
+
 </html>

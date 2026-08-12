@@ -83,3 +83,49 @@ function renderFooter() {
     </footer>
   `;
 }
+
+/**
+ * ============================================================================
+ * 공통 날짜 입력창 모듈 (숫자 자동 하이픈 + 투명 달력 동기화)
+ * ============================================================================
+ */
+function initGlobalDateInputs() {
+  // 1. .date-text-input 클래스가 붙은 입력창에 숫자 입력 시 YYYY-MM-DD 자동 변환
+  const dateInputs = document.querySelectorAll('.date-text-input');
+  
+  dateInputs.forEach(input => {
+    input.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/[^0-9]/g, '');
+      if (val.length > 8) val = val.substring(0, 8);
+
+      if (val.length >= 5 && val.length <= 6) {
+        e.target.value = val.substring(0, 4) + '-' + val.substring(4);
+      } else if (val.length >= 7) {
+        e.target.value = val.substring(0, 4) + '-' + val.substring(4, 6) + '-' + val.substring(6);
+      } else {
+        e.target.value = val;
+      }
+    });
+  });
+
+  // 2. .date-input-wrapper 내부의 텍스트창과 투명 달력(input[type="date"]) 연동
+  const wrappers = document.querySelectorAll('.date-input-wrapper');
+  wrappers.forEach(wrapper => {
+    const textInput = wrapper.querySelector('input[type="text"]');
+    const pickerInput = wrapper.querySelector('input[type="date"]');
+
+    if (textInput && pickerInput) {
+      pickerInput.addEventListener('change', (e) => {
+        textInput.value = e.target.value;
+        // 동적으로 연산이 필요한 계산기들을 위해 input 이벤트 강제 발생
+        textInput.dispatchEvent(new Event('input', { bubbles: true }));
+        textInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+  });
+}
+
+// DOM 로드 완료 시 전역 자동 초기화 실행
+document.addEventListener('DOMContentLoaded', () => {
+  initGlobalDateInputs();
+});

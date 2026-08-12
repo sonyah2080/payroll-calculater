@@ -16,34 +16,35 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof attachFormatter === 'function') {
     document.querySelectorAll('.month-input, #annualBonus, #annualLeaveFee').forEach(attachFormatter);
   }
- // ========================================================
-  // 💡 [완벽 보정] 입사일/퇴사일 연/월/일 자동 하이픈(-) 포맷팅
   // ========================================================
-  function autoHyphenDate(e) {
-    // 1. 숫자 이외의 문자는 모두 제거
-    let val = e.target.value.replace(/[^0-9]/g, '');
-    
-    // 2. 최대 8자리 (YYYYMMDD) 까지만 허용
-    if (val.length > 8) val = val.substring(0, 8);
-
-    // 3. 자릿수에 따라 자동으로 YYYY-MM-DD 형태 생성
-    if (val.length <= 4) {
-      // 4자리 이하 (예: 2026) -> 그대로 출력
-      e.target.value = val;
-    } else if (val.length <= 6) {
-      // 5~6자리 (예: 202601) -> 2026-01 (연도 4자리 후 월로 넘어감)
-      e.target.value = `${val.substring(0, 4)}-${val.substring(4)}`;
-    } else {
-      // 7~8자리 (예: 20260101) -> 2026-01-01 (월 2자리 후 일로 넘어감)
-      e.target.value = `${val.substring(0, 4)}-${val.substring(4, 6)}-${val.substring(6)}`;
-    }
-  }
-
-  // 입사일(#startDate)과 퇴사일(#endDate) 입력창에 이벤트 연결
+  // 💡 입사일/퇴사일 "20260101" ➔ "2026-01-01" 자동 변환기
+  // ========================================================
   const dateInputs = document.querySelectorAll('#startDate, #endDate');
+  
   dateInputs.forEach(input => {
-    input.addEventListener('input', autoHyphenDate);
+    input.addEventListener('input', (e) => {
+      // 1. 사용자가 입력한 값에서 숫자만 쏙 골라냄
+      let val = e.target.value.replace(/[^0-9]/g, '');
+      
+      // 2. 8자리(YYYYMMDD)가 넘어가면 뒷부분은 무시
+      if (val.length > 8) {
+        val = val.substring(0, 8);
+      }
+
+      // 3. 글자 수에 맞춰 자동으로 중간에 하이픈(-) 끼워넣기
+      if (val.length >= 5 && val.length <= 6) {
+        // 5글자 이상 (예: 20260) ➔ 2026-0
+        e.target.value = val.substring(0, 4) + '-' + val.substring(4);
+      } else if (val.length >= 7) {
+        // 7글자 이상 (예: 2026010) ➔ 2026-01-0
+        e.target.value = val.substring(0, 4) + '-' + val.substring(4, 6) + '-' + val.substring(6);
+      } else {
+        // 4글자 이하 (예: 2026) ➔ 그대로 둠
+        e.target.value = val;
+      }
+    });
   });
+  // ========================================================
 
 
   // 💡 [수정] 통상임금 완전 자동 계산 연동 (Disabled 상태 업데이트)
