@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>가산세 계산기</title>
+    
+    <!-- 💡 파비콘 통합 -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V6h10v4z'/></svg>">
+    
+    <!-- 💡 최신 분리된 CSS 적용 -->
+    <link rel="stylesheet" href="assets/css/common.css" />
+    <link rel="stylesheet" href="assets/css/calculator.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- 자바스크립트가 자동으로 헤더 탭을 그려주는 영역 -->
+      <header id="mainHeader"></header>
+
+      <main class="card">
+        <div class="header">
+          <h1>가산세 계산기</h1>
+          <p>신고불성실(무신고/과소신고) 및 납부지연 가산세 자동 계산</p>
+        </div>
+
+        <!-- 1. 본세액 및 가산세 유형 입력 -->
+        <div class="section-title">기본 세무 정보</div>
+        <div class="form-group">
+          <label class="required" for="taxAmount">미납(또는 과소신고) 본세액 (원)</label>
+          <div class="input-group">
+            <input type="text" class="num-input form-input" id="taxAmount" placeholder="0" inputmode="numeric" />
+            <span class="unit">원</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="penaltyType">신고불성실 가산세율</label>
+          <div class="input-group">
+            <select id="penaltyType" class="form-input">
+              <option value="0.10" selected>일반 과소신고 (10%)</option>
+              <option value="0.20">일반 무신고 (20%)</option>
+              <option value="0.40">부정 무신고 및 과소신고 (40%)</option>
+              <option value="0">해당 없음 (0%)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reductionRate">가산세 감면율 (기한 후 신고 등)</label>
+          <div class="input-group">
+            <select id="reductionRate" class="form-input">
+              <option value="0" selected>감면 없음 (0%)</option>
+              <option value="0.50">1개월 이내 (50% 감면)</option>
+              <option value="0.20">1개월 초과 3개월 이내 (20% 감면)</option>
+              <option value="0.10">3개월 초과 6개월 이내 (10% 감면)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 2. 기한 및 일수 입력 -->
+        <div class="section-title">납부 지연 일수 계산</div>
+        <!-- 💡 디자인이 깨지지 않도록 date-row 그리드와 date-input-wrapper 적용 -->
+        <div class="date-row">
+          <div class="form-group">
+            <label class="required" for="dueDate">법정납부기한</label>
+            <div class="date-input-wrapper">
+              <input type="text" id="dueDate" class="date-text-input form-input" placeholder="예: 20260101" maxlength="10" inputmode="numeric" />
+              <input type="date" class="hidden-date-picker" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="required" for="payDate">실제납부(예정)일</label>
+            <div class="date-input-wrapper">
+              <input type="text" id="payDate" class="date-text-input form-input" placeholder="예: 20260131" maxlength="10" inputmode="numeric" />
+              <input type="date" class="hidden-date-picker" />
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" id="btnCalculate">가산세 계산하기</button>
+
+        <!-- 3. 결과 출력 영역 -->
+        <div class="result-section" id="resultBox">
+          <div class="summary-card">
+            <div class="summary-row main">
+              <span id="resMainTitle">총 납부 예상 세액 (본세+가산세)</span>
+              <span id="resTotalAmount" style="font-size: 20px; font-weight: 800; color: #1e3a8a;">0 원</span>
+            </div>
+            
+            <div class="tip-box" style="margin-top: 12px;">
+              <strong>💡 Tip:</strong> 납부지연 가산세는 현행 세법 기준 1일당 <strong>22/100,000</strong>로 자동 계산됩니다.
+            </div>
+          </div>
+
+          <div class="detail-box">
+            <div class="detail-title">가산세 산출 상세 내역 (10원 단위 절사)</div>
+            <ul class="detail-list">
+              <li class="detail-item"><span>미납(과소신고) 본세액</span><span class="amount" id="resBaseTax">0 원</span></li>
+              <li class="detail-item"><span>신고불성실 가산세</span><span class="amount" id="resReportPenalty">0 원</span></li>
+              <li class="detail-item">
+                <span>납부지연 일수</span>
+                <span class="amount" id="resDelayDays" style="color: #475569; font-size: 13px;">0 일</span>
+              </li>
+              <li class="detail-item">
+                <span>납부지연 가산세</span>
+                <span class="amount" id="resDelayPenalty">0 원</span>
+              </li>
+            </ul>
+
+            <div class="total-deduction-row">
+              <span>총 가산세 합계</span>
+              <span id="resTotalPenalty" style="color: #c2410c;">0 원</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 푸터 자동 렌더링 영역 -->
+    <div id="mainFooter"></div>
+
+    <!-- 스크립트 로드: 반드시 common.js를 먼저 불러옵니다. -->
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/penalty.js"></script>
+  </body>
+</html>
