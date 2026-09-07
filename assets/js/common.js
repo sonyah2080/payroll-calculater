@@ -38,6 +38,7 @@ function renderHeader() {
   // 메뉴 데이터 배열 (추후 메뉴 추가/수정 시 여기만 변경)
   const menuItems = [
     { name: '급여 계산기', link: 'index.html' },
+    { name: '사업소득 계산기', link: 'freelancer.html' },
     { name: '퇴직금 계산기', link: 'severance.html' },
     { name: '일할 계산기', link: 'prorated.html' },
     { name: '부가세 계산기', link: 'vat.html' },
