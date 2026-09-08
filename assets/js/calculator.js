@@ -13,24 +13,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const taxRateSelect = document.getElementById('taxRateSelect');
   const taxRateCustom = document.getElementById('taxRateCustom');
 
-  /**
-   * Gross->Net 모드일 때 소득세 원천징수 비율 선택 박스 hidden 제어
-   */
-  function updateTaxRateGroupVisibility() {
+/**
+ * 💡 소득세 원천징수 비율 선택 박스 노출 제어
+ * (세전/세후 탭 상관없이 항상 선택할 수 있도록 제한 해제)
+ */
+function updateTaxRateGroupVisibility() {
+    const taxRateGroup = document.getElementById('taxRateGroup');
+    const taxRateSelect = document.getElementById('taxRateSelect');
+    const taxRateCustom = document.getElementById('taxRateCustom');
+    const chkTax = document.getElementById('chkTax');
+
     if (!taxRateGroup) return;
 
     const isTaxChecked = chkTax ? chkTax.checked : true;
 
-    if (currentMode === 'GROSS_TO_NET') {
-      taxRateGroup.style.display = 'none';
-      if (taxRateSelect) taxRateSelect.disabled = true;
-      if (taxRateCustom) taxRateCustom.disabled = true;
-    } else {
-      taxRateGroup.style.display = isTaxChecked ? 'block' : 'none';
-      if (taxRateSelect) taxRateSelect.disabled = false;
-      if (taxRateCustom) taxRateCustom.disabled = false;
-    }
-  }
+    // 모드(currentMode)에 따른 숨김 처리 완전 삭제! 체크 여부에만 반응
+    taxRateGroup.style.display = isTaxChecked ? 'block' : 'none';
+    
+    if (taxRateSelect) taxRateSelect.disabled = !isTaxChecked;
+    if (taxRateCustom) taxRateCustom.disabled = !isTaxChecked;
+}
 
   if (chkTax) {
     chkTax.addEventListener('change', (e) => {
@@ -99,10 +101,10 @@ function getSelectedTaxPercent() {
   const chkTax = document.getElementById('chkTax');
   if (!chkTax || !chkTax.checked) return 0;
 
-  // Gross->Net 모드에서는 무조건 100% 국세청 간이세액표 적용
-  if (currentMode === 'GROSS_TO_NET') {
-    return 100;
-  }
+  // // Gross->Net 모드에서는 무조건 100% 국세청 간이세액표 적용
+  // if (currentMode === 'GROSS_TO_NET') {
+  //   return 100;
+  // }
 
   const selectVal = document.getElementById('taxRateSelect').value;
   if (selectVal === 'custom') {
