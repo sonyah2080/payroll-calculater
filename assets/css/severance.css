@@ -40,7 +40,8 @@
 .month-header,
 .month-row {
   display: grid;
-  grid-template-columns: 70px 1fr 1fr;
+  /* 💡 핵심: 기존 70px를 120px로 늘려 라벨이 두 줄로 깨지는 현상 방지 */
+  grid-template-columns: 120px 1fr 1fr; 
   gap: 10px;
   align-items: center;
 }

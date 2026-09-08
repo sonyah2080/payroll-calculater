@@ -35,7 +35,7 @@ body {
 /* 최외곽 감싸기 박스 */
 .container {
   width: 100%;
-  max-width: 680px; 
+  max-width: 760px; 
   margin: 0 auto;
 }
 
