@@ -578,3 +578,41 @@ select:focus {
   cursor: pointer !important;
   z-index: 2 !important;
 }
+
+
+
+
+
+.detail-box {
+  background-color: var(--blue-100);
+  border: 1px solid var(--blue-200);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.detail-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue-600);
+  margin-bottom: 14px;
+}
+
+.detail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 14px;
+  color: var(--grayscale-800);
+}
+
+.detail-item .amount {
+  font-weight: 600;
+  color: var(--black);
+}
