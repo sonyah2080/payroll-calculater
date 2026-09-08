@@ -608,11 +608,13 @@ select:focus {
   justify-content: space-between;
   align-items: center;
   padding: 6px 0;
-  font-size: 14px;
+  font-size: 14px !important;
   color: var(--grayscale-800);
 }
 
 .detail-item .amount {
   font-weight: 600;
   color: var(--black);
+  
 }
+
