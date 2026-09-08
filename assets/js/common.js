@@ -44,12 +44,59 @@ function renderHeader() {
     { name: '부가세 계산기', link: 'vat.html' },
     { name: '환율 계산기', link: 'exchange.html' },
     { name: '가산세 계산기', link: 'penalty.html' },
+    // 💡 나중에 여기에 { name: '급여대장', link: 'ledger.html' } 를 추가하시면 4x2 배열이 완벽하게 꽉 찹니다!
   ];
 
-  // 모든 페이지에서 동일한 너비와 중앙 정렬을 유지하도록 wrapper 구성
+  // 💡 4개씩 2줄(4x2) 그리드 레이아웃 스타일을 JS에서 직접 주입
   const navHtml = `
+    <style>
+      .header-nav-wrapper {
+        margin-bottom: 24px;
+      }
+      .top-nav-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* PC: 4개씩 배치 */
+        gap: 8px;
+        background: #f1f5f9;
+        padding: 8px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+      }
+      .top-nav-grid .nav-tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+        background: transparent;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        text-align: center;
+        word-break: keep-all; /* 단어 단위로 줄바꿈 방지 */
+      }
+      .top-nav-grid .nav-tab:hover {
+        background: #e2e8f0;
+        color: #334155;
+      }
+      .top-nav-grid .nav-tab.active {
+        background: #ffffff;
+        color: #2563eb;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        font-weight: 800;
+      }
+      /* 📱 모바일 화면에서는 2개씩 4줄로 자동 변환 */
+      @media (max-width: 600px) {
+        .top-nav-grid {
+          grid-template-columns: repeat(2, 1fr); 
+        }
+      }
+    </style>
+    
     <div class="header-nav-wrapper">
-      <nav class="top-nav">
+      <nav class="top-nav-grid">
         ${menuItems.map(item => `
           <a href="${item.link}" class="nav-tab ${currentPath === item.link ? 'active' : ''}">
             ${item.name}
@@ -61,6 +108,40 @@ function renderHeader() {
 
   headerEl.innerHTML = navHtml;
 }
+// // 공통 상단 헤더 탭 동적 생성 함수
+// function renderHeader() {
+//   const headerEl = document.getElementById('mainHeader');
+//   if (!headerEl) return;
+
+//   // 현재 접속한 페이지 파일명 확인
+//   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+
+//   // 메뉴 데이터 배열 (추후 메뉴 추가/수정 시 여기만 변경)
+//   const menuItems = [
+//     { name: '급여 계산기', link: 'index.html' },
+//     { name: '사업소득 계산기', link: 'freelancer.html' },
+//     { name: '퇴직금 계산기', link: 'severance.html' },
+//     { name: '일할 계산기', link: 'prorated.html' },
+//     { name: '부가세 계산기', link: 'vat.html' },
+//     { name: '환율 계산기', link: 'exchange.html' },
+//     { name: '가산세 계산기', link: 'penalty.html' },
+//   ];
+
+//   // 모든 페이지에서 동일한 너비와 중앙 정렬을 유지하도록 wrapper 구성
+//   const navHtml = `
+//     <div class="header-nav-wrapper">
+//       <nav class="top-nav">
+//         ${menuItems.map(item => `
+//           <a href="${item.link}" class="nav-tab ${currentPath === item.link ? 'active' : ''}">
+//             ${item.name}
+//           </a>
+//         `).join('')}
+//       </nav>
+//     </div>
+//   `;
+
+//   headerEl.innerHTML = navHtml;
+// }
 
 // DOM 로드 완료 시 헤더 자동 실행
 document.addEventListener('DOMContentLoaded', renderHeader);
