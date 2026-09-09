@@ -150,7 +150,7 @@ function updateSalaryLabels(endDateStr) {
     if (currEnd > end) currEnd = new Date(end);
     
     const days = Math.floor((currEnd - currStart) / (1000 * 60 * 60 * 24)) + 1;
-    periods.push(`${currStart.getMonth() + 1}.${currStart.getDate()} ~ ${currEnd.getMonth() + 1}.${currEnd.getDate()}<br><span style="font-size: 11px; color: var(--bluescale-600); font-weight: 600;">(${days}일)</span>`);
+    periods.push(`${currStart.getMonth() + 1}.${currStart.getDate()} ~ ${currEnd.getMonth() + 1}.${currEnd.getDate()} <span style="font-size: 11px; color: var(--bluescale-600); font-weight: 600;">(${days}일)</span>`);
     
     currStart = new Date(currStart.getFullYear(), currStart.getMonth() + 1, 1);
   }
