@@ -8,20 +8,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCalculate = document.getElementById('btnCalculate');
   const btnDownloadPdf = document.getElementById('btnDownloadPdf');
 
-  // 💡 HTML에 4번째 칸이 없으면 JS가 알아서 추가해주는 안전 장치
+  // HTML에 4번째 칸이 없으면 생성
   ensureFourthRowExists();
 
-  // 입력창 콤마 포맷터 연결 (common.js 함수)
+  // 💡 [핵심] 금액 칸(급여, 상여금, 연차, 통상임금)에만 000 포맷터를 적용!
+  // 성명(workerName)이나 날짜(startDate, endDate)는 절대 건드리지 않아 꼬임이 없습니다.
   if (typeof attachFormatter === 'function') {
-    document.querySelectorAll('input[type="text"]:not(.month-input)').forEach(attachFormatter);
-    document.querySelectorAll('.month-input').forEach(attachFormatter);
+    const moneyInputs = document.querySelectorAll('.month-input, #annualBonus, #annualLeaveFee, #regularSalary');
+    moneyInputs.forEach(input => attachFormatter(input));
   }
 
   const regularSalaryInput = document.getElementById('regularSalary');
-  // 통상임금 수동입력 방지 (이전 요청사항 반영)
+  // 통상임금 수동입력 방지
   if (regularSalaryInput) regularSalaryInput.disabled = true; 
 
-  // 💡 [핵심 수정] 3~4개의 칸 중 '가장 금액이 큰 칸(온전한 한 달 치)'을 찾아 통상임금으로 자동 세팅
+  // 3~4개의 칸 중 '가장 금액이 큰 칸(온전한 한 달 치)'을 찾아 통상임금으로 자동 세팅
   function autoUpdateRegularSalary() {
     const rows = document.querySelectorAll('.month-row');
     let maxTotal = 0;
@@ -30,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (row.style.display !== 'none') {
         const salInput = row.querySelector('.month-input.salary');
         const tfInput = row.querySelector('.month-input.taxfree');
+        
+        // common.js의 parseCurrency를 안전하게 사용
         const sal = salInput ? parseCurrency(salInput.value) : 0;
         const tf = tfInput ? parseCurrency(tfInput.value) : 0;
         
@@ -46,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 모든 급여/비과세 입력칸에 실시간 연동 이벤트 걸기
+  // 급여/비과세 입력칸 실시간 연동
   const allMonthInputs = document.querySelectorAll('.month-input');
   allMonthInputs.forEach(input => {
     input.addEventListener('input', autoUpdateRegularSalary);
@@ -54,12 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ========================================================
-  // 💡 입사일/퇴사일 날짜 자동 하이픈 및 3개월 쪼개기 연동
+  // 💡 날짜(연도) 입력 시 하이픈(-) 자동 변환 로직
   // ========================================================
   const dateInputs = document.querySelectorAll('#startDate, #endDate');
   dateInputs.forEach(input => {
     input.addEventListener('input', (e) => {
       if (e.inputType === 'deleteContentBackward') return;
+      
       let val = e.target.value.replace(/[^0-9]/g, '');
       if (val.length > 8) val = val.substring(0, 8);
       
@@ -71,6 +75,12 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = val;
       }
 
+      if (e.target.id === 'endDate' && e.target.value.length === 10) {
+        updateSalaryLabels(e.target.value);
+      }
+    });
+
+    input.addEventListener('change', (e) => {
       if (e.target.id === 'endDate' && e.target.value.length === 10) {
         updateSalaryLabels(e.target.value);
       }
@@ -99,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// 💡 HTML에 4번째 칸이 없을 경우 동적으로 만들어주는 함수
+// HTML에 4번째 칸이 없을 경우 동적으로 만들어주는 함수
 function ensureFourthRowExists() {
   const grid = document.querySelector('.month-grid');
   if (!grid) return;
@@ -107,6 +117,7 @@ function ensureFourthRowExists() {
   if (rows.length === 3) {
     const row4 = document.createElement('div');
     row4.className = 'month-row';
+    row4.id = 'row4';
     row4.style.display = 'none';
     row4.innerHTML = `
       <span class="month-label">4개월전(일할)</span>
@@ -121,7 +132,7 @@ function ensureFourthRowExists() {
   }
 }
 
-// 💡 날짜에 맞춰 라벨(글자)만 바꿔주고, 4번째 칸 노출 여부 결정
+// 날짜에 맞춰 라벨(글자)만 바꿔주고, 4번째 칸 노출 여부 결정
 function updateSalaryLabels(endDateStr) {
   const rows = document.querySelectorAll('.month-row');
   const end = new Date(endDateStr);
@@ -146,7 +157,7 @@ function updateSalaryLabels(endDateStr) {
     if (currEnd > end) currEnd = new Date(end);
     
     const days = Math.floor((currEnd - currStart) / (1000 * 60 * 60 * 24)) + 1;
-    periods.push(`${currStart.getFullYear()}년 ${currStart.getMonth() + 1}월 <span style="font-size: 10px; color: var(--bluescale-600); font-weight: 600;">(${days}일)</span>`);
+    periods.push(`${currStart.getMonth() + 1}.${currStart.getDate()} ~ ${currEnd.getMonth() + 1}.${currEnd.getDate()} <span style="font-size: 11px; color: var(--bluescale-600); font-weight: 600;">(${days}일)</span>`);
     
     currStart = new Date(currStart.getFullYear(), currStart.getMonth() + 1, 1);
   }
@@ -163,7 +174,7 @@ function updateSalaryLabels(endDateStr) {
   }
 }
 
-// 공제 계산 함수들
+// 근속연수 및 환산급여 공제 계산 함수
 function getServiceYearsDeduction(years) {
   if (years <= 5) return years * 1000000;
   if (years <= 10) return 5000000 + (years - 5) * 2000000;
@@ -185,6 +196,8 @@ function formatDateKor(dateStr) {
   return `${d.getFullYear()}. ${String(d.getMonth() + 1).padStart(2, '0')}. ${String(d.getDate()).padStart(2, '0')}.`;
 }
 
+// 🚨 주의: fmt(), parseCurrency() 함수는 common.js의 것을 그대로 가져다 쓰므로 절대 여기서 다시 선언하지 않습니다!
+
 // 💡 메인 산정 로직
 function generateStatement() {
   const name = document.getElementById('workerName').value || '근로자';
@@ -201,9 +214,11 @@ function generateStatement() {
 
   const diffTime = endDate.getTime() - startDate.getTime();
   const workingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; 
-  const serviceYears = Math.max(1, Math.floor(workingDays / 365));
+  const serviceYears = Math.max(1, Math.ceil(workingDays / 365));
 
-  if (workingDays < 365) alert('재직일수가 1년(365일) 미만인 경우 법정 퇴직금 지급 대상이 아닙니다.');
+  if (workingDays < 365) {
+    alert('재직일수가 1년(365일) 미만인 경우 법정 퇴직금 지급 대상이 아닙니다.');
+  }
 
   const rpt3MonthBody = document.getElementById('rpt3MonthBody');
   if (rpt3MonthBody) rpt3MonthBody.innerHTML = '';
@@ -227,11 +242,12 @@ function generateStatement() {
       
       if (rpt3MonthBody) {
         const tr = document.createElement('tr');
+        // 표 안에는 숫자만 깔끔하게 찍기 위해 toLocaleString 사용
         tr.innerHTML = `
           <td class="center" style="font-size: 11px; line-height: 1.3;">${label.innerHTML}</td>
-          <td class="num">${fmt(sal)}</td>
-          <td class="num">${fmt(tf)}</td>
-          <td class="num">${fmt(rowSum)}</td>
+          <td class="num">${Math.round(sal).toLocaleString('ko-KR')}</td>
+          <td class="num">${Math.round(tf).toLocaleString('ko-KR')}</td>
+          <td class="num">${Math.round(rowSum).toLocaleString('ko-KR')}</td>
         `;
         rpt3MonthBody.appendChild(tr);
       }
@@ -243,20 +259,24 @@ function generateStatement() {
     trSubtotal.style.backgroundColor = '#f8fafc';
     trSubtotal.innerHTML = `
       <td class="center" style="font-weight:700;">소 계</td>
-      <td class="num" style="font-weight:700;">${fmt(totalSalarySum)}</td>
-      <td class="num" style="font-weight:700;">${fmt(totalTaxFreeSum)}</td>
-      <td class="num" style="font-weight:700; color:#1e3a8a;">${fmt(totalSalarySum + totalTaxFreeSum)}</td>
+      <td class="num" style="font-weight:700;">${Math.round(totalSalarySum).toLocaleString('ko-KR')}</td>
+      <td class="num" style="font-weight:700;">${Math.round(totalTaxFreeSum).toLocaleString('ko-KR')}</td>
+      <td class="num" style="font-weight:700; color:#1e3a8a;">${Math.round(totalSalarySum + totalTaxFreeSum).toLocaleString('ko-KR')}</td>
     `;
     rpt3MonthBody.appendChild(trSubtotal);
   }
 
   const annualBonus = parseCurrency(document.getElementById('annualBonus')?.value || '0');
   const annualLeave = parseCurrency(document.getElementById('annualLeaveFee')?.value || '0');
-  const bonus3Month = Math.floor((annualBonus * (3 / 12)) / 10) * 10;
-  const leave3Month = Math.floor((annualLeave * (3 / 12)) / 10) * 10;
+  
+  const bonus3Month = Math.floor(annualBonus * (3 / 12));
+  const leave3Month = Math.floor(annualLeave * (3 / 12));
   
   const grandTotal3Month = totalSalarySum + totalTaxFreeSum + bonus3Month + leave3Month;
-  const days3Months = 92;
+  
+  const d3MonthsAgo = new Date(endDate);
+  d3MonthsAgo.setMonth(d3MonthsAgo.getMonth() - 3);
+  const days3Months = Math.floor((endDate.getTime() - d3MonthsAgo.getTime()) / (1000 * 60 * 60 * 24)) || 92;
 
   const averageWage = grandTotal3Month / days3Months; 
   let ordinaryWage = parseCurrency(document.getElementById('regularSalary')?.value || '0'); 
@@ -277,7 +297,8 @@ function generateStatement() {
 
   if (chkCalcTax && severancePay > 0) {
     const svcDeduction = getServiceYearsDeduction(serviceYears);
-    const convSalary = Math.floor(Math.max(0, severancePay - svcDeduction) * 12 / serviceYears);
+    const taxBaseBeforeConvert = Math.max(0, severancePay - svcDeduction);
+    const convSalary = Math.floor(taxBaseBeforeConvert * 12 / serviceYears);
     const convDeduction = getConvertedSalaryDeduction(convSalary);
     const taxBase = Math.max(0, convSalary - convDeduction);
     
@@ -299,6 +320,7 @@ function generateStatement() {
     localTax = Math.floor((incomeTax * 0.1) / 10) * 10;
     finalNetPay = severancePay - incomeTax - localTax;
 
+    // fmt()가 이미 ' 원'을 붙여주므로 중복해서 적지 않습니다.
     document.getElementById('rptTaxGross').innerText = fmt(severancePay);
     document.getElementById('rptServiceDeduction').innerText = fmt(svcDeduction);
     document.getElementById('rptConvertedSalary').innerText = fmt(convSalary);
@@ -320,14 +342,14 @@ function generateStatement() {
   if(document.getElementById('rptWorkingDays')) document.getElementById('rptWorkingDays').innerText = `${workingDays.toLocaleString()} 일 (${serviceYears}년차)`;
   if(document.getElementById('rptPeriod')) document.getElementById('rptPeriod').innerText = `${formatDateKor(startDateStr)} ~ ${formatDateKor(endDateStr)}`;
 
-  if(document.getElementById('rptBonus312')) document.getElementById('rptBonus312').innerText = fmt(bonus3Month);
-  if(document.getElementById('rptLeave312')) document.getElementById('rptLeave312').innerText = fmt(leave3Month);
-  if(document.getElementById('rptTotal3M')) document.getElementById('rptTotal3M').innerText = fmt(grandTotal3Month);
+  document.getElementById('rptBonus312').innerText = fmt(bonus3Month);
+  document.getElementById('rptLeave312').innerText = fmt(leave3Month);
+  document.getElementById('rptTotal3M').innerText = fmt(grandTotal3Month);
 
-  if(document.getElementById('rptAvg1Day')) document.getElementById('rptAvg1Day').innerText = fmt(Math.round(averageWage));
-  if(document.getElementById('rptReg1Day')) document.getElementById('rptReg1Day').innerText = fmt(Math.round(reg1DayPay));
-  if(document.getElementById('rptApplied1Day')) document.getElementById('rptApplied1Day').innerText = fmt(Math.round(appliedWage));
-  if(document.getElementById('rptFinalSeverance')) document.getElementById('rptFinalSeverance').innerText = fmt(finalNetPay);
+  document.getElementById('rptAvg1Day').innerText = fmt(Math.round(averageWage));
+  document.getElementById('rptReg1Day').innerText = fmt(Math.round(reg1DayPay));
+  document.getElementById('rptApplied1Day').innerText = fmt(Math.round(appliedWage));
+  document.getElementById('rptFinalSeverance').innerText = fmt(finalNetPay);
 
   const resultBox = document.getElementById('resultBox');
   if (resultBox) {
@@ -338,51 +360,31 @@ function generateStatement() {
 
 /**
  * =========================================================================
- * PDF 다운로드 기능 함수
+ * PDF 다운로드 (window.print 방식 - 텍스트 원본 인쇄)
  * =========================================================================
  */
 function downloadPdf() {
   const element = document.getElementById('pdfArea');
   const resultBox = document.getElementById('resultBox');
   const btnDownloadPdf = document.getElementById('btnDownloadPdf');
-  const name = document.getElementById('workerName').value.trim() || '근로자';
 
   if (!element) {
     alert('PDF로 변환할 산정내역서 영역을 찾을 수 없습니다.');
     return;
   }
 
-  if (resultBox) {
-    resultBox.style.display = 'block';
-  }
+  if (resultBox) resultBox.style.display = 'block';
 
-  if (btnDownloadPdf) btnDownloadPdf.style.display = 'none';
   element.classList.add('pdf-mode');
+  if (btnDownloadPdf) btnDownloadPdf.style.display = 'none';
 
-  const opt = {
-    margin: [8, 8, 8, 8],
-    filename: `퇴직금_산정내역서_${name}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      scrollY: 0,
-      scrollX: 0,
-      windowWidth: document.documentElement.offsetWidth
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-  };
+  const originalTitle = document.title;
+  const name = document.getElementById('workerName').value.trim() || '근로자';
+  document.title = `퇴직금_산정내역서_${name}`;
 
-  html2pdf().set(opt).from(element).save()
-    .then(() => {
-      if (btnDownloadPdf) btnDownloadPdf.style.display = 'block';
-      element.classList.remove('pdf-mode');
-    })
-    .catch(err => {
-      console.error('PDF 다운로드 에러:', err);
-      if (btnDownloadPdf) btnDownloadPdf.style.display = 'block';
-      element.classList.remove('pdf-mode');
-      alert('PDF 다운로드 처리 중 오류가 발생했습니다.');
-    });
+  window.print();
+
+  document.title = originalTitle;
+  element.classList.remove('pdf-mode');
+  if (btnDownloadPdf) btnDownloadPdf.style.display = 'block';
 }
